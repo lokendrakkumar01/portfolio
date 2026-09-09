@@ -25,10 +25,9 @@ export class LocalProvider implements StorageProvider {
 
   async delete(publicId: string): Promise<void> {
     const safeId = publicId.replace(/\//g, '_');
-    // Basic search in uploads root
     if (fs.existsSync(UPLOAD_DIR)) {
       const files = fs.readdirSync(UPLOAD_DIR);
-      const file = files.find(f => f.startsWith(safeId));
+      const file = files.find((f: string) => f.startsWith(safeId));
       if (file) {
         fs.unlinkSync(path.join(UPLOAD_DIR, file));
       }

@@ -18,10 +18,11 @@ export class CloudinaryProvider implements StorageProvider {
         resource_type: resourceType as 'image' | 'raw' | 'auto',
         ...options,
       };
-      cloudinary.uploader.upload_stream(uploadOptions, (error, result) => {
+      const uploadStream = cloudinary.uploader.upload_stream(uploadOptions, (error, result) => {
         if (error || !result) return reject(error || new Error('Upload failed'));
         resolve({ url: result.secure_url, publicId: result.public_id, format: result.format, size: result.bytes });
-      }).end(fileBuffer);
+      });
+      (uploadStream as any).end(fileBuffer);
     });
   }
 
