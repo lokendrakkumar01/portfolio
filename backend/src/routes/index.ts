@@ -1,0 +1,38 @@
+import { Router } from 'express';
+import authRoutes from './auth.routes';
+import profileRoutes from './profile.routes';
+import skillRoutes from './skill.routes';
+import educationRoutes from './education.routes';
+import experienceRoutes from './experience.routes';
+import projectRoutes from './project.routes';
+import certificateRoutes from './certificate.routes';
+import achievementRoutes from './achievement.routes';
+import galleryRoutes from './gallery.routes';
+import resumeRoutes from './resume.routes';
+import socialLinkRoutes from './socialLink.routes';
+import contactRoutes from './contact.routes';
+import messageRoutes from './message.routes';
+import settingsRoutes from './settings.routes';
+import uploadRoutes from './upload.routes';
+import statsRoutes from './stats.routes';
+
+const router = Router();
+
+router.use('/auth', authRoutes);
+router.use('/profile', profileRoutes);
+router.use('/skills', skillRoutes);
+router.use('/education', educationRoutes);
+router.use('/experience', experienceRoutes);
+router.use('/projects', projectRoutes);
+router.use('/certificates', certificateRoutes);
+router.use('/achievements', achievementRoutes);
+router.use('/gallery', galleryRoutes);
+router.use('/resume', resumeRoutes);
+router.use('/social-links', socialLinkRoutes);
+router.use('/contact', contactRoutes);
+router.use('/messages', messageRoutes);
+router.use('/settings', settingsRoutes);
+router.use('/upload', uploadRoutes);
+router.use('/stats', statsRoutes);
+
+export default router;
