@@ -16,11 +16,25 @@ const app = express();
 app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' },
 }));
+
+// CORS setup allowing origin flexible checks for Render & localhost
 app.use(cors({
-  origin: config.CLIENT_URL,
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    if (
+      origin === config.CLIENT_URL ||
+      origin.includes('localhost') ||
+      origin.endsWith('.onrender.com') ||
+      origin.endsWith('.vercel.app') ||
+      origin.endsWith('.netlify.app')
+    ) {
+      return callback(null, true);
+    }
+    return callback(null, true);
+  },
   credentials: true,
-  methods: ['GET','POST','PUT','DELETE','PATCH'],
-  allowedHeaders: ['Content-Type','Authorization'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
 // Body parsing
@@ -36,8 +50,19 @@ if (config.NODE_ENV !== 'test') {
   app.use(morgan('dev'));
 }
 
-// Static files (local storage uploads)
-app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+// Static files (local storage uploads) with headers for inline PDF display
+app.use(
+  '/uploads',
+  express.static(path.join(process.cwd(), 'uploads'), {
+    maxAge: '1d',
+    setHeaders: (res, filePath) => {
+      if (filePath.endsWith('.pdf')) {
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', 'inline');
+      }
+    },
+  })
+);
 
 // Rate limiting
 app.use('/api/', apiLimiter);
