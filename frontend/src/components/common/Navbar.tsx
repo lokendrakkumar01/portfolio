@@ -148,63 +148,61 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 28, stiffness: 280 }}
-              className="fixed right-0 top-0 bottom-0 z-50 w-[85vw] max-w-sm bg-surface border-l border-border shadow-2xl flex flex-col justify-between overflow-hidden lg:hidden"
+              className="fixed inset-y-0 right-0 z-50 w-[85vw] max-w-xs sm:max-w-sm h-[100dvh] bg-surface border-l border-border shadow-2xl flex flex-col overflow-hidden lg:hidden"
             >
-              {/* Top Drawer Header */}
-              <div>
-                <div className="flex items-center justify-between p-5 border-b border-border">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-black text-base">
-                      {siteName.charAt(0)}
-                    </div>
-                    <span className="font-bold text-text text-base tracking-tight">{siteName}</span>
+              {/* Top Drawer Header (Fixed) */}
+              <div className="flex-shrink-0 flex items-center justify-between p-4 sm:p-5 border-b border-border bg-surface">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-black text-base">
+                    {siteName.charAt(0)}
                   </div>
-                  <div className="flex items-center gap-1">
-                    <button
-                      onClick={toggleTheme}
-                      className="p-2 rounded-xl hover:bg-card text-muted transition-colors"
-                      aria-label="Toggle theme"
-                    >
-                      {theme === 'dark' ? <Sun className="w-5 h-5 text-yellow-400" /> : <Moon className="w-5 h-5" />}
-                    </button>
-                    <button
-                      onClick={() => setMobileOpen(false)}
-                      className="p-2 rounded-xl bg-card border border-border hover:bg-surface text-text transition-colors"
-                      aria-label="Close menu"
-                    >
-                      <X className="w-5 h-5" />
-                    </button>
-                  </div>
+                  <span className="font-bold text-text text-base tracking-tight truncate max-w-[140px] sm:max-w-[180px]">{siteName}</span>
                 </div>
-
-                {/* Mobile Menu List with Icons */}
-                <nav className="p-4 space-y-1.5 overflow-y-auto max-h-[calc(100vh-220px)]">
-                  {navLinks.map((l) => {
-                    const Icon = l.icon;
-                    return (
-                      <NavLink
-                        key={l.to}
-                        to={l.to}
-                        end={l.end}
-                        onClick={() => setMobileOpen(false)}
-                        className={({ isActive }) =>
-                          `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all ${
-                            isActive
-                              ? 'bg-primary text-white shadow-md shadow-primary/20'
-                              : 'text-muted hover:text-text hover:bg-card'
-                          }`
-                        }
-                      >
-                        <Icon className="w-4 h-4 flex-shrink-0" />
-                        <span>{l.label}</span>
-                      </NavLink>
-                    );
-                  })}
-                </nav>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={toggleTheme}
+                    className="p-2 rounded-xl hover:bg-card text-muted transition-colors"
+                    aria-label="Toggle theme"
+                  >
+                    {theme === 'dark' ? <Sun className="w-5 h-5 text-yellow-400" /> : <Moon className="w-5 h-5 text-slate-700" />}
+                  </button>
+                  <button
+                    onClick={() => setMobileOpen(false)}
+                    className="p-2 rounded-xl bg-card border border-border hover:bg-surface text-text transition-colors"
+                    aria-label="Close menu"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
 
-              {/* Bottom Drawer Actions */}
-              <div className="p-5 border-t border-border bg-surface/50 space-y-4">
+              {/* Mobile Menu List with Icons (Scrollable content only) */}
+              <nav className="flex-1 min-h-0 overflow-y-auto p-4 space-y-1.5 scrollbar-none">
+                {navLinks.map((l) => {
+                  const Icon = l.icon;
+                  return (
+                    <NavLink
+                      key={l.to}
+                      to={l.to}
+                      end={l.end}
+                      onClick={() => setMobileOpen(false)}
+                      className={({ isActive }) =>
+                        `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all ${
+                          isActive
+                            ? 'bg-primary text-white shadow-md shadow-primary/20'
+                            : 'text-muted hover:text-text hover:bg-card'
+                        }`
+                      }
+                    >
+                      <Icon className="w-4 h-4 flex-shrink-0" />
+                      <span>{l.label}</span>
+                    </NavLink>
+                  );
+                })}
+              </nav>
+
+              {/* Bottom Drawer Actions (Fixed & Safe-area aware) */}
+              <div className="flex-shrink-0 p-4 sm:p-5 pb-safe border-t border-border bg-surface/50 space-y-3 sm:space-y-4">
                 <Link to="/contact" onClick={() => setMobileOpen(false)}>
                   <button className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-primary text-white font-semibold text-sm rounded-xl shadow-md hover:opacity-90 active:scale-95 transition-all">
                     <span>Get In Touch</span>
@@ -213,7 +211,7 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
                 </Link>
 
                 {socialLinks.length > 0 && (
-                  <div className="flex items-center justify-center gap-2 pt-1">
+                  <div className="flex items-center justify-center gap-2 pt-1 flex-wrap">
                     {socialLinks.map((link) => {
                       const Icon = getSocialIcon(link.platform);
                       return (
@@ -223,7 +221,7 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
                           target="_blank"
                           rel="noreferrer"
                           aria-label={link.platform}
-                          className="p-2 rounded-xl border border-border hover:border-primary hover:text-primary text-muted transition-colors bg-card"
+                          className="p-2.5 rounded-xl border border-border hover:border-primary hover:text-primary text-muted transition-colors bg-card"
                         >
                           <Icon className="w-4 h-4" />
                         </a>

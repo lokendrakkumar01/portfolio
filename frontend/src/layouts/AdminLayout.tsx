@@ -39,20 +39,20 @@ function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
   };
 
   const content = (
-    <div className="flex flex-col h-full">
-      {/* Header */}
-      <div className="flex items-center justify-between p-5 border-b border-border">
+    <div className="flex flex-col h-full overflow-hidden">
+      {/* Header (Fixed) */}
+      <div className="flex-shrink-0 flex items-center justify-between p-4 sm:p-5 border-b border-border bg-surface">
         <div>
           <span className="font-bold text-base text-text">Admin Panel</span>
           <p className="text-xs text-muted truncate max-w-[140px]">{user?.email}</p>
         </div>
-        <button onClick={onClose} className="lg:hidden p-1 rounded-lg hover:bg-card transition-colors" aria-label="Close sidebar">
+        <button onClick={onClose} className="lg:hidden p-1.5 rounded-lg hover:bg-card transition-colors" aria-label="Close sidebar">
           <X className="w-5 h-5 text-text" />
         </button>
       </div>
 
-      {/* Nav */}
-      <nav className="flex-1 overflow-y-auto p-3 space-y-0.5">
+      {/* Nav (Scrollable content only) */}
+      <nav className="flex-1 min-h-0 overflow-y-auto p-3 space-y-0.5 scrollbar-none">
         {navItems.map(({ to, label, icon: Icon, badge }) => (
           <NavLink
             key={to}
@@ -76,8 +76,8 @@ function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
         ))}
       </nav>
 
-      {/* Logout */}
-      <div className="p-3 border-t border-border">
+      {/* Logout (Fixed & Safe-area aware) */}
+      <div className="flex-shrink-0 p-3 pb-safe border-t border-border bg-surface">
         <button
           onClick={handleLogout}
           className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-muted hover:text-error hover:bg-error/10 transition-colors w-full"
@@ -108,7 +108,7 @@ function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
             <motion.aside
               initial={{ x: '-100%' }} animate={{ x: 0 }} exit={{ x: '-100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed left-0 top-0 bottom-0 z-50 w-64 bg-surface border-r border-border lg:hidden"
+              className="fixed inset-y-0 left-0 z-50 w-64 h-[100dvh] bg-surface border-r border-border flex flex-col overflow-hidden lg:hidden"
             >
               {content}
             </motion.aside>
