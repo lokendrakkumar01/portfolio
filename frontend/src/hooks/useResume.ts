@@ -15,7 +15,10 @@ export const useUploadResume = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: resumeApi.upload,
-    onSuccess: () => { qc.invalidateQueries({ queryKey: [RESUME_KEY] }); toast.success('Resume uploaded'); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: [RESUME_KEY] });
+      toast.success('Resume uploaded');
+    },
     onError: (err) => toast.error(getErrorMessage(err)),
   });
 };
@@ -24,7 +27,10 @@ export const useSetCurrentResume = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: resumeApi.setCurrent,
-    onSuccess: () => { qc.invalidateQueries({ queryKey: [RESUME_KEY] }); toast.success('Set as current resume'); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: [RESUME_KEY] });
+      toast.success('Set as current resume');
+    },
     onError: (err) => toast.error(getErrorMessage(err)),
   });
 };
@@ -33,7 +39,10 @@ export const useDeleteResume = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: resumeApi.delete,
-    onSuccess: () => { qc.invalidateQueries({ queryKey: [RESUME_KEY] }); toast.success('Resume deleted'); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: [RESUME_KEY] });
+      toast.success('Resume deleted');
+    },
     onError: (err) => toast.error(getErrorMessage(err)),
   });
 };

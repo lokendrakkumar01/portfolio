@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Download, Mail, ArrowRight, MapPin, FolderCode, Trophy, Sparkles, UserCheck, Award } from 'lucide-react';
 import { useProfile } from '../../hooks/useProfile';
 import { useSocialLinks } from '../../hooks/useSocialLinks';
-import { useResume } from '../../hooks/useResume';
+import { useCurrentResume } from '../../hooks/useResume';
 import { useStats } from '../../hooks/useStats';
 import { useSkills } from '../../hooks/useSkills';
 import { useProjects } from '../../hooks/useProjects';
@@ -64,12 +64,12 @@ function AnimatedCounter({ end, label, suffix = '' }: { end: number; label: stri
 function HeroSection() {
   const { data: profileData, isLoading } = useProfile();
   const { data: socialData } = useSocialLinks();
-  const { data: resumeData } = useResume();
+  const { data: resumeData } = useCurrentResume();
   const [imgError, setImgError] = useState(false);
 
   const profile = profileData?.data;
   const socialLinks = (socialData?.data ?? []).filter((l) => l.active).slice(0, 6);
-  const currentResume = (resumeData?.data ?? []).find((r) => r.isCurrent);
+  const currentResume = resumeData?.data;
 
   return (
     <section className="relative min-h-[calc(100vh-4rem)] flex items-center py-12 px-4 sm:px-6 lg:px-8 overflow-hidden">

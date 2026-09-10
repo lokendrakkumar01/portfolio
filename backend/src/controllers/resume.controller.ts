@@ -10,9 +10,28 @@ export const getResumes = asyncHandler(async (_req: Request, res: Response) => {
 });
 
 export const getCurrentResume = asyncHandler(async (_req: Request, res: Response) => {
-  const item = await Resume.findOne({ isCurrent: true });
+  let item = await Resume.findOne({ isCurrent: true });
+  if (!item) {
+    item = await Resume.findOne().sort({ version: -1 });
+    if (item) {
+      item.isCurrent = true;
+      await item.save();
+    }
+  }
   if (!item) return sendError(res, 'No resume found', 404);
   sendSuccess(res, item);
+});
+
+export const setResumeCurrent = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const target = await Resume.findById(id);
+  if (!target) return sendError(res, 'Resume not found', 404);
+
+  await Resume.updateMany({}, { isCurrent: false });
+  target.isCurrent = true;
+  await target.save();
+
+  sendSuccess(res, target, 'Set as current resume');
 });
 
 export const uploadResume = asyncHandler(async (req: Request, res: Response) => {
