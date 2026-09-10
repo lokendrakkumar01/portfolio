@@ -9,7 +9,7 @@ export const messagesApi = {
     apiClient.get<ApiResponse<ContactMessage>>(`/messages/${id}`).then((r) => r.data),
 
   updateStatus: (id: string, status: MessageStatus) =>
-    apiClient.put<ApiResponse<ContactMessage>>(`/messages/${id}`, { status }).then((r) => r.data),
+    apiClient.put<ApiResponse<ContactMessage>>(`/messages/${id}/status`, { status }).then((r) => r.data),
 
   delete: (id: string) =>
     apiClient.delete<ApiResponse<null>>(`/messages/${id}`).then((r) => r.data),
