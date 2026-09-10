@@ -58,7 +58,7 @@ function SocialForm({ link, onClose }: { link?: SocialLink; onClose: () => void 
   const matchedDsa = DSA_PLATFORMS.find((p) => p.value === selectedPlatform);
 
   const onSubmit = (data: Form) => {
-    if (link) {
+    if (link && link._id) {
       update.mutate({ id: link._id, data: data as Partial<SocialLink> }, { onSuccess: onClose });
     } else {
       create.mutate(data as Partial<SocialLink>, { onSuccess: onClose });
@@ -116,7 +116,7 @@ function SocialForm({ link, onClose }: { link?: SocialLink; onClose: () => void 
           Cancel
         </Button>
         <Button type="submit" loading={create.isPending || update.isPending}>
-          {link ? 'Save Changes' : 'Add Platform Link'}
+          {link && link._id ? 'Save Changes' : 'Add Platform Link'}
         </Button>
       </div>
     </form>
@@ -275,7 +275,7 @@ export default function SocialLinksAdminPage() {
         </div>
       )}
 
-      <Modal open={editLink !== undefined} onClose={() => setEditLink(undefined)} title={editLink ? 'Edit Platform Profile' : 'Add Platform Profile'} size="sm">
+      <Modal open={editLink !== undefined} onClose={() => setEditLink(undefined)} title={editLink && editLink._id ? 'Edit Platform Profile' : 'Add Platform Profile'} size="sm">
         <SocialForm link={editLink ?? undefined} onClose={() => setEditLink(undefined)} />
       </Modal>
 
