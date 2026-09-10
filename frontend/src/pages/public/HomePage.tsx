@@ -25,7 +25,7 @@ import toast from 'react-hot-toast';
 import type { Skill } from '../../types';
 
 // ─── Animated Counter ────────────────────────────────────────────────────────
-function AnimatedCounter({ end, label, suffix = '+' }: { end: number; label: string; suffix?: string }) {
+function AnimatedCounter({ end, label, suffix = '' }: { end: number; label: string; suffix?: string }) {
   const [count, setCount] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
   const [started, setStarted] = useState(false);
@@ -37,9 +37,12 @@ function AnimatedCounter({ end, label, suffix = '+' }: { end: number; label: str
   }, []);
 
   useEffect(() => {
-    if (!started || end === 0) return;
+    if (!started || end === 0) {
+      setCount(end);
+      return;
+    }
     let cur = 0;
-    const step = end / 40;
+    const step = Math.max(1, end / 30);
     const id = setInterval(() => {
       cur += step;
       if (cur >= end) { setCount(end); clearInterval(id); }
@@ -51,7 +54,7 @@ function AnimatedCounter({ end, label, suffix = '+' }: { end: number; label: str
   return (
     <div ref={ref} className="text-center p-5 bg-card/60 backdrop-blur-md border border-border/60 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-primary/40 transition-all duration-300 relative overflow-hidden group">
       <div className="absolute -right-4 -top-4 w-16 h-16 bg-primary/10 rounded-full blur-xl group-hover:bg-primary/20 transition-colors" />
-      <div className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-br from-primary to-accent mb-1">{count}{end > 0 ? suffix : '—'}</div>
+      <div className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-br from-primary to-accent mb-1">{count}{suffix}</div>
       <div className="text-xs font-bold text-muted uppercase tracking-wider">{label}</div>
     </div>
   );
