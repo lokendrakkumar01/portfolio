@@ -62,3 +62,21 @@ export const useUploadProjectCover = () => {
     onError: (err) => toast.error(getErrorMessage(err)),
   });
 };
+
+export const useAddProjectScreenshot = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, file, caption }: { id: string; file: File; caption?: string }) => projectsApi.addScreenshot(id, file, caption),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: [PROJECTS_KEY] }); toast.success('Screenshot added'); },
+    onError: (err) => toast.error(getErrorMessage(err)),
+  });
+};
+
+export const useDeleteProjectScreenshot = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ projectId, screenshotId }: { projectId: string; screenshotId: string }) => projectsApi.deleteScreenshot(projectId, screenshotId),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: [PROJECTS_KEY] }); toast.success('Screenshot deleted'); },
+    onError: (err) => toast.error(getErrorMessage(err)),
+  });
+};
