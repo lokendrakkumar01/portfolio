@@ -3,16 +3,16 @@ import {
   getProjects, getProject, getProjectBySlug, createProject,
   updateProject, deleteProject, uploadCoverImage, addScreenshot, deleteScreenshot
 } from '../controllers/project.controller';
-import { protect, adminOnly } from '../middleware/auth.middleware';
+import { protect, adminOnly, optionalAuth } from '../middleware/auth.middleware';
 import { uploadImage } from '../middleware/upload.middleware';
 import { validate } from '../middleware/validate.middleware';
 import { createProjectSchema, updateProjectSchema } from '../validators/project.validator';
 
 const router = Router();
 
-router.get('/', getProjects);
-router.get('/slug/:slug', getProjectBySlug);
-router.get('/:id', getProject);
+router.get('/', optionalAuth, getProjects);
+router.get('/slug/:slug', optionalAuth, getProjectBySlug);
+router.get('/:id', optionalAuth, getProject);
 
 router.post('/', protect, adminOnly, validate(createProjectSchema), createProject);
 router.put('/:id', protect, adminOnly, validate(updateProjectSchema), updateProject);

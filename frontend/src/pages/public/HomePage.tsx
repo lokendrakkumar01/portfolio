@@ -327,8 +327,12 @@ function SkillsSection() {
 
 // ─── Projects Section ─────────────────────────────────────────────────────────
 function ProjectsSection() {
-  const { data, isLoading } = useProjects({ featured: true, limit: 6 });
-  const projects = data?.data ?? [];
+  const { data: featuredData, isLoading: isFeaturedLoading } = useProjects({ featured: true, limit: 6 });
+  const { data: allData, isLoading: isAllLoading } = useProjects({ limit: 6 });
+  const featuredProjects = featuredData?.data ?? [];
+  const allProjects = allData?.data ?? [];
+  const projects = featuredProjects.length > 0 ? featuredProjects : allProjects;
+  const isLoading = isFeaturedLoading && isAllLoading;
 
   return (
     <section className="py-24 px-4 sm:px-6 lg:px-8">
@@ -403,8 +407,12 @@ function ProjectsSection() {
 
 // ─── Achievements Section ─────────────────────────────────────────────────────
 function AchievementsSection() {
-  const { data, isLoading } = useAchievements({ featured: true, limit: 4 });
-  const items = data?.data ?? [];
+  const { data: featuredData, isLoading: isFeaturedLoading } = useAchievements({ featured: true, limit: 4 });
+  const { data: allData, isLoading: isAllLoading } = useAchievements({ limit: 4 });
+  const featuredItems = featuredData?.data ?? [];
+  const allItems = allData?.data ?? [];
+  const items = featuredItems.length > 0 ? featuredItems : allItems;
+  const isLoading = isFeaturedLoading && isAllLoading;
 
   return (
     <section className="py-24 px-4 sm:px-6 lg:px-8 bg-surface/30 border-y border-border/40 relative overflow-hidden">
@@ -447,8 +455,12 @@ function AchievementsSection() {
 
 // ─── Certificates Section ─────────────────────────────────────────────────────
 function CertificatesSection() {
-  const { data, isLoading } = useCertificates({ featured: true, limit: 6 });
-  const certs = data?.data ?? [];
+  const { data: featuredData, isLoading: isFeaturedLoading } = useCertificates({ featured: true, limit: 6 });
+  const { data: allData, isLoading: isAllLoading } = useCertificates({ limit: 6 });
+  const featuredCerts = featuredData?.data ?? [];
+  const allCerts = allData?.data ?? [];
+  const certs = featuredCerts.length > 0 ? featuredCerts : allCerts;
+  const isLoading = isFeaturedLoading && isAllLoading;
 
   return (
     <section className="py-24 px-4 sm:px-6 lg:px-8">

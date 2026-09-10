@@ -5,10 +5,12 @@ import { asyncHandler } from '../utils/asyncHandler';
 import { getPaginationParams } from '../utils/pagination';
 
 export const getCertificates = asyncHandler(async (req: Request, res: Response) => {
-  const { q, category } = req.query as Record<string, string>;
+  const { q, category, featured } = req.query as Record<string, string>;
   const filter: any = {};
   if (!req.user) filter.published = true;
   if (category) filter.category = category;
+  if (featured === 'true') filter.featured = true;
+  if (featured === 'false') filter.featured = false;
   if (q) {
     filter.$or = [
       { title: { $regex: q, $options: 'i' } },

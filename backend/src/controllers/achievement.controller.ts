@@ -5,8 +5,11 @@ import { asyncHandler } from '../utils/asyncHandler';
 import { getPaginationParams } from '../utils/pagination';
 
 export const getAchievements = asyncHandler(async (req: Request, res: Response) => {
+  const { featured } = req.query as Record<string, string>;
   const filter: any = {};
   if (!req.user) filter.published = true;
+  if (featured === 'true') filter.featured = true;
+  if (featured === 'false') filter.featured = false;
   const { page, limit, skip } = getPaginationParams(req.query as Record<string, string>);
   const [items, total] = await Promise.all([
     Achievement.find(filter).sort({ date: -1 }).skip(skip).limit(limit),

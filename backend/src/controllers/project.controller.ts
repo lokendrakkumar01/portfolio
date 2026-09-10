@@ -7,11 +7,13 @@ import { getStorageProvider } from '../services/storage/storage.factory';
 import { slugify } from '../utils/slugify';
 
 export const getProjects = asyncHandler(async (req: Request, res: Response) => {
-  const { q, category, status } = req.query as Record<string, string>;
+  const { q, category, status, featured } = req.query as Record<string, string>;
   const filter: any = {};
   if (!req.user) filter.published = true;
   if (category) filter.category = category;
   if (status) filter.status = status;
+  if (featured === 'true') filter.featured = true;
+  if (featured === 'false') filter.featured = false;
   if (q) {
     filter.$or = [
       { title: { $regex: q, $options: 'i' } },
