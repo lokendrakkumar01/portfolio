@@ -106,6 +106,7 @@ function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.25, ease: 'easeInOut' }}
             className="fixed inset-0 z-[999] w-screen h-[100dvh] bg-surface flex flex-col overflow-hidden lg:hidden"
+            style={{ width: '100vw', height: '100dvh' }}
           >
             {content}
           </motion.aside>
