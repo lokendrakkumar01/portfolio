@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Download, Mail, ArrowRight, MapPin, FolderCode, Trophy, Sparkles, UserCheck } from 'lucide-react';
+import { Download, Mail, ArrowRight, MapPin, FolderCode, Trophy, Sparkles, UserCheck, Award } from 'lucide-react';
 import { useProfile } from '../../hooks/useProfile';
 import { useSocialLinks } from '../../hooks/useSocialLinks';
 import { useResume } from '../../hooks/useResume';
