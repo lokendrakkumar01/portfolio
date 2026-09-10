@@ -31,7 +31,11 @@ export const useCreateProject = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: Partial<Project>) => projectsApi.create(data),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: [PROJECTS_KEY] }); toast.success('Project created'); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: [PROJECTS_KEY] });
+      qc.invalidateQueries({ queryKey: ['stats'] });
+      toast.success('Project created');
+    },
     onError: (err) => toast.error(getErrorMessage(err)),
   });
 };
@@ -40,7 +44,11 @@ export const useUpdateProject = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<Project> }) => projectsApi.update(id, data),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: [PROJECTS_KEY] }); toast.success('Project updated'); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: [PROJECTS_KEY] });
+      qc.invalidateQueries({ queryKey: ['stats'] });
+      toast.success('Project updated');
+    },
     onError: (err) => toast.error(getErrorMessage(err)),
   });
 };
@@ -49,7 +57,11 @@ export const useDeleteProject = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: projectsApi.delete,
-    onSuccess: () => { qc.invalidateQueries({ queryKey: [PROJECTS_KEY] }); toast.success('Project deleted'); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: [PROJECTS_KEY] });
+      qc.invalidateQueries({ queryKey: ['stats'] });
+      toast.success('Project deleted');
+    },
     onError: (err) => toast.error(getErrorMessage(err)),
   });
 };
@@ -58,7 +70,11 @@ export const useUploadProjectCover = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ id, file }: { id: string; file: File }) => projectsApi.uploadCover(id, file),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: [PROJECTS_KEY] }); toast.success('Cover image uploaded'); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: [PROJECTS_KEY] });
+      qc.invalidateQueries({ queryKey: ['stats'] });
+      toast.success('Cover image uploaded');
+    },
     onError: (err) => toast.error(getErrorMessage(err)),
   });
 };

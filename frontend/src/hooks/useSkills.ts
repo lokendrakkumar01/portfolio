@@ -24,7 +24,11 @@ export const useCreateSkill = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: Partial<Skill>) => skillsApi.create(data),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: [SKILLS_KEY] }); toast.success('Skill created'); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: [SKILLS_KEY] });
+      qc.invalidateQueries({ queryKey: ['stats'] });
+      toast.success('Skill created');
+    },
     onError: (err) => toast.error(getErrorMessage(err)),
   });
 };
@@ -33,7 +37,11 @@ export const useUpdateSkill = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<Skill> }) => skillsApi.update(id, data),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: [SKILLS_KEY] }); toast.success('Skill updated'); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: [SKILLS_KEY] });
+      qc.invalidateQueries({ queryKey: ['stats'] });
+      toast.success('Skill updated');
+    },
     onError: (err) => toast.error(getErrorMessage(err)),
   });
 };
@@ -42,7 +50,11 @@ export const useDeleteSkill = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: skillsApi.delete,
-    onSuccess: () => { qc.invalidateQueries({ queryKey: [SKILLS_KEY] }); toast.success('Skill deleted'); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: [SKILLS_KEY] });
+      qc.invalidateQueries({ queryKey: ['stats'] });
+      toast.success('Skill deleted');
+    },
     onError: (err) => toast.error(getErrorMessage(err)),
   });
 };

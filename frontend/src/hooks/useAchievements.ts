@@ -17,7 +17,11 @@ export const useCreateAchievement = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: Partial<Achievement>) => achievementsApi.create(data),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: [ACH_KEY] }); toast.success('Achievement created'); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: [ACH_KEY] });
+      qc.invalidateQueries({ queryKey: ['stats'] });
+      toast.success('Achievement created');
+    },
     onError: (err) => toast.error(getErrorMessage(err)),
   });
 };
@@ -26,7 +30,11 @@ export const useUpdateAchievement = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<Achievement> }) => achievementsApi.update(id, data),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: [ACH_KEY] }); toast.success('Achievement updated'); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: [ACH_KEY] });
+      qc.invalidateQueries({ queryKey: ['stats'] });
+      toast.success('Achievement updated');
+    },
     onError: (err) => toast.error(getErrorMessage(err)),
   });
 };
@@ -35,7 +43,11 @@ export const useDeleteAchievement = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: achievementsApi.delete,
-    onSuccess: () => { qc.invalidateQueries({ queryKey: [ACH_KEY] }); toast.success('Achievement deleted'); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: [ACH_KEY] });
+      qc.invalidateQueries({ queryKey: ['stats'] });
+      toast.success('Achievement deleted');
+    },
     onError: (err) => toast.error(getErrorMessage(err)),
   });
 };

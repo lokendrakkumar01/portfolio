@@ -24,7 +24,11 @@ export const useCreateCertificate = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: Partial<Certificate>) => certificatesApi.create(data),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: [CERTS_KEY] }); toast.success('Certificate created'); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: [CERTS_KEY] });
+      qc.invalidateQueries({ queryKey: ['stats'] });
+      toast.success('Certificate created');
+    },
     onError: (err) => toast.error(getErrorMessage(err)),
   });
 };
@@ -33,7 +37,11 @@ export const useUpdateCertificate = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<Certificate> }) => certificatesApi.update(id, data),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: [CERTS_KEY] }); toast.success('Certificate updated'); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: [CERTS_KEY] });
+      qc.invalidateQueries({ queryKey: ['stats'] });
+      toast.success('Certificate updated');
+    },
     onError: (err) => toast.error(getErrorMessage(err)),
   });
 };
@@ -42,7 +50,11 @@ export const useDeleteCertificate = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: certificatesApi.delete,
-    onSuccess: () => { qc.invalidateQueries({ queryKey: [CERTS_KEY] }); toast.success('Certificate deleted'); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: [CERTS_KEY] });
+      qc.invalidateQueries({ queryKey: ['stats'] });
+      toast.success('Certificate deleted');
+    },
     onError: (err) => toast.error(getErrorMessage(err)),
   });
 };
