@@ -8,6 +8,14 @@ import {
   Globe,
   Mail,
   ExternalLink,
+  Code2,
+  Terminal,
+  Flame,
+  Cpu,
+  BarChart2,
+  Zap,
+  Database,
+  Award,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -16,6 +24,7 @@ export const formatDate = (
   format: 'long' | 'short' | 'year' | 'month-year' = 'long'
 ): string => {
   const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return dateStr;
   if (format === 'year') return date.getFullYear().toString();
   if (format === 'month-year')
     return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
@@ -76,10 +85,19 @@ const SOCIAL_ICONS: Record<string, LucideIcon> = {
   facebook: Facebook,
   email: Mail,
   portfolio: Globe,
+  leetcode: Code2,
+  geeksforgeeks: Terminal,
+  gfg: Terminal,
+  codechef: Flame,
+  hackerrank: Cpu,
+  codeforces: BarChart2,
+  hackerearth: Zap,
+  kaggle: Database,
+  interviewbit: Award,
 };
 
 export const getSocialIcon = (platform: string): LucideIcon =>
-  SOCIAL_ICONS[platform.toLowerCase()] ?? ExternalLink;
+  SOCIAL_ICONS[platform.toLowerCase().replace(/\s+/g, '')] ?? ExternalLink;
 
 export const truncate = (text: string, length: number): string =>
   text.length > length ? `${text.slice(0, length)}…` : text;

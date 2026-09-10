@@ -1,10 +1,14 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Code2, ExternalLink } from 'lucide-react';
 import { SEO } from '../../components/common/SEO';
+import { SectionHeading } from '../../components/common/SectionHeading';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { Badge } from '../../components/ui/Badge';
 import { useSkills } from '../../hooks/useSkills';
+import { useSocialLinks } from '../../hooks/useSocialLinks';
+import { getSocialIcon } from '../../utils/formatters';
 import type { SkillCategory } from '../../types';
 
 const CATEGORY_LABELS: Record<SkillCategory, string> = {
@@ -68,30 +72,43 @@ const getSkillIcon = (name: string, customIcon?: string): string => {
 
 export default function SkillsPage() {
   const { data, isLoading } = useSkills();
+  const { data: socialData } = useSocialLinks();
   const skills = data?.data ?? [];
+  const socialLinks = (socialData?.data ?? []).filter((l) => l.active);
+
+  const codingLinks = socialLinks.filter((l) =>
+    ['leetcode', 'geeksforgeeks', 'gfg', 'codechef', 'hackerrank', 'codeforces', 'hackerearth', 'kaggle', 'interviewbit'].includes(
+      l.platform.toLowerCase()
+    )
+  );
+
   const [activeCategory, setActiveCategory] = useState<SkillCategory | 'all'>('all');
   const categories = [...new Set(skills.map((s) => s.category))] as SkillCategory[];
   const filtered = activeCategory === 'all' ? skills : skills.filter((s) => s.category === activeCategory);
 
   return (
     <>
-      <SEO title="Technical Skills" description="Technical skills, languages, and tools mastered by Lokendra Kumar" />
-      
+      <SEO title="Technical Skills & DSA" description="Technical skills, DSA platforms, and tools mastered by Lokendra Kumar" />
+
       {/* Stylish Header Banner */}
       <div className="relative py-20 px-4 sm:px-6 lg:px-8 bg-surface/30 border-b border-border/40 overflow-hidden">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-full bg-primary/5 blur-[120px] rounded-full pointer-events-none" />
         <div className="relative max-w-5xl mx-auto text-center space-y-3">
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
             className="text-4xl md:text-5xl font-extrabold text-text tracking-tight"
           >
-            Technical <span className="text-gradient">Arsenal</span>
+            Technical <span className="text-gradient">Arsenal & DSA</span>
           </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
             className="text-lg text-muted max-w-2xl mx-auto"
           >
-            Technologies, frameworks, and programming languages Lokendra Kumar uses to build scalable software.
+            Technologies, frameworks, and coding platforms Lokendra Kumar uses to solve Data Structures & Algorithms challenges.
           </motion.p>
         </div>
       </div>
@@ -196,6 +213,46 @@ export default function SkillsPage() {
               })}
             </AnimatePresence>
           </motion.div>
+        )}
+
+        {/* Dedicated DSA & Competitive Programming Profiles Section */}
+        {codingLinks.length > 0 && (
+          <div className="mt-20 border-t border-border/50 pt-16">
+            <SectionHeading
+              title="Coding & DSA Practice Profiles"
+              subtitle="Explore my problem-solving profiles across LeetCode, GeeksforGeeks, and competitive coding platforms"
+              center
+            />
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 mt-10">
+              {codingLinks.map((l) => {
+                const Icon = getSocialIcon(l.platform);
+                return (
+                  <a
+                    key={l._id}
+                    href={l.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="group bg-card/80 backdrop-blur-md border border-border/80 rounded-3xl p-5 hover:border-primary/60 hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-3.5 min-w-0">
+                      <div className="w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary group-hover:scale-110 transition-transform flex-shrink-0">
+                        <Icon className="w-6 h-6" />
+                      </div>
+                      <div className="min-w-0">
+                        <h4 className="font-extrabold text-text text-base capitalize group-hover:text-primary transition-colors truncate">
+                          {l.platform}
+                        </h4>
+                        <p className="text-xs text-muted truncate font-medium mt-0.5">
+                          {l.username || 'View Profile'}
+                        </p>
+                      </div>
+                    </div>
+                    <ExternalLink className="w-4 h-4 text-muted group-hover:text-primary transition-colors flex-shrink-0 ml-2" />
+                  </a>
+                );
+              })}
+            </div>
+          </div>
         )}
       </div>
     </>
