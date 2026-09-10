@@ -113,8 +113,8 @@ function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2, ease: 'easeInOut' }}
-              className="fixed inset-0 z-[9999] w-screen h-[100dvh] bg-surface flex flex-col overflow-hidden lg:hidden"
-              style={{ width: '100vw', height: '100dvh' }}
+              className="fixed inset-0 z-[9999] w-full max-w-full h-[100dvh] bg-surface flex flex-col overflow-hidden lg:hidden"
+              style={{ width: '100%', height: '100dvh', maxHeight: '100dvh' }}
             >
               {content}
             </motion.aside>
