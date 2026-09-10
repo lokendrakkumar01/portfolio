@@ -1,6 +1,7 @@
 import { v2 as cloudinary } from 'cloudinary';
 import { config } from '../../config/env';
 import { StorageProvider, UploadOptions, UploadResult } from './storage.interface';
+import { LocalProvider } from './local.provider';
 
 cloudinary.config({
   cloud_name: config.CLOUDINARY_CLOUD_NAME?.trim(),
@@ -22,10 +23,17 @@ export class CloudinaryProvider implements StorageProvider {
         uploadOptions.public_id = options.publicId;
       }
 
-      const uploadStream = cloudinary.uploader.upload_stream(uploadOptions, (error, result) => {
+      const uploadStream = cloudinary.uploader.upload_stream(uploadOptions, async (error, result) => {
         if (error || !result) {
           const errMsg = error?.message || 'Cloudinary upload failed';
-          return reject(new Error(errMsg));
+          console.error('⚠️ Cloudinary upload error:', errMsg, '- Falling back to local storage');
+          try {
+            const localProvider = new LocalProvider();
+            const localResult = await localProvider.upload(fileBuffer, mimeType, options);
+            return resolve(localResult);
+          } catch (fallbackErr) {
+            return reject(new Error(errMsg));
+          }
         }
         resolve({
           url: result.secure_url,
