@@ -1,7 +1,12 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, X, Send, Mic, MicOff, Sparkles, Bot, User, Loader2, Volume2, VolumeX } from 'lucide-react';
+import {
+  MessageCircle, X, Send, Mic, MicOff, Sparkles, Bot, User,
+  Loader2, Volume2, VolumeX, Trash2
+} from 'lucide-react';
 import { assistantApi } from '../../api/assistant.api';
+import { useSocialLinks } from '../../hooks/useSocialLinks';
 import toast from 'react-hot-toast';
 
 interface Message {
@@ -11,20 +16,33 @@ interface Message {
   timestamp: Date;
 }
 
-const QUICK_SUGGESTIONS = [
-  'Who is Lokendra?',
-  'Show featured projects',
-  'What is his tech stack?',
-  'How to contact him?',
+const QUICK_ACTIONS = [
+  { label: '📂 Projects', query: 'Show Projects', route: '/projects' },
+  { label: '📜 Certificates', query: 'Show Certificates', route: '/certificates' },
+  { label: '🏆 Achievements', query: 'Show Achievements', route: '/achievements' },
+  { label: '⚡ Skills', query: 'Show Skills', route: '/skills' },
+  { label: '📄 Resume', query: 'View Resume', route: '/resume' },
+  { label: '✉️ Contact Me', query: 'Contact Me', route: '/contact' },
+  { label: '👤 About Me', query: 'About Me', route: '/about' },
+  { label: '💼 Experience', query: 'My Experience', route: '/about' },
+  { label: '🎓 Education', query: 'My Education', route: '/about' },
+  { label: '🐙 Open GitHub', query: 'Open GitHub', external: 'https://github.com/lokendrakkumar01' },
+  { label: '💼 Open LinkedIn', query: 'Open LinkedIn', external: 'https://linkedin.com' },
 ];
 
 export default function AIChatWidget() {
+  const navigate = useNavigate();
+  const { data: socialData } = useSocialLinks();
+  const socialLinks = socialData?.data ?? [];
+  const githubLink = socialLinks.find(s => s.platform === 'github')?.url || 'https://github.com/lokendrakkumar01';
+  const linkedinLink = socialLinks.find(s => s.platform === 'linkedin')?.url || 'https://linkedin.com';
+
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '0',
       role: 'assistant',
-      text: "Hi! 👋 I'm Lokendra Kumar's AI Portfolio Assistant. Ask me about his full-stack engineering skills, projects, or how to contact him!",
+      text: "Hi! 👋 I'm Lokendra Kumar's Portfolio Voice & Chat Assistant. Ask me anything or say 'show projects', 'view certificates', 'contact me', etc.!",
       timestamp: new Date(),
     },
   ]);
@@ -49,6 +67,7 @@ export default function AIChatWidget() {
     if (isOpen) inputRef.current?.focus();
   }, [isOpen]);
 
+  // Text-To-Speech (TTS)
   const speakText = (id: string, text: string) => {
     if (!('speechSynthesis' in window)) {
       toast.error('Text-to-speech not supported in this browser');
@@ -62,7 +81,8 @@ export default function AIChatWidget() {
     }
 
     window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
+    const cleanText = text.replace(/[\/\#\*\_\`]/g, '');
+    const utterance = new SpeechSynthesisUtterance(cleanText);
     utterance.lang = 'en-US';
     utterance.rate = 1.0;
     utterance.onend = () => setSpeakingId(null);
@@ -72,21 +92,103 @@ export default function AIChatWidget() {
     window.speechSynthesis.speak(utterance);
   };
 
-  const sendMessage = async (text: string) => {
+  // Process & execute navigation intent
+  const handleNavigationIntent = (query: string): boolean => {
+    const q = query.toLowerCase().trim();
+
+    if (q.includes('github') || q.includes('git hub')) {
+      window.open(githubLink, '_blank');
+      toast.success('Opening GitHub profile');
+      return true;
+    }
+    if (q.includes('linkedin') || q.includes('linked in')) {
+      window.open(linkedinLink, '_blank');
+      toast.success('Opening LinkedIn profile');
+      return true;
+    }
+    if (q.includes('project') || q.includes('work') || q.includes('app')) {
+      navigate('/projects');
+      toast.success('Navigated to Projects');
+      return true;
+    }
+    if (q.includes('certificate') || q.includes('cert') || q.includes('credential')) {
+      navigate('/certificates');
+      toast.success('Navigated to Certificates');
+      return true;
+    }
+    if (q.includes('achievement') || q.includes('award') || q.includes('honor')) {
+      navigate('/achievements');
+      toast.success('Navigated to Achievements');
+      return true;
+    }
+    if (q.includes('skill') || q.includes('tech stack') || q.includes('technology')) {
+      navigate('/skills');
+      toast.success('Navigated to Skills');
+      return true;
+    }
+    if (q.includes('resume') || q.includes('cv') || q.includes('bio-data')) {
+      navigate('/resume');
+      toast.success('Navigated to Resume');
+      return true;
+    }
+    if (q.includes('contact') || q.includes('hire') || q.includes('email') || q.includes('reach') || q.includes('message')) {
+      navigate('/contact');
+      toast.success('Navigated to Contact');
+      return true;
+    }
+    if (q.includes('about') || q.includes('who is') || q.includes('profile')) {
+      navigate('/about');
+      toast.success('Navigated to About page');
+      return true;
+    }
+    if (q.includes('experience') || q.includes('job') || q.includes('internship')) {
+      navigate('/about');
+      toast.success('Navigated to Experience section');
+      return true;
+    }
+    if (q.includes('education') || q.includes('degree') || q.includes('college')) {
+      navigate('/about');
+      toast.success('Navigated to Education section');
+      return true;
+    }
+    if (q.includes('gallery') || q.includes('photo') || q.includes('image')) {
+      navigate('/gallery');
+      toast.success('Navigated to Gallery');
+      return true;
+    }
+    if (q.includes('home') || q.includes('main page')) {
+      navigate('/');
+      toast.success('Navigated to Home');
+      return true;
+    }
+
+    return false;
+  };
+
+  const sendMessage = async (text: string, fromVoice = false) => {
     if (!text.trim() || isLoading) return;
-    const userMsg: Message = { id: Date.now().toString(), role: 'user', text: text.trim(), timestamp: new Date() };
+    const userText = text.trim();
+    const userMsg: Message = { id: Date.now().toString(), role: 'user', text: userText, timestamp: new Date() };
+    
     setMessages((prev) => [...prev, userMsg]);
     setInput('');
     setIsLoading(true);
 
+    // Trigger immediate route navigation if intent detected
+    handleNavigationIntent(userText);
+
     try {
       const history = messages.filter((m) => m.id !== '0').map((m) => ({ role: m.role, text: m.text }));
-      const res = await assistantApi.chat(text.trim(), history);
-      const aiReply = res.data?.reply || "Lokendra Kumar is a Full-Stack Developer proficient in React, Node.js, and MongoDB. Explore his projects at /projects!";
+      const res = await assistantApi.chat(userText, history);
+      const aiReply = res.data?.reply || "Lokendra Kumar is a Full-Stack Developer proficient in React, Node.js, and MongoDB. Explore his work on the portfolio!";
       const aiMsg: Message = { id: (Date.now() + 1).toString(), role: 'assistant', text: aiReply, timestamp: new Date() };
       setMessages((prev) => [...prev, aiMsg]);
+
+      if (fromVoice) {
+        speakText(aiMsg.id, aiReply);
+      }
     } catch {
-      const fallbackReply = "Lokendra Kumar is a Full-Stack Developer specializing in modern web applications. You can explore his Projects (/projects), Skills (/skills), Certificates (/certificates), or Contact him at /contact!";
+      const fallbackReply = "Lokendra Kumar is a Full-Stack Software Engineer specializing in modern web applications. You can explore his Projects (/projects), Skills (/skills), Certificates (/certificates), or Contact him (/contact)!";
       const errMsg: Message = { id: (Date.now() + 1).toString(), role: 'assistant', text: fallbackReply, timestamp: new Date() };
       setMessages((prev) => [...prev, errMsg]);
     } finally {
@@ -97,7 +199,7 @@ export default function AIChatWidget() {
   const toggleVoice = () => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      toast.error('Speech recognition not supported in this browser. Please type your message.');
+      toast.error('Speech recognition is not supported in this browser. Please type your message.');
       return;
     }
 
@@ -111,12 +213,10 @@ export default function AIChatWidget() {
 
     try {
       const recognition = new SpeechRecognition();
-      recognition.lang = navigator.language || 'en-IN';
-      recognition.interimResults = true;
+      recognition.lang = 'en-US';
+      recognition.interimResults = false;
       recognition.continuous = false;
       recognition.maxAlternatives = 1;
-
-      let finalTranscript = '';
 
       recognition.onstart = () => {
         setIsListening(true);
@@ -124,17 +224,10 @@ export default function AIChatWidget() {
       };
 
       recognition.onresult = (event: any) => {
-        let interim = '';
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
-          if (event.results[i].isFinal) {
-            finalTranscript += event.results[i][0].transcript;
-          } else {
-            interim += event.results[i][0].transcript;
-          }
-        }
-        const currentText = finalTranscript || interim;
-        if (currentText) {
-          setInput(currentText);
+        const transcript = event.results[0][0].transcript;
+        if (transcript) {
+          setInput(transcript);
+          sendMessage(transcript, true);
         }
       };
 
@@ -142,9 +235,9 @@ export default function AIChatWidget() {
         setIsListening(false);
         const err = event?.error;
         if (err === 'not-allowed' || err === 'service-not-allowed') {
-          toast.error('Microphone permission denied. Please allow mic in browser settings.');
+          toast.error('Microphone permission denied. Please allow mic access in your browser.');
         } else if (err === 'no-speech') {
-          toast('No speech detected. Please speak clearly into your mic.', { icon: '🎙️' });
+          toast('No speech detected. Try speaking again!', { icon: '🎙️' });
         } else {
           toast('Voice input paused. You can type or try again.', { icon: '💡' });
         }
@@ -152,17 +245,28 @@ export default function AIChatWidget() {
 
       recognition.onend = () => {
         setIsListening(false);
-        if (finalTranscript.trim()) {
-          sendMessage(finalTranscript.trim());
-        }
       };
 
       recognition.start();
       recognitionRef.current = recognition;
-    } catch (err) {
+    } catch {
       setIsListening(false);
-      toast.error('Could not start voice recognition. Please try typing.');
+      toast.error('Could not access microphone. Please type your message.');
     }
+  };
+
+  const clearChat = () => {
+    window.speechSynthesis?.cancel();
+    setSpeakingId(null);
+    setMessages([
+      {
+        id: '0',
+        role: 'assistant',
+        text: "Hi! 👋 Chat history cleared. How can I help you explore Lokendra's portfolio?",
+        timestamp: new Date(),
+      },
+    ]);
+    toast.success('Chat history cleared');
   };
 
   return (
@@ -190,31 +294,51 @@ export default function AIChatWidget() {
             style={{ maxHeight: 'min(540px, calc(100vh - 140px))' }}
           >
             {/* Header */}
-            <div className="bg-primary/10 border-b border-border/80 px-4 py-3.5 flex items-center gap-3">
-              <div className="w-10 h-10 bg-primary/20 rounded-2xl flex items-center justify-center border border-primary/30">
-                <Sparkles className="w-5 h-5 text-primary" />
+            <div className="bg-primary/10 border-b border-border/80 px-4 py-3.5 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-10 h-10 bg-primary/20 rounded-2xl flex items-center justify-center border border-primary/30 flex-shrink-0">
+                  <Sparkles className="w-5 h-5 text-primary" />
+                </div>
+                <div className="min-w-0">
+                  <h3 className="font-extrabold text-text text-sm truncate">Lokendra's AI Assistant</h3>
+                  <p className="text-[11px] text-muted font-medium truncate">Full-Stack Portfolio Voice & Chat</p>
+                </div>
               </div>
-              <div className="flex-1">
-                <h3 className="font-extrabold text-text text-sm">Lokendra's AI Assistant</h3>
-                <p className="text-[11px] text-muted font-medium">Full-Stack Portfolio Voice & Chat</p>
+
+              <div className="flex items-center gap-1 flex-shrink-0">
+                <button
+                  onClick={clearChat}
+                  className="p-1.5 rounded-xl hover:bg-card text-muted hover:text-error transition-colors"
+                  title="Clear chat history"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="p-1.5 rounded-xl hover:bg-card text-muted hover:text-text transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
               </div>
-              <button
-                onClick={() => setIsOpen(false)}
-                className="p-1.5 rounded-xl hover:bg-card text-muted hover:text-text transition-colors"
-              >
-                <X className="w-4 h-4" />
-              </button>
             </div>
 
-            {/* Quick Suggestions Chips */}
+            {/* Quick Action Chips */}
             <div className="px-3 py-2 bg-surface/50 border-b border-border/40 flex items-center gap-1.5 overflow-x-auto scrollbar-none">
-              {QUICK_SUGGESTIONS.map((s) => (
+              {QUICK_ACTIONS.map((a) => (
                 <button
-                  key={s}
-                  onClick={() => sendMessage(s)}
-                  className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-card border border-border/70 text-muted hover:text-primary hover:border-primary/50 whitespace-nowrap transition-all flex-shrink-0"
+                  key={a.label}
+                  onClick={() => {
+                    if (a.route) {
+                      navigate(a.route);
+                      toast.success(`Navigated to ${a.label}`);
+                    } else if (a.external) {
+                      window.open(a.external, '_blank');
+                    }
+                    sendMessage(a.query);
+                  }}
+                  className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-card border border-border/70 text-muted hover:text-primary hover:border-primary/50 whitespace-nowrap transition-all flex-shrink-0 active:scale-95"
                 >
-                  {s}
+                  {a.label}
                 </button>
               ))}
             </div>
@@ -249,7 +373,7 @@ export default function AIChatWidget() {
                         {speakingId === msg.id ? (
                           <>
                             <VolumeX className="w-3 h-3 text-primary animate-pulse" />
-                            <span className="text-primary">Stop Speaking</span>
+                            <span className="text-primary font-bold">Stop Speaking</span>
                           </>
                         ) : (
                           <>
@@ -308,7 +432,7 @@ export default function AIChatWidget() {
                       sendMessage(input);
                     }
                   }}
-                  placeholder={isListening ? 'Listening... Speak now!' : 'Ask about Lokendra...'}
+                  placeholder={isListening ? 'Listening... Speak now!' : 'Ask or say "show projects"...'}
                   disabled={isLoading}
                   className="flex-1 px-3.5 py-2.5 text-sm bg-surface border border-border/80 rounded-xl text-text placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary/50 shadow-inner disabled:opacity-50"
                 />
