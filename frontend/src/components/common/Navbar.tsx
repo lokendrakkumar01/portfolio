@@ -136,7 +136,7 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.25, ease: 'easeInOut' }}
-            className="fixed inset-0 z-50 w-screen h-[100dvh] bg-surface flex flex-col overflow-hidden lg:hidden"
+            className="fixed inset-0 z-[999] w-screen h-[100dvh] bg-surface flex flex-col overflow-hidden lg:hidden"
           >
             {/* Top Drawer Header (Fixed) */}
             <div className="flex-shrink-0 flex items-center justify-between p-4 sm:p-5 border-b border-border bg-surface">
@@ -190,7 +190,7 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
             </nav>
 
             {/* Bottom Drawer Actions (Fixed & Safe-area aware) */}
-            <div className="flex-shrink-0 p-4 sm:p-5 pb-safe border-t border-border bg-surface/80 backdrop-blur-md space-y-3.5">
+            <div className="flex-shrink-0 p-4 sm:p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom,0px))] border-t border-border bg-surface/90 backdrop-blur-md space-y-3.5">
               <Link to="/contact" onClick={() => setMobileOpen(false)}>
                 <button className="w-full flex items-center justify-center gap-2 py-3.5 px-4 bg-primary text-white font-bold text-sm rounded-2xl shadow-lg shadow-primary/20 hover:opacity-90 active:scale-95 transition-all">
                   <span>Get In Touch</span>

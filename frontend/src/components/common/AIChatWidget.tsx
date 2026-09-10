@@ -38,6 +38,7 @@ export default function AIChatWidget() {
   const linkedinLink = socialLinks.find(s => s.platform === 'linkedin')?.url || 'https://linkedin.com';
 
   const [isOpen, setIsOpen] = useState(false);
+  const [bodyLocked, setBodyLocked] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '0',
@@ -46,6 +47,14 @@ export default function AIChatWidget() {
       timestamp: new Date(),
     },
   ]);
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setBodyLocked(document.body.style.overflow === 'hidden');
+    });
+    observer.observe(document.body, { attributes: true, attributeFilter: ['style'] });
+    return () => observer.disconnect();
+  }, []);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
@@ -268,6 +277,8 @@ export default function AIChatWidget() {
     ]);
     toast.success('Chat history cleared');
   };
+
+  if (bodyLocked && !isOpen) return null;
 
   return (
     <>
