@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Download, Mail, ArrowRight, MapPin, Calendar, FolderCode, Trophy, Briefcase, GraduationCap, Sparkles } from 'lucide-react';
+import { Download, Mail, ArrowRight, MapPin, FolderCode, Trophy, Sparkles, UserCheck } from 'lucide-react';
 import { useProfile } from '../../hooks/useProfile';
 import { useSocialLinks } from '../../hooks/useSocialLinks';
 import { useResume } from '../../hooks/useResume';
@@ -9,16 +9,13 @@ import { useSkills } from '../../hooks/useSkills';
 import { useProjects } from '../../hooks/useProjects';
 import { useCertificates } from '../../hooks/useCertificates';
 import { useAchievements } from '../../hooks/useAchievements';
-import { useExperience } from '../../hooks/useExperience';
-import { useEducation } from '../../hooks/useEducation';
-import { useGallery } from '../../hooks/useGallery';
 import { SEO } from '../../components/common/SEO';
 import { SectionHeading } from '../../components/common/SectionHeading';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { Skeleton, SkeletonCard } from '../../components/ui/Skeleton';
 import { EmptyState } from '../../components/ui/EmptyState';
-import { getSocialIcon, formatDate, formatDuration, getProficiencyLabel } from '../../utils/formatters';
+import { getSocialIcon, formatDate, getProficiencyLabel } from '../../utils/formatters';
 import { useRef, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -64,17 +61,19 @@ function HeroSection() {
   const { data: profileData, isLoading } = useProfile();
   const { data: socialData } = useSocialLinks();
   const { data: resumeData } = useResume();
+  const [imgError, setImgError] = useState(false);
+
   const profile = profileData?.data;
   const socialLinks = (socialData?.data ?? []).filter((l) => l.active).slice(0, 6);
   const currentResume = (resumeData?.data ?? []).find((r) => r.isCurrent);
 
   return (
-    <section className="relative min-h-[calc(100vh-4rem)] flex items-center py-16 px-4 sm:px-6 lg:px-8 overflow-hidden">
+    <section className="relative min-h-[calc(100vh-4rem)] flex items-center py-12 px-4 sm:px-6 lg:px-8 overflow-hidden">
       {/* Background Glow Orbs */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[120px] pointer-events-none -z-10" />
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px] pointer-events-none -z-10" />
       <div className="absolute bottom-10 right-10 w-[300px] h-[300px] bg-accent/10 rounded-full blur-[100px] pointer-events-none -z-10" />
 
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center w-full">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center w-full">
         {/* Left Column Text */}
         <div className="order-2 lg:order-1 lg:col-span-7">
           {isLoading ? (
@@ -101,14 +100,14 @@ function HeroSection() {
                 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
                 className="text-4xl sm:text-6xl font-extrabold text-text leading-tight tracking-tight mb-3"
               >
-                Hi, I'm <span className="text-gradient">{profile?.name ?? 'Your Name'}</span>
+                Hi, I'm <span className="text-gradient">{profile?.name ?? 'Developer'}</span>
               </motion.h1>
 
               <motion.h2
                 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
                 className="text-xl sm:text-2xl font-semibold text-primary/90 mb-4"
               >
-                {profile?.title ?? 'Full-Stack Developer & Software Engineer'}
+                {profile?.title && profile.title !== '[YOUR TITLE]' ? profile.title : 'Full-Stack Developer & Software Engineer'}
               </motion.h2>
 
               {profile?.tagline && (
@@ -124,7 +123,7 @@ function HeroSection() {
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}
                 className="text-muted text-base sm:text-lg leading-relaxed mb-8 max-w-2xl"
               >
-                {profile?.shortBio ?? 'Building modern, performant, and scalable web applications with clean architecture.'}
+                {profile?.shortBio ?? 'Building modern, performant, and scalable web applications.'}
               </motion.p>
 
               {/* Action CTA Buttons */}
@@ -179,16 +178,23 @@ function HeroSection() {
         {/* Right Column Photo Frame */}
         <motion.div
           initial={{ opacity: 0, scale: 0.88 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.7, delay: 0.2 }}
-          className="order-1 lg:order-2 lg:col-span-5 flex justify-center"
+          className="order-1 lg:order-2 lg:col-span-5 flex justify-center py-4"
         >
           <div className="relative">
-            <div className="absolute inset-[-12px] rounded-full bg-gradient-to-r from-primary to-accent opacity-25 blur-2xl animate-pulse-slow" />
-            <div className="relative w-64 h-64 sm:w-80 sm:h-80 rounded-full overflow-hidden border-4 border-card shadow-2xl ring-4 ring-primary/20">
-              {profile?.profileImage ? (
-                <img src={profile.profileImage} alt={profile.name} className="w-full h-full object-cover" />
+            <div className="absolute inset-[-10px] rounded-full bg-gradient-to-r from-primary to-accent opacity-25 blur-2xl animate-pulse-slow" />
+            <div className="relative w-56 h-56 sm:w-72 sm:h-72 lg:w-80 lg:h-80 rounded-full overflow-hidden border-4 border-card shadow-2xl ring-4 ring-primary/20 bg-surface flex items-center justify-center">
+              {profile?.profileImage && !imgError ? (
+                <img
+                  src={profile.profileImage}
+                  alt={profile.name ?? 'Profile Photo'}
+                  onError={() => setImgError(true)}
+                  className="w-full h-full object-cover"
+                />
               ) : (
-                <div className="w-full h-full bg-card flex items-center justify-center text-7xl">
-                  👤
+                <div className="w-full h-full bg-gradient-to-br from-primary/10 via-surface to-accent/10 flex flex-col items-center justify-center text-center p-6">
+                  <UserCheck className="w-16 h-16 sm:w-20 sm:h-20 text-primary/60 mb-2" />
+                  <span className="text-sm font-bold text-text truncate max-w-[160px]">{profile?.name ?? 'Developer'}</span>
+                  <span className="text-xs text-muted truncate max-w-[160px]">{profile?.title !== '[YOUR TITLE]' ? profile?.title : ''}</span>
                 </div>
               )}
             </div>
@@ -197,7 +203,7 @@ function HeroSection() {
             {profile?.availability === 'available' && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
-                className="absolute -bottom-2 right-4 flex items-center gap-2 bg-surface/90 backdrop-blur-md border border-border rounded-full px-4 py-1.5 shadow-xl"
+                className="absolute -bottom-2 right-2 sm:right-4 flex items-center gap-2 bg-surface/90 backdrop-blur-md border border-border rounded-full px-3.5 py-1.5 shadow-xl"
               >
                 <div className="w-2.5 h-2.5 bg-success rounded-full animate-ping" />
                 <span className="text-xs font-semibold text-text">Available for Hire</span>

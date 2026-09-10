@@ -35,7 +35,7 @@ export default function ProfilePage() {
   const profile = profileData?.data;
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-  const { register, handleSubmit, reset, formState: { errors, isDirty } } = useForm<Form>({
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<Form>({
     resolver: zodResolver(schema),
     defaultValues: { availability: 'available' },
   });
@@ -71,53 +71,57 @@ export default function ProfilePage() {
   return (
     <div className="max-w-3xl space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-text">Profile</h1>
-        <p className="text-muted text-sm">Your public profile information</p>
+        <h1 className="text-2xl font-bold text-text">Profile Management</h1>
+        <p className="text-muted text-sm">Update your public profile, bio, and face photo</p>
       </div>
 
-      {/* Profile image */}
-      <div className="flex items-center gap-6">
+      {/* Profile image upload frame */}
+      <div className="flex items-center gap-6 bg-card border border-border p-5 rounded-2xl">
         <div className="relative">
-          <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-border">
+          <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-primary/20 bg-surface shadow-md">
             {previewUrl || profile?.profileImage ? (
               <img src={previewUrl ?? profile?.profileImage} alt="Profile" className="w-full h-full object-cover" />
             ) : (
               <div className="w-full h-full bg-card flex items-center justify-center text-3xl">👤</div>
             )}
           </div>
-          <label className="absolute bottom-0 right-0 w-7 h-7 bg-primary text-white rounded-full flex items-center justify-center cursor-pointer hover:opacity-90">
-            <Camera className="w-3.5 h-3.5" />
+          <label className="absolute bottom-0 right-0 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center cursor-pointer hover:opacity-90 shadow-lg">
+            <Camera className="w-4 h-4" />
             <input type="file" accept="image/*" className="sr-only" onChange={handleImageChange} />
           </label>
         </div>
         <div>
-          <p className="font-semibold text-text">{profile?.name ?? 'Your Name'}</p>
-          <p className="text-sm text-muted">{profile?.title ?? 'Your Title'}</p>
-          {uploadImage.isPending && <p className="text-xs text-primary mt-1">Uploading image...</p>}
+          <p className="font-bold text-text text-base">{profile?.name ?? 'Your Name'}</p>
+          <p className="text-sm text-primary font-medium">{profile?.title ?? 'Your Title'}</p>
+          {uploadImage.isPending ? (
+            <p className="text-xs text-primary font-semibold mt-1 animate-pulse">Uploading photo to Cloudinary...</p>
+          ) : (
+            <p className="text-xs text-muted mt-1">Click camera icon to change photo</p>
+          )}
         </div>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Input label="Full Name" error={errors.name?.message} required {...register('name')} />
-          <Input label="Username" error={errors.username?.message} required {...register('username')} />
+          <Input label="Full Name *" error={errors.name?.message} required {...register('name')} />
+          <Input label="Username *" error={errors.username?.message} required {...register('username')} />
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Input label="Professional Title" error={errors.title?.message} required {...register('title')} />
-          <Input label="Tagline" error={errors.tagline?.message} {...register('tagline')} />
+          <Input label="Professional Title *" error={errors.title?.message} required placeholder="Full-Stack Developer & Software Engineer" {...register('title')} />
+          <Input label="Tagline" error={errors.tagline?.message} placeholder="Crafting digital experiences with passion" {...register('tagline')} />
         </div>
-        <Textarea label="Short Bio" error={errors.shortBio?.message} required rows={3} {...register('shortBio')} />
-        <Textarea label="Long Bio" error={errors.longBio?.message} rows={6} {...register('longBio')} hint="Full bio shown on About page" />
+        <Textarea label="Short Bio *" error={errors.shortBio?.message} required rows={3} placeholder="Brief intro shown on Home page..." {...register('shortBio')} />
+        <Textarea label="Long Bio" error={errors.longBio?.message} rows={6} placeholder="Full biography shown on About page..." {...register('longBio')} />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Input label="Email" type="email" error={errors.email?.message} required {...register('email')} />
+          <Input label="Email *" type="email" error={errors.email?.message} required {...register('email')} />
           <Input label="Phone" error={errors.phone?.message} {...register('phone')} />
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Input label="Location" error={errors.location?.message} {...register('location')} />
+          <Input label="Location" error={errors.location?.message} placeholder="Delhi, India" {...register('location')} />
           <Select label="Availability Status" options={availabilityOptions} {...register('availability')} />
         </div>
-        <div className="flex justify-end">
-          <Button type="submit" loading={updateProfile.isPending} disabled={!isDirty}>Save Profile</Button>
+        <div className="flex justify-end pt-2">
+          <Button type="submit" loading={updateProfile.isPending} size="lg">Save Profile Changes</Button>
         </div>
       </form>
     </div>

@@ -9,14 +9,15 @@ export const useProfile = () =>
   useQuery({
     queryKey: PROFILE_KEY,
     queryFn: profileApi.get,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 0,
   });
 
 export const useUpdateProfile = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: profileApi.update,
-    onSuccess: () => {
+    onSuccess: (res) => {
+      qc.setQueryData(PROFILE_KEY, res);
       qc.invalidateQueries({ queryKey: PROFILE_KEY });
       toast.success('Profile updated successfully');
     },
@@ -28,9 +29,10 @@ export const useUploadProfileImage = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: profileApi.uploadImage,
-    onSuccess: () => {
+    onSuccess: (res) => {
+      qc.setQueryData(PROFILE_KEY, res);
       qc.invalidateQueries({ queryKey: PROFILE_KEY });
-      toast.success('Profile image uploaded');
+      toast.success('Profile image uploaded successfully');
     },
     onError: (err) => toast.error(getErrorMessage(err)),
   });
