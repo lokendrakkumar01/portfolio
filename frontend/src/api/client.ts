@@ -35,7 +35,8 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   (response: AxiosResponse) => response,
   (error: AxiosError<{ message: string }>) => {
-    if (error.response?.status === 401) {
+    const status = error.response?.status;
+    if (status === 401 || status === 403) {
       // Clear auth state without circular import
       try {
         const raw = localStorage.getItem('auth-storage');
