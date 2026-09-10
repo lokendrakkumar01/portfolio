@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Outlet, Navigate, NavLink, useNavigate, useLocation, Link } from 'react-router-dom';
+import { Outlet, Navigate, useNavigate, useLocation } from 'react-router-dom';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard, User, FolderCode, Award, Trophy, Zap,
@@ -30,6 +31,7 @@ const navItems = [
 function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { logout, user } = useAuthStore();
   const navigate = useNavigate();
+  const location = useLocation();
   const { data: statsData } = useStats();
   const unread = statsData?.data?.unreadMessages ?? 0;
 
@@ -39,14 +41,19 @@ function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
     navigate('/admin/login');
   };
 
+  const handleNavClick = (to: string) => {
+    onClose();
+    navigate(to);
+  };
+
   const content = (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Header (Fixed) */}
       <div className="flex-shrink-0 flex items-center justify-between p-4 sm:p-5 border-b border-border bg-surface">
-        <Link to="/admin/dashboard" onClick={onClose} className="hover:opacity-80 transition-opacity min-w-0">
+        <button onClick={() => handleNavClick('/admin/dashboard')} className="hover:opacity-80 transition-opacity min-w-0 text-left">
           <span className="font-bold text-base text-text block truncate">Admin Panel</span>
           <p className="text-xs text-muted truncate max-w-[140px]">{user?.email}</p>
-        </Link>
+        </button>
         <button onClick={onClose} className="lg:hidden p-1.5 rounded-lg hover:bg-card transition-colors flex-shrink-0" aria-label="Close sidebar">
           <X className="w-5 h-5 text-text" />
         </button>
@@ -54,34 +61,34 @@ function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
 
       {/* Nav (Scrollable content only) */}
       <nav className="flex-1 min-h-0 overflow-y-auto p-3 space-y-0.5 scrollbar-none">
-        {navItems.map(({ to, label, icon: Icon, badge }) => (
-          <NavLink
-            key={to}
-            to={to}
-            onClick={onClose}
-            className={({ isActive }) =>
-              cn(
-                'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
-                isActive ? 'bg-primary/10 text-primary' : 'text-muted hover:text-text hover:bg-card'
-              )
-            }
-          >
-            <Icon className="w-4 h-4 flex-shrink-0" />
-            <span className="flex-1">{label}</span>
-            {badge && unread > 0 && (
-              <span className="bg-error text-white text-xs px-1.5 py-0.5 rounded-full min-w-[20px] text-center">
-                {unread > 99 ? '99+' : unread}
-              </span>
-            )}
-          </NavLink>
-        ))}
+        {navItems.map(({ to, label, icon: Icon, badge }) => {
+          const isActive = location.pathname === to || location.pathname.startsWith(to);
+          return (
+            <button
+              key={to}
+              onClick={() => handleNavClick(to)}
+              className={cn(
+                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors w-full text-left',
+                isActive ? 'bg-primary/10 text-primary font-semibold' : 'text-muted hover:text-text hover:bg-card'
+              )}
+            >
+              <Icon className="w-4 h-4 flex-shrink-0" />
+              <span className="flex-1">{label}</span>
+              {badge && unread > 0 && (
+                <span className="bg-error text-white text-xs px-1.5 py-0.5 rounded-full min-w-[20px] text-center">
+                  {unread > 99 ? '99+' : unread}
+                </span>
+              )}
+            </button>
+          );
+        })}
       </nav>
 
       {/* Logout (Fixed & Safe-area aware) */}
-      <div className="flex-shrink-0 p-3 pb-safe border-t border-border bg-surface">
+      <div className="flex-shrink-0 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] border-t border-border bg-surface">
         <button
           onClick={handleLogout}
-          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-muted hover:text-error hover:bg-error/10 transition-colors w-full"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted hover:text-error hover:bg-error/10 transition-colors w-full"
         >
           <LogOut className="w-4 h-4" />
           Logout
@@ -97,21 +104,24 @@ function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
         {content}
       </aside>
 
-      {/* Mobile full-screen drawer */}
-      <AnimatePresence>
-        {open && (
-          <motion.aside
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.25, ease: 'easeInOut' }}
-            className="fixed inset-0 z-[999] w-screen h-[100dvh] bg-surface flex flex-col overflow-hidden lg:hidden"
-            style={{ width: '100vw', height: '100dvh' }}
-          >
-            {content}
-          </motion.aside>
-        )}
-      </AnimatePresence>
+      {/* Mobile full-screen drawer via Portal */}
+      {typeof document !== 'undefined' && createPortal(
+        <AnimatePresence>
+          {open && (
+            <motion.aside
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2, ease: 'easeInOut' }}
+              className="fixed inset-0 z-[9999] w-screen h-[100dvh] bg-surface flex flex-col overflow-hidden lg:hidden"
+              style={{ width: '100vw', height: '100dvh' }}
+            >
+              {content}
+            </motion.aside>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
     </>
   );
 }
