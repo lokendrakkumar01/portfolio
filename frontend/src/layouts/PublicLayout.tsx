@@ -3,6 +3,7 @@ import Navbar from '../components/common/Navbar';
 import Footer from '../components/common/Footer';
 import ScrollToTop from '../components/common/ScrollToTop';
 import { useTheme } from '../hooks/useTheme';
+import AIChatWidget from '../components/common/AIChatWidget';
 
 export default function PublicLayout() {
   const { theme, toggleTheme } = useTheme();
@@ -14,6 +15,7 @@ export default function PublicLayout() {
       </main>
       <Footer />
       <ScrollToTop />
+      <AIChatWidget />
     </div>
   );
 }

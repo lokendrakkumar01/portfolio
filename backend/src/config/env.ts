@@ -16,6 +16,7 @@ const envSchema = z.object({
   CLOUDINARY_CLOUD_NAME: z.string().optional().transform((val) => val?.trim()),
   CLOUDINARY_API_KEY: z.string().optional().transform((val) => val?.trim()),
   CLOUDINARY_API_SECRET: z.string().optional().transform((val) => val?.trim()),
+  GEMINI_API_KEY: z.string().optional().transform((val) => val?.trim()),
 });
 
 export type Env = z.infer<typeof envSchema>;

@@ -15,6 +15,7 @@ import messageRoutes from './message.routes';
 import settingsRoutes from './settings.routes';
 import uploadRoutes from './upload.routes';
 import statsRoutes from './stats.routes';
+import assistantRoutes from './assistant.routes';
 
 const router = Router();
 
@@ -34,5 +35,6 @@ router.use('/messages', messageRoutes);
 router.use('/settings', settingsRoutes);
 router.use('/upload', uploadRoutes);
 router.use('/stats', statsRoutes);
+router.use('/assistant', assistantRoutes);
 
 export default router;

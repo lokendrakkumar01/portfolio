@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { NavLink, Link } from 'react-router-dom';
+import { NavLink, Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Menu, X, Sun, Moon, Home, User, Zap, FolderCode,
@@ -54,6 +54,11 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
     window.addEventListener('resize', handler);
     return () => window.removeEventListener('resize', handler);
   }, []);
+
+  const location = useLocation();
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [location.pathname]);
 
   const linkCls = ({ isActive }: { isActive: boolean }) =>
     `text-sm font-semibold transition-all duration-200 pb-0.5 relative ${
