@@ -152,13 +152,13 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
             >
               {/* Top Drawer Header (Fixed) */}
               <div className="flex-shrink-0 flex items-center justify-between p-4 sm:p-5 border-b border-border bg-surface">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-black text-base">
+                <Link to="/" onClick={() => setMobileOpen(false)} className="flex items-center gap-2.5 hover:opacity-80 transition-opacity min-w-0">
+                  <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-black text-base flex-shrink-0">
                     {siteName.charAt(0)}
                   </div>
                   <span className="font-bold text-text text-base tracking-tight truncate max-w-[140px] sm:max-w-[180px]">{siteName}</span>
-                </div>
-                <div className="flex items-center gap-1">
+                </Link>
+                <div className="flex items-center gap-1 flex-shrink-0">
                   <button
                     onClick={toggleTheme}
                     className="p-2 rounded-xl hover:bg-card text-muted transition-colors"

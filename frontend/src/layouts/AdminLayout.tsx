@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Outlet, Navigate, NavLink, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Outlet, Navigate, NavLink, useNavigate, useLocation, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard, User, FolderCode, Award, Trophy, Zap,
@@ -34,6 +34,7 @@ function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
   const unread = statsData?.data?.unreadMessages ?? 0;
 
   const handleLogout = () => {
+    onClose();
     logout();
     navigate('/admin/login');
   };
@@ -42,11 +43,11 @@ function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
     <div className="flex flex-col h-full overflow-hidden">
       {/* Header (Fixed) */}
       <div className="flex-shrink-0 flex items-center justify-between p-4 sm:p-5 border-b border-border bg-surface">
-        <div>
-          <span className="font-bold text-base text-text">Admin Panel</span>
+        <Link to="/admin/dashboard" onClick={onClose} className="hover:opacity-80 transition-opacity min-w-0">
+          <span className="font-bold text-base text-text block truncate">Admin Panel</span>
           <p className="text-xs text-muted truncate max-w-[140px]">{user?.email}</p>
-        </div>
-        <button onClick={onClose} className="lg:hidden p-1.5 rounded-lg hover:bg-card transition-colors" aria-label="Close sidebar">
+        </Link>
+        <button onClick={onClose} className="lg:hidden p-1.5 rounded-lg hover:bg-card transition-colors flex-shrink-0" aria-label="Close sidebar">
           <X className="w-5 h-5 text-text" />
         </button>
       </div>
@@ -123,6 +124,31 @@ export default function AdminLayout() {
   const { isAuthenticated } = useAuthStore();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
+  const location = useLocation();
+
+  // Auto close mobile sidebar on location/route change
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [location.pathname]);
+
+  // Lock body scroll when mobile sidebar is open
+  useEffect(() => {
+    if (sidebarOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [sidebarOpen]);
+
+  // Auto close mobile sidebar on desktop resize
+  useEffect(() => {
+    const handler = () => { if (window.innerWidth >= 1024) setSidebarOpen(false); };
+    window.addEventListener('resize', handler);
+    return () => window.removeEventListener('resize', handler);
+  }, []);
 
   if (!isAuthenticated) return <Navigate to="/admin/login" replace />;
 
