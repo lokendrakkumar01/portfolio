@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Search, ExternalLink, Github } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Search, ExternalLink, Github, FolderGit2 } from 'lucide-react';
 import { SEO } from '../../components/common/SEO';
 import { SectionHeading } from '../../components/common/SectionHeading';
 import { Badge } from '../../components/ui/Badge';
@@ -31,66 +31,107 @@ export default function ProjectsPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <SectionHeading title="My Projects" subtitle="A collection of things I've built" center />
 
-        {/* Filters */}
-        <div className="flex flex-col sm:flex-row gap-3 mb-8">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
-            <input value={q} onChange={(e) => { setQ(e.target.value); setPage(1); }} placeholder="Search projects..."
-              className="w-full pl-9 pr-4 py-2.5 text-sm bg-card border border-border rounded-lg text-text placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary" />
+        {/* Modern Filters */}
+        <div className="flex flex-col md:flex-row gap-4 mb-10 items-center justify-between bg-card/50 backdrop-blur-sm p-4 rounded-3xl border border-border shadow-sm">
+          <div className="flex flex-wrap gap-2 w-full md:w-auto">
+            <button
+              onClick={() => { setCategory(''); setPage(1); }}
+              className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${category === '' ? 'bg-primary text-white shadow-md' : 'bg-surface hover:bg-surface/80 text-muted hover:text-text'}`}
+            >All</button>
+            {ALL_CATEGORIES.slice(0, 4).map(([v, l]) => (
+              <button key={v} onClick={() => { setCategory(v); setPage(1); }}
+                className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${category === v ? 'bg-primary text-white shadow-md' : 'bg-surface hover:bg-surface/80 text-muted hover:text-text'}`}
+              >{l}</button>
+            ))}
+            <select value={category} onChange={(e) => { setCategory(e.target.value as ProjectCategory | ''); setPage(1); }}
+              className="px-4 py-2 text-sm bg-surface rounded-full text-text focus:outline-none focus:ring-2 focus:ring-primary border-none max-w-[140px] appearance-none font-semibold cursor-pointer">
+              <option value="" disabled>More...</option>
+              {ALL_CATEGORIES.slice(4).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+            </select>
           </div>
-          <select value={category} onChange={(e) => { setCategory(e.target.value as ProjectCategory | ''); setPage(1); }}
-            className="px-4 py-2.5 text-sm bg-card border border-border rounded-lg text-text focus:outline-none focus:ring-2 focus:ring-primary">
-            <option value="">All Categories</option>
-            {ALL_CATEGORIES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-          </select>
+          
+          <div className="relative w-full md:w-72">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
+            <input value={q} onChange={(e) => { setQ(e.target.value); setPage(1); }} placeholder="Search projects..."
+              className="w-full pl-11 pr-4 py-2.5 text-sm bg-surface border border-transparent hover:border-border rounded-full text-text placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary transition-all shadow-inner" />
+          </div>
         </div>
 
         {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)}
           </div>
         ) : projects.length === 0 ? (
-          <EmptyState title="No projects found" description="Try adjusting your search or filters." />
+          <EmptyState icon={FolderGit2} title="No projects found" description="Try adjusting your search or filters." />
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              {projects.map((p, i) => (
-                <motion.div key={p._id}
-                  initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }}>
-                  <Link to={`/projects/${p.slug}`}
-                    className="group block bg-card border border-border rounded-xl overflow-hidden hover:border-primary/50 hover:shadow-lg transition-all h-full">
-                    {p.coverImage ? (
-                      <img src={p.coverImage} alt={p.title} loading="lazy" className="w-full h-44 object-cover group-hover:scale-105 transition-transform duration-500" />
-                    ) : (
-                      <div className="w-full h-44 bg-surface flex items-center justify-center">
-                        <span className="text-5xl">💻</span>
+            <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+              <AnimatePresence>
+                {projects.map((p, i) => (
+                  <motion.div key={p._id}
+                    layout
+                    initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9 }} transition={{ delay: i * 0.05 }}
+                    className="group"
+                  >
+                    <Link to={`/projects/${p.slug}`}
+                      className="block bg-card/80 backdrop-blur-sm border border-border rounded-3xl overflow-hidden hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/5 hover:-translate-y-2 transition-all duration-500 h-full flex flex-col relative"
+                    >
+                      {/* Image Container with Gradient Overlay */}
+                      <div className="relative w-full h-56 overflow-hidden bg-surface">
+                        <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent z-10" />
+                        {p.coverImage ? (
+                          <img src={p.coverImage} alt={p.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-muted/30 group-hover:scale-110 transition-transform duration-700">
+                            <FolderGit2 className="w-20 h-20" />
+                          </div>
+                        )}
+                        
+                        {/* Status Badge Over Image */}
+                        <div className="absolute top-4 right-4 z-20">
+                          <Badge variant={p.status === 'completed' ? 'success' : p.status === 'archived' ? 'error' : 'warning'} className="shadow-lg backdrop-blur-md bg-opacity-90">
+                            {p.status}
+                          </Badge>
+                        </div>
                       </div>
-                    )}
-                    <div className="p-5">
-                      <div className="flex items-start justify-between mb-1">
-                        <h3 className="font-semibold text-text group-hover:text-primary transition-colors line-clamp-1">{p.title}</h3>
-                        <Badge variant={p.status === 'completed' ? 'success' : 'warning'} size="sm">{p.status}</Badge>
+
+                      {/* Content */}
+                      <div className="p-6 flex-1 flex flex-col justify-between relative z-20 -mt-6 bg-card rounded-t-3xl border-t border-border/50">
+                        <div>
+                          <h3 className="font-extrabold text-xl text-text group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-primary group-hover:to-accent transition-all mb-2">{p.title}</h3>
+                          <p className="text-sm text-muted mb-5 line-clamp-2 leading-relaxed">{p.shortDescription}</p>
+                        </div>
+                        
+                        <div>
+                          <div className="flex flex-wrap gap-2 mb-6">
+                            {p.technologies.slice(0, 3).map((t) => (
+                              <span key={t} className="px-2.5 py-1 rounded-md text-[11px] font-bold tracking-wide uppercase bg-primary/10 text-primary border border-primary/20">{t}</span>
+                            ))}
+                            {p.technologies.length > 3 && <span className="px-2.5 py-1 rounded-md text-[11px] font-bold tracking-wide uppercase bg-surface text-muted border border-border">+{p.technologies.length - 3}</span>}
+                          </div>
+                          
+                          {/* Quick Links Footer */}
+                          <div className="flex items-center gap-3 pt-4 border-t border-border/60">
+                            {p.githubUrl && (
+                              <a href={p.githubUrl} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}
+                                className="flex items-center gap-1.5 text-xs font-semibold text-text hover:text-primary transition-colors bg-surface px-3 py-1.5 rounded-lg border border-border hover:border-primary/30">
+                                <Github className="w-4 h-4" /> Source
+                              </a>
+                            )}
+                            {p.liveUrl && (
+                              <a href={p.liveUrl} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}
+                                className="flex items-center gap-1.5 text-xs font-semibold text-white bg-primary hover:bg-primary/90 transition-colors px-3 py-1.5 rounded-lg shadow-md shadow-primary/20">
+                                <ExternalLink className="w-4 h-4" /> Live Demo
+                              </a>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                      <p className="text-sm text-muted mb-3 line-clamp-2">{p.shortDescription}</p>
-                      <div className="flex flex-wrap gap-1.5 mb-3">
-                        {p.technologies.slice(0, 4).map((t) => <Badge key={t} variant="primary" size="sm">{t}</Badge>)}
-                        {p.technologies.length > 4 && <Badge size="sm">+{p.technologies.length - 4}</Badge>}
-                      </div>
-                      <div className="flex gap-2">
-                        {p.githubUrl && <a href={p.githubUrl} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}
-                          className="flex items-center gap-1 text-xs text-muted hover:text-text transition-colors">
-                          <Github className="w-3.5 h-3.5" /> Code
-                        </a>}
-                        {p.liveUrl && <a href={p.liveUrl} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}
-                          className="flex items-center gap-1 text-xs text-muted hover:text-primary transition-colors">
-                          <ExternalLink className="w-3.5 h-3.5" /> Live
-                        </a>}
-                      </div>
-                    </div>
-                  </Link>
-                </motion.div>
-              ))}
-            </div>
+                    </Link>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </motion.div>
             {pagination && <Pagination page={pagination.page} totalPages={pagination.totalPages} onPageChange={setPage} />}
           </>
         )}

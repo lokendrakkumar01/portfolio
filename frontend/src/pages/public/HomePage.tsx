@@ -49,9 +49,10 @@ function AnimatedCounter({ end, label, suffix = '+' }: { end: number; label: str
   }, [started, end]);
 
   return (
-    <div ref={ref} className="text-center p-4 bg-card/60 backdrop-blur-sm border border-border/60 rounded-2xl shadow-sm hover:border-primary/40 transition-colors">
-      <div className="text-3xl font-extrabold text-primary">{count}{end > 0 ? suffix : '—'}</div>
-      <div className="text-xs font-medium text-muted mt-1 uppercase tracking-wider">{label}</div>
+    <div ref={ref} className="text-center p-5 bg-card/60 backdrop-blur-md border border-border/60 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-primary/40 transition-all duration-300 relative overflow-hidden group">
+      <div className="absolute -right-4 -top-4 w-16 h-16 bg-primary/10 rounded-full blur-xl group-hover:bg-primary/20 transition-colors" />
+      <div className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-br from-primary to-accent mb-1">{count}{end > 0 ? suffix : '—'}</div>
+      <div className="text-xs font-bold text-muted uppercase tracking-wider">{label}</div>
     </div>
   );
 }
@@ -70,10 +71,10 @@ function HeroSection() {
   return (
     <section className="relative min-h-[calc(100vh-4rem)] flex items-center py-12 px-4 sm:px-6 lg:px-8 overflow-hidden">
       {/* Background Glow Orbs */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px] pointer-events-none -z-10" />
-      <div className="absolute bottom-10 right-10 w-[300px] h-[300px] bg-accent/10 rounded-full blur-[100px] pointer-events-none -z-10" />
+      <motion.div animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }} transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }} className="absolute top-1/4 left-1/4 -translate-x-1/2 w-[600px] h-[600px] bg-primary/20 rounded-full blur-[120px] pointer-events-none -z-10" />
+      <motion.div animate={{ scale: [1, 1.3, 1], opacity: [0.2, 0.4, 0.2] }} transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 2 }} className="absolute bottom-10 right-1/4 w-[500px] h-[500px] bg-accent/20 rounded-full blur-[100px] pointer-events-none -z-10" />
 
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center w-full">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center w-full relative z-10">
         {/* Left Column Text */}
         <div className="order-2 lg:order-1 lg:col-span-7">
           {isLoading ? (
@@ -91,21 +92,21 @@ function HeroSection() {
             <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }}
-                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-semibold uppercase tracking-wider mb-4"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-surface/80 backdrop-blur-md border border-border/80 text-primary text-xs font-bold uppercase tracking-wider mb-6 shadow-sm"
               >
-                <Sparkles className="w-3.5 h-3.5" /> Welcome to my Portfolio
+                <Sparkles className="w-4 h-4 text-accent" /> Welcome to my Portfolio
               </motion.div>
 
               <motion.h1
                 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-                className="text-4xl sm:text-6xl font-extrabold text-text leading-tight tracking-tight mb-3"
+                className="text-5xl sm:text-7xl font-extrabold text-text leading-tight tracking-tight mb-4"
               >
-                Hi, I'm <span className="text-gradient">{profile?.name ?? 'Developer'}</span>
+                Hi, I'm <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">{profile?.name ?? 'Developer'}</span>
               </motion.h1>
 
               <motion.h2
                 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-                className="text-xl sm:text-2xl font-semibold text-primary/90 mb-4"
+                className="text-2xl sm:text-3xl font-bold text-muted mb-6"
               >
                 {profile?.title && profile.title !== '[YOUR TITLE]' ? profile.title : 'Full-Stack Developer & Software Engineer'}
               </motion.h2>
@@ -113,7 +114,7 @@ function HeroSection() {
               {profile?.tagline && (
                 <motion.p
                   initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }}
-                  className="text-muted italic text-base mb-4 border-l-2 border-primary/40 pl-3"
+                  className="text-text italic text-lg mb-6 border-l-4 border-primary/60 pl-4 py-1"
                 >
                   "{profile.tagline}"
                 </motion.p>
@@ -121,7 +122,7 @@ function HeroSection() {
 
               <motion.p
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}
-                className="text-muted text-base sm:text-lg leading-relaxed mb-8 max-w-2xl"
+                className="text-muted text-lg sm:text-xl leading-relaxed mb-10 max-w-2xl font-medium"
               >
                 {profile?.shortBio ?? 'Building modern, performant, and scalable web applications.'}
               </motion.p>
@@ -129,16 +130,16 @@ function HeroSection() {
               {/* Action CTA Buttons */}
               <motion.div
                 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
-                className="flex flex-wrap items-center gap-3 mb-8"
+                className="flex flex-wrap items-center gap-4 mb-10"
               >
                 <Link to="/projects">
-                  <Button size="lg" icon={<ArrowRight className="w-4 h-4" />}>
+                  <Button size="lg" icon={<ArrowRight className="w-4 h-4" />} className="shadow-lg shadow-primary/25">
                     Explore Projects
                   </Button>
                 </Link>
                 {currentResume && (
                   <a href={currentResume.fileUrl} download target="_blank" rel="noreferrer">
-                    <Button variant="outline" size="lg" icon={<Download className="w-4 h-4" />}>
+                    <Button variant="outline" size="lg" icon={<Download className="w-4 h-4" />} className="bg-surface/50 backdrop-blur-sm">
                       Download Resume
                     </Button>
                   </a>
@@ -152,8 +153,8 @@ function HeroSection() {
 
               {/* Social Icons */}
               {socialLinks.length > 0 && (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }} className="flex gap-3 flex-wrap items-center">
-                  <span className="text-xs text-muted font-medium uppercase tracking-wider mr-1">Follow me:</span>
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }} className="flex gap-4 flex-wrap items-center">
+                  <span className="text-xs text-muted font-bold uppercase tracking-widest mr-2">Follow me</span>
                   {socialLinks.map((link) => {
                     const Icon = getSocialIcon(link.platform);
                     return (
@@ -163,9 +164,9 @@ function HeroSection() {
                         target="_blank"
                         rel="noreferrer"
                         aria-label={link.platform}
-                        className="p-2.5 rounded-xl border border-border/80 bg-card/60 backdrop-blur-sm hover:border-primary hover:text-primary text-muted transition-all duration-200 shadow-sm"
+                        className="p-3 rounded-2xl border border-border/80 bg-surface/80 backdrop-blur-md hover:border-primary hover:text-primary hover:-translate-y-1 text-muted transition-all duration-300 shadow-sm"
                       >
-                        <Icon className="w-4 h-4" />
+                        <Icon className="w-5 h-5" />
                       </a>
                     );
                   })}
@@ -180,9 +181,9 @@ function HeroSection() {
           initial={{ opacity: 0, scale: 0.88 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.7, delay: 0.2 }}
           className="order-1 lg:order-2 lg:col-span-5 flex justify-center py-4"
         >
-          <div className="relative">
-            <div className="absolute inset-[-10px] rounded-full bg-gradient-to-r from-primary to-accent opacity-25 blur-2xl animate-pulse-slow" />
-            <div className="relative w-56 h-56 sm:w-72 sm:h-72 lg:w-80 lg:h-80 rounded-full overflow-hidden border-4 border-card shadow-2xl ring-4 ring-primary/20 bg-surface flex items-center justify-center">
+          <div className="relative group">
+            <div className="absolute inset-[-20px] rounded-full bg-gradient-to-br from-primary to-accent opacity-30 blur-3xl animate-pulse-slow group-hover:opacity-50 transition-opacity duration-500" />
+            <div className="relative w-64 h-64 sm:w-80 sm:h-80 lg:w-96 lg:h-96 rounded-full overflow-hidden border-8 border-card shadow-2xl ring-4 ring-primary/30 bg-surface flex items-center justify-center transform group-hover:scale-[1.02] transition-transform duration-500">
               {profile?.profileImage && !imgError ? (
                 <img
                   src={profile.profileImage}
@@ -192,9 +193,9 @@ function HeroSection() {
                 />
               ) : (
                 <div className="w-full h-full bg-gradient-to-br from-primary/10 via-surface to-accent/10 flex flex-col items-center justify-center text-center p-6">
-                  <UserCheck className="w-16 h-16 sm:w-20 sm:h-20 text-primary/60 mb-2" />
-                  <span className="text-sm font-bold text-text truncate max-w-[160px]">{profile?.name ?? 'Developer'}</span>
-                  <span className="text-xs text-muted truncate max-w-[160px]">{profile?.title !== '[YOUR TITLE]' ? profile?.title : ''}</span>
+                  <UserCheck className="w-20 h-20 sm:w-24 sm:h-24 text-primary/60 mb-4" />
+                  <span className="text-lg font-bold text-text truncate max-w-[200px]">{profile?.name ?? 'Developer'}</span>
+                  <span className="text-sm text-muted truncate max-w-[200px]">{profile?.title !== '[YOUR TITLE]' ? profile?.title : ''}</span>
                 </div>
               )}
             </div>
@@ -203,10 +204,11 @@ function HeroSection() {
             {profile?.availability === 'available' && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
-                className="absolute -bottom-2 right-2 sm:right-4 flex items-center gap-2 bg-surface/90 backdrop-blur-md border border-border rounded-full px-3.5 py-1.5 shadow-xl"
+                className="absolute -bottom-4 right-4 sm:right-8 flex items-center gap-3 bg-card/90 backdrop-blur-xl border border-border rounded-full px-5 py-2.5 shadow-2xl"
               >
-                <div className="w-2.5 h-2.5 bg-success rounded-full animate-ping" />
-                <span className="text-xs font-semibold text-text">Available for Hire</span>
+                <div className="w-3 h-3 bg-success rounded-full animate-ping absolute" />
+                <div className="w-3 h-3 bg-success rounded-full relative z-10" />
+                <span className="text-sm font-bold text-text">Available for Hire</span>
               </motion.div>
             )}
           </div>
@@ -224,7 +226,7 @@ function AboutSection() {
   const stats = statsData?.data;
 
   return (
-    <section id="about" className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <section id="about" className="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       <SectionHeading title="About Me" subtitle="A brief overview of who I am and what I do" />
       {isLoading ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -235,27 +237,27 @@ function AboutSection() {
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-          <div className="lg:col-span-7 space-y-5">
-            <p className="text-muted text-base sm:text-lg leading-relaxed whitespace-pre-line">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          <div className="lg:col-span-7 space-y-6">
+            <p className="text-muted text-lg sm:text-xl leading-relaxed whitespace-pre-line font-medium">
               {profile?.longBio ?? profile?.shortBio ?? 'Biography coming soon.'}
             </p>
             {profile?.location && (
-              <div className="flex items-center gap-2 text-muted text-sm pt-1">
-                <MapPin className="w-4 h-4 text-primary" />
+              <div className="flex items-center gap-2 text-text font-semibold text-base pt-2">
+                <MapPin className="w-5 h-5 text-primary" />
                 <span>{profile.location}</span>
               </div>
             )}
-            <div className="pt-3">
+            <div className="pt-4">
               <Link to="/about">
-                <Button variant="outline" size="md">
-                  Read Full Bio <ArrowRight className="w-4 h-4 ml-1" />
+                <Button variant="outline" size="lg" className="rounded-full shadow-sm">
+                  Read Full Bio <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </Link>
             </div>
           </div>
 
-          <div className="lg:col-span-5 grid grid-cols-2 gap-3">
+          <div className="lg:col-span-5 grid grid-cols-2 gap-4">
             <AnimatedCounter end={stats?.projects ?? 0} label="Projects Built" />
             <AnimatedCounter end={stats?.certificates ?? 0} label="Certifications" />
             <AnimatedCounter end={stats?.achievements ?? 0} label="Achievements" />
@@ -278,34 +280,35 @@ function SkillsSection() {
   }, {});
 
   return (
-    <section className="py-20 px-4 sm:px-6 lg:px-8 bg-surface/50 border-y border-border/40">
-      <div className="max-w-7xl mx-auto">
+    <section className="py-24 px-4 sm:px-6 lg:px-8 bg-surface/30 border-y border-border/40 relative">
+      <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.02] mix-blend-overlay pointer-events-none" />
+      <div className="max-w-7xl mx-auto relative z-10">
         <SectionHeading title="Skills & Tech Stack" subtitle="Technologies and tools I use to bring ideas to life" viewAllLink="/skills" />
         {isLoading ? (
           <div className="flex flex-wrap gap-2">
             {Array.from({ length: 16 }).map((_, i) => (
-              <Skeleton key={i} className="h-9 w-28 rounded-full" />
+              <Skeleton key={i} className="h-10 w-32 rounded-full" />
             ))}
           </div>
         ) : skills.length === 0 ? (
           <EmptyState title="Skills coming soon" description="Skills will appear here once added." />
         ) : (
-          <div className="space-y-8">
+          <div className="space-y-10">
             {Object.entries(grouped).map(([cat, catSkills]) => (
               <div key={cat}>
-                <h3 className="text-xs font-bold text-muted uppercase tracking-wider mb-3 capitalize flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-primary" /> {cat}
+                <h3 className="text-sm font-extrabold text-muted uppercase tracking-widest mb-4 capitalize flex items-center gap-3">
+                  <span className="w-3 h-3 rounded-full bg-gradient-to-r from-primary to-accent shadow-[0_0_8px_rgba(var(--primary-rgb),0.6)]" /> {cat}
                 </h3>
-                <div className="flex flex-wrap gap-2.5">
+                <div className="flex flex-wrap gap-3">
                   {catSkills.map((s) => (
                     <motion.div
                       key={s._id}
-                      whileHover={{ scale: 1.04, y: -2 }}
-                      className="flex items-center gap-2 px-3.5 py-2 bg-card border border-border rounded-xl text-sm text-text hover:border-primary/60 hover:shadow-md transition-all cursor-default"
+                      whileHover={{ scale: 1.05, y: -2 }}
+                      className="flex items-center gap-3 px-4 py-2.5 bg-card/80 backdrop-blur-md border border-border/80 rounded-2xl text-sm text-text hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 transition-all cursor-default"
                     >
-                      {s.icon && <span className="text-base">{s.icon}</span>}
-                      <span className="font-medium">{s.name}</span>
-                      <span className="text-[10px] text-muted font-medium bg-surface px-1.5 py-0.5 rounded-md border border-border">
+                      {s.icon && <span className="text-xl drop-shadow-md">{s.icon}</span>}
+                      <span className="font-bold">{s.name}</span>
+                      <span className="text-[10px] text-primary font-bold bg-primary/10 px-2 py-1 rounded-md border border-primary/20 tracking-wide uppercase">
                         {getProficiencyLabel(s.proficiency)}
                       </span>
                     </motion.div>
@@ -326,64 +329,64 @@ function ProjectsSection() {
   const projects = data?.data ?? [];
 
   return (
-    <section className="py-20 px-4 sm:px-6 lg:px-8">
+    <section className="py-24 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <SectionHeading title="Featured Projects" subtitle="A selection of software projects I've engineered" viewAllLink="/projects" />
         {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {Array.from({ length: 3 }).map((_, i) => <SkeletonCard key={i} />)}
           </div>
         ) : projects.length === 0 ? (
           <EmptyState title="Projects coming soon" description="Projects will be showcased here." />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {projects.map((p, i) => (
               <motion.div
                 key={p._id}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.08 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ delay: i * 0.1, duration: 0.5 }}
               >
                 <Link
                   to={`/projects/${p.slug}`}
-                  className="group block bg-card rounded-2xl border border-border overflow-hidden hover:border-primary/50 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full flex flex-col"
+                  className="group block bg-card/60 backdrop-blur-xl rounded-3xl border border-border overflow-hidden hover:border-primary/50 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.3)] hover:-translate-y-2 transition-all duration-500 h-full flex flex-col relative"
                 >
+                  <div className="absolute inset-0 bg-gradient-to-b from-transparent to-card/90 z-10 pointer-events-none" />
                   {p.coverImage ? (
-                    <div className="w-full h-48 overflow-hidden bg-surface relative">
+                    <div className="w-full h-56 overflow-hidden bg-surface relative">
                       <img
                         src={p.coverImage}
                         alt={p.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
                         loading="lazy"
                       />
                     </div>
                   ) : (
-                    <div className="w-full h-48 bg-surface/80 flex items-center justify-center border-b border-border">
-                      <FolderCode className="w-12 h-12 text-muted/40" />
+                    <div className="w-full h-56 bg-surface/80 flex items-center justify-center border-b border-border">
+                      <FolderCode className="w-16 h-16 text-muted/30 group-hover:scale-110 transition-transform duration-700" />
                     </div>
                   )}
-                  <div className="p-5 flex-1 flex flex-col justify-between">
+                  
+                  <div className="p-6 flex-1 flex flex-col justify-between relative z-20 -mt-8 bg-card rounded-t-3xl border-t border-border/50">
                     <div>
-                      <div className="flex items-center justify-between gap-2 mb-2">
-                        <h3 className="font-bold text-text group-hover:text-primary transition-colors text-base line-clamp-1">
+                      <div className="flex items-start justify-between gap-3 mb-3">
+                        <h3 className="font-extrabold text-xl text-text group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-primary group-hover:to-accent transition-all line-clamp-1">
                           {p.title}
                         </h3>
-                        <Badge variant={p.status === 'completed' ? 'success' : 'warning'} size="sm">
+                        <Badge variant={p.status === 'completed' ? 'success' : 'warning'} className="shadow-sm">
                           {p.status}
                         </Badge>
                       </div>
-                      <p className="text-sm text-muted mb-4 line-clamp-2 leading-relaxed">
+                      <p className="text-sm text-muted mb-5 line-clamp-2 leading-relaxed font-medium">
                         {p.shortDescription}
                       </p>
                     </div>
-                    <div className="flex flex-wrap gap-1.5 pt-2 border-t border-border/50">
-                      {p.technologies.slice(0, 4).map((t) => (
-                        <Badge key={t} variant="primary" size="sm">
-                          {t}
-                        </Badge>
+                    <div className="flex flex-wrap gap-2 pt-4 border-t border-border/60">
+                      {p.technologies.slice(0, 3).map((t) => (
+                        <span key={t} className="px-2.5 py-1 rounded-md text-[11px] font-bold tracking-wide uppercase bg-surface border border-border text-text shadow-sm">{t}</span>
                       ))}
-                      {p.technologies.length > 4 && <Badge size="sm">+{p.technologies.length - 4}</Badge>}
+                      {p.technologies.length > 3 && <span className="px-2.5 py-1 rounded-md text-[11px] font-bold tracking-wide uppercase bg-surface text-muted border border-border">+{p.technologies.length - 3}</span>}
                     </div>
                   </div>
                 </Link>
@@ -402,33 +405,34 @@ function AchievementsSection() {
   const items = data?.data ?? [];
 
   return (
-    <section className="py-20 px-4 sm:px-6 lg:px-8 bg-surface/50 border-y border-border/40">
-      <div className="max-w-7xl mx-auto">
+    <section className="py-24 px-4 sm:px-6 lg:px-8 bg-surface/30 border-y border-border/40 relative overflow-hidden">
+      <div className="absolute right-0 top-1/2 -translate-y-1/2 w-96 h-96 bg-primary/5 rounded-full blur-[100px] pointer-events-none" />
+      <div className="max-w-7xl mx-auto relative z-10">
         <SectionHeading title="Achievements & Honors" subtitle="Honors, awards, and milestones" viewAllLink="/achievements" />
         {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {Array.from({ length: 2 }).map((_, i) => <Skeleton key={i} className="h-24 rounded-2xl" />)}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-32 rounded-3xl" />)}
           </div>
         ) : items.length === 0 ? (
           <EmptyState title="Achievements coming soon" />
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {items.map((a, i) => (
               <motion.div
                 key={a._id}
-                initial={{ opacity: 0, x: i % 2 === 0 ? -16 : 16 }}
-                whileInView={{ opacity: 1, x: 0 }}
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="bg-card border border-border rounded-2xl p-5 flex items-center gap-4 hover:border-primary/50 hover:shadow-md transition-all"
+                transition={{ delay: i * 0.1, duration: 0.4 }}
+                className="bg-card/80 backdrop-blur-sm border border-border rounded-3xl p-6 flex flex-col sm:flex-row items-start sm:items-center gap-5 hover:border-primary/50 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group"
               >
-                <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary flex-shrink-0">
-                  <Trophy className="w-6 h-6" />
+                <div className="w-16 h-16 bg-gradient-to-br from-primary/20 to-accent/20 border border-primary/20 rounded-2xl flex items-center justify-center text-primary flex-shrink-0 group-hover:scale-110 group-hover:rotate-3 transition-transform shadow-inner">
+                  <Trophy className="w-8 h-8 drop-shadow-sm" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <h3 className="font-bold text-text text-sm line-clamp-1">{a.title}</h3>
-                  <p className="text-xs text-muted mt-0.5">{a.organization}</p>
-                  <p className="text-xs text-primary font-medium mt-0.5">{formatDate(a.date, 'month-year')}</p>
+                  <h3 className="font-extrabold text-lg text-text line-clamp-1 group-hover:text-primary transition-colors">{a.title}</h3>
+                  <p className="text-sm text-muted font-medium mt-1">{a.organization}</p>
+                  <p className="text-xs text-primary font-bold mt-2 uppercase tracking-wide bg-primary/10 inline-block px-2 py-0.5 rounded-md border border-primary/20">{formatDate(a.date, 'month-year')}</p>
                 </div>
               </motion.div>
             ))}
@@ -445,35 +449,39 @@ function CertificatesSection() {
   const certs = data?.data ?? [];
 
   return (
-    <section className="py-20 px-4 sm:px-6 lg:px-8">
+    <section className="py-24 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <SectionHeading title="Certifications" subtitle="Professional credentials and courses" viewAllLink="/certificates" />
         {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-28 rounded-2xl" />)}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-32 rounded-3xl" />)}
           </div>
         ) : certs.length === 0 ? (
           <EmptyState title="Certificates coming soon" />
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {certs.map((c, i) => (
               <motion.div
                 key={c._id}
-                initial={{ opacity: 0, y: 16 }}
+                initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.08 }}
-                className="bg-card border border-border rounded-2xl p-5 hover:border-primary/50 hover:shadow-md transition-all flex flex-col justify-between"
+                transition={{ delay: i * 0.1, duration: 0.4 }}
+                className="bg-card border border-border rounded-3xl p-6 hover:border-primary/50 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex items-center gap-4 group"
               >
-                <div className="flex items-start gap-3">
-                  {c.certificateImage && (
-                    <img src={c.certificateImage} alt={c.title} className="w-12 h-12 object-contain rounded-xl border border-border flex-shrink-0 bg-surface" />
-                  )}
-                  <div className="min-w-0">
-                    <h3 className="font-bold text-text text-sm line-clamp-2">{c.title}</h3>
-                    <p className="text-xs text-primary font-medium mt-0.5">{c.issuer}</p>
-                    <p className="text-xs text-muted mt-0.5">{formatDate(c.issueDate, 'month-year')}</p>
+                {c.certificateImage ? (
+                  <div className="w-16 h-16 rounded-2xl overflow-hidden bg-surface border border-border/60 flex-shrink-0 group-hover:shadow-md transition-shadow">
+                    <img src={c.certificateImage} alt={c.title} className="w-full h-full object-contain p-1" />
                   </div>
+                ) : (
+                  <div className="w-16 h-16 rounded-2xl bg-surface border border-border/60 flex items-center justify-center flex-shrink-0 group-hover:border-primary/40 transition-colors">
+                    <Award className="w-8 h-8 text-muted/50" />
+                  </div>
+                )}
+                <div className="min-w-0">
+                  <h3 className="font-bold text-text text-sm line-clamp-2 leading-tight group-hover:text-primary transition-colors">{c.title}</h3>
+                  <p className="text-xs text-muted font-medium mt-1.5">{c.issuer}</p>
+                  <p className="text-[10px] text-muted/70 font-bold uppercase tracking-wider mt-1">{formatDate(c.issueDate, 'month-year')}</p>
                 </div>
               </motion.div>
             ))}
@@ -511,63 +519,81 @@ function ContactSection() {
   };
 
   return (
-    <section id="contact" className="py-20 px-4 sm:px-6 lg:px-8 bg-surface/50 border-t border-border/40">
-      <div className="max-w-7xl mx-auto">
+    <section id="contact" className="py-24 px-4 sm:px-6 lg:px-8 bg-surface/50 border-t border-border/40 relative overflow-hidden">
+      <div className="absolute left-1/2 bottom-0 -translate-x-1/2 w-[800px] h-[300px] bg-primary/5 blur-[120px] rounded-full pointer-events-none" />
+      <div className="max-w-7xl mx-auto relative z-10">
         <SectionHeading title="Get In Touch" subtitle="Have a project or opportunity? Send me a message." center />
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 max-w-5xl mx-auto items-center">
           <div>
-            <h3 className="font-bold text-text text-lg mb-3">Let's Connect</h3>
-            <p className="text-muted text-sm leading-relaxed mb-6">
-              I am open to discussions about software development projects, freelancing opportunities, or joining an innovative team.
+            <h3 className="font-extrabold text-3xl text-text mb-4">Let's Connect</h3>
+            <p className="text-muted text-lg leading-relaxed mb-8 font-medium">
+              I am open to discussions about software development projects, freelancing opportunities, or joining an innovative team. Let's build something great together.
             </p>
-            {profile?.email && (
-              <a href={`mailto:${profile.email}`} className="text-primary font-semibold hover:underline text-sm block mb-2">
-                ✉️ {profile.email}
-              </a>
-            )}
-            {profile?.location && (
-              <p className="text-sm text-muted flex items-center gap-1.5 mt-2">
-                <MapPin className="w-4 h-4 text-primary" /> {profile.location}
-              </p>
-            )}
+            
+            <div className="space-y-6">
+              {profile?.email && (
+                <a href={`mailto:${profile.email}`} className="flex items-center gap-4 group">
+                  <div className="w-12 h-12 bg-card border border-border rounded-2xl flex items-center justify-center group-hover:bg-primary group-hover:text-white group-hover:border-primary transition-all shadow-sm">
+                    <Mail className="w-5 h-5 text-primary group-hover:text-white transition-colors" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-muted uppercase tracking-wider mb-0.5">Email</p>
+                    <p className="text-text font-semibold group-hover:text-primary transition-colors">{profile.email}</p>
+                  </div>
+                </a>
+              )}
+              {profile?.location && (
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-card border border-border rounded-2xl flex items-center justify-center shadow-sm">
+                    <MapPin className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-muted uppercase tracking-wider mb-0.5">Location</p>
+                    <p className="text-text font-semibold">{profile.location}</p>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 bg-card p-6 rounded-2xl border border-border shadow-sm">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 bg-card/80 backdrop-blur-xl p-8 rounded-3xl border border-border shadow-xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none" />
+            
             <div>
               <input
                 {...register('name')}
                 placeholder="Your Name *"
-                className="w-full px-4 py-2.5 text-sm bg-surface border border-border rounded-xl text-text placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-5 py-3.5 text-sm font-medium bg-surface/50 border border-border/80 hover:border-primary/50 rounded-2xl text-text placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all shadow-inner"
               />
-              {errors.name && <p className="text-xs text-error mt-1">{errors.name.message}</p>}
+              {errors.name && <p className="text-xs text-error mt-1.5 ml-2 font-medium">{errors.name.message}</p>}
             </div>
             <div>
               <input
                 {...register('email')}
                 placeholder="Your Email *"
                 type="email"
-                className="w-full px-4 py-2.5 text-sm bg-surface border border-border rounded-xl text-text placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-5 py-3.5 text-sm font-medium bg-surface/50 border border-border/80 hover:border-primary/50 rounded-2xl text-text placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all shadow-inner"
               />
-              {errors.email && <p className="text-xs text-error mt-1">{errors.email.message}</p>}
+              {errors.email && <p className="text-xs text-error mt-1.5 ml-2 font-medium">{errors.email.message}</p>}
             </div>
             <div>
               <input
                 {...register('subject')}
                 placeholder="Subject *"
-                className="w-full px-4 py-2.5 text-sm bg-surface border border-border rounded-xl text-text placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-5 py-3.5 text-sm font-medium bg-surface/50 border border-border/80 hover:border-primary/50 rounded-2xl text-text placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all shadow-inner"
               />
-              {errors.subject && <p className="text-xs text-error mt-1">{errors.subject.message}</p>}
+              {errors.subject && <p className="text-xs text-error mt-1.5 ml-2 font-medium">{errors.subject.message}</p>}
             </div>
             <div>
               <textarea
                 {...register('message')}
                 placeholder="Your Message *"
-                rows={4}
-                className="w-full px-4 py-2.5 text-sm bg-surface border border-border rounded-xl text-text placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                rows={5}
+                className="w-full px-5 py-3.5 text-sm font-medium bg-surface/50 border border-border/80 hover:border-primary/50 rounded-2xl text-text placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all shadow-inner resize-none"
               />
-              {errors.message && <p className="text-xs text-error mt-1">{errors.message.message}</p>}
+              {errors.message && <p className="text-xs text-error mt-1.5 ml-2 font-medium">{errors.message.message}</p>}
             </div>
-            <Button type="submit" loading={isSubmitting} className="w-full" size="lg">
+            <Button type="submit" loading={isSubmitting} className="w-full rounded-2xl py-4 shadow-lg shadow-primary/20 hover:-translate-y-0.5 transition-transform" size="lg">
               Send Message
             </Button>
           </form>

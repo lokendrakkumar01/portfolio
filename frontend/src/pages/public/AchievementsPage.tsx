@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Trophy, ExternalLink } from 'lucide-react';
+import { Trophy, ExternalLink, Calendar, MapPin, Award } from 'lucide-react';
 import { SEO } from '../../components/common/SEO';
 import { SectionHeading } from '../../components/common/SectionHeading';
 import { Badge } from '../../components/ui/Badge';
@@ -20,43 +20,77 @@ export default function AchievementsPage() {
   return (
     <>
       <SEO title="Achievements" description="My awards, recognitions, and accomplishments" />
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <SectionHeading title="Achievements" subtitle="Recognition and milestones I'm proud of" center />
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <SectionHeading title="Honors & Achievements" subtitle="A timeline of milestones and recognition" center />
+        
         {isLoading ? (
-          <div className="space-y-4">{Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-28 rounded-xl" />)}</div>
+          <div className="space-y-6 max-w-4xl mx-auto mt-12">{Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-36 rounded-2xl" />)}</div>
         ) : items.length === 0 ? (
           <EmptyState icon={Trophy} title="No achievements yet" description="Achievements will appear here." />
         ) : (
-          <div className="space-y-8">
+          <div className="mt-12 space-y-16">
             {Object.entries(grouped).map(([cat, catItems]) => (
-              <div key={cat}>
-                <h2 className="text-lg font-semibold text-text capitalize mb-4">{cat}</h2>
-                <div className="space-y-3">
+              <div key={cat} className="relative">
+                <h2 className="text-2xl font-extrabold text-text capitalize mb-8 flex items-center gap-3">
+                  <Award className="text-primary w-7 h-7" />
+                  {cat}
+                </h2>
+                
+                {/* Vertical Timeline Line */}
+                <div className="absolute left-8 top-16 bottom-0 w-0.5 bg-gradient-to-b from-primary/30 via-border to-transparent hidden md:block" />
+
+                <div className="space-y-6">
                   {catItems.map((a, i) => (
                     <motion.div key={a._id}
-                      initial={{ opacity: 0, x: -16 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.06 }}
-                      className="bg-card border border-border rounded-xl p-5 flex items-start gap-4 hover:border-primary/40 hover:shadow-sm transition-all">
-                      <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
-                        <Trophy className="w-6 h-6 text-primary" />
+                      initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
+                      className="relative flex flex-col md:flex-row gap-6 md:gap-10 items-start group"
+                    >
+                      {/* Timeline Node */}
+                      <div className="hidden md:flex absolute -left-[27px] top-6 w-4 h-4 rounded-full bg-surface border-2 border-primary shadow-[0_0_10px_rgba(var(--primary-rgb),0.5)] z-10 group-hover:scale-125 transition-transform" />
+                      
+                      {/* Date Block (Desktop) */}
+                      <div className="hidden md:block w-32 pt-5 flex-shrink-0 text-right">
+                        <span className="text-sm font-bold text-primary">{formatDate(a.date, 'month-year')}</span>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex flex-wrap items-start justify-between gap-2">
-                          <div>
-                            <h3 className="font-semibold text-text">{a.title}</h3>
-                            <p className="text-sm text-muted">{a.organization}{a.event && ` — ${a.event}`}</p>
+
+                      {/* Card Content */}
+                      <div className="flex-1 bg-card/80 backdrop-blur-md border border-border rounded-2xl p-6 hover:border-primary/50 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none" />
+                        
+                        <div className="flex flex-col sm:flex-row gap-5 items-start">
+                          <div className="bg-primary/10 text-primary p-4 rounded-2xl border border-primary/20 shadow-inner flex-shrink-0 group-hover:scale-110 transition-transform">
+                            <Trophy className="w-8 h-8" />
                           </div>
-                          <div className="text-right">
-                            <Badge size="sm" variant="primary">{formatDate(a.date, 'month-year')}</Badge>
-                            {a.rank && <p className="text-xs text-muted mt-0.5">Rank: {a.rank}</p>}
+                          
+                          <div className="flex-1 min-w-0">
+                            <div className="flex flex-wrap items-start justify-between gap-3 mb-2">
+                              <div>
+                                <h3 className="text-xl font-bold text-text group-hover:text-primary transition-colors">{a.title}</h3>
+                                <div className="flex flex-wrap items-center gap-3 mt-1.5 text-sm text-muted">
+                                  {a.organization && <span className="font-semibold">{a.organization}</span>}
+                                  {a.event && <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> {a.event}</span>}
+                                  <span className="flex items-center gap-1 md:hidden"><Calendar className="w-3.5 h-3.5" /> {formatDate(a.date, 'month-year')}</span>
+                                </div>
+                              </div>
+                              {a.rank && (
+                                <div className="bg-gradient-to-r from-accent/20 to-primary/20 border border-primary/30 text-primary px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm">
+                                  {a.rank}
+                                </div>
+                              )}
+                            </div>
+                            
+                            {a.description && <p className="text-sm text-muted mt-3 leading-relaxed">{a.description}</p>}
+                            
+                            {a.verificationUrl && (
+                              <div className="mt-4 pt-4 border-t border-border/50">
+                                <a href={a.verificationUrl} target="_blank" rel="noreferrer"
+                                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-text bg-surface border border-border px-3 py-1.5 rounded-lg hover:bg-primary hover:text-white hover:border-primary transition-colors">
+                                  <ExternalLink className="w-3.5 h-3.5" /> Verified Proof
+                                </a>
+                              </div>
+                            )}
                           </div>
                         </div>
-                        {a.description && <p className="text-sm text-muted mt-2">{a.description}</p>}
-                        {a.verificationUrl && (
-                          <a href={a.verificationUrl} target="_blank" rel="noreferrer"
-                            className="flex items-center gap-1 text-xs text-primary hover:underline mt-2">
-                            <ExternalLink className="w-3 h-3" /> View Proof
-                          </a>
-                        )}
                       </div>
                     </motion.div>
                   ))}
