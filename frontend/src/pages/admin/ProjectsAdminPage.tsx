@@ -53,12 +53,12 @@ export default function ProjectsAdminPage() {
         onChange={handleFileChange}
       />
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-text">Projects Management</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-text">Projects Management</h1>
           <p className="text-muted text-sm">{pagination?.total ?? 0} total projects — upload cover photos & details</p>
         </div>
-        <Link to="/admin/projects/new">
+        <Link to="/admin/projects/new" className="self-start sm:self-auto">
           <Button icon={<Plus className="w-4 h-4" />}>Add Project</Button>
         </Link>
       </div>
@@ -80,7 +80,8 @@ export default function ProjectsAdminPage() {
       ) : (
         <>
           <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
-            <table className="w-full text-sm">
+            <div className="overflow-x-auto">
+            <table className="w-full text-sm min-w-[560px]">
               <thead className="border-b border-border bg-surface/50">
                 <tr>
                   <th className="text-left px-4 py-3.5 text-xs font-bold text-muted uppercase tracking-wider">Cover & Project</th>
@@ -153,6 +154,7 @@ export default function ProjectsAdminPage() {
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
           {pagination && <Pagination page={pagination.page} totalPages={pagination.totalPages} onPageChange={setPage} />}
         </>

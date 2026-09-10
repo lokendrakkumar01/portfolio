@@ -59,7 +59,8 @@ export default function MessagesAdminPage() {
       ) : (
         <>
           <div className="bg-card border border-border rounded-xl overflow-hidden">
-            <table className="w-full text-sm">
+            <div className="overflow-x-auto">
+            <table className="w-full text-sm min-w-[640px]">
               <thead className="border-b border-border">
                 <tr>
                   <th className="text-left px-4 py-3 text-xs font-semibold text-muted uppercase">Sender</th>
@@ -92,6 +93,7 @@ export default function MessagesAdminPage() {
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
           {pagination && <Pagination page={pagination.page} totalPages={pagination.totalPages} onPageChange={setPage} />}
         </>

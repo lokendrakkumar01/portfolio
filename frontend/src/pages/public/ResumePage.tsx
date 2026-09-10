@@ -37,26 +37,26 @@ export default function ResumePage() {
         ) : (
           <div className="space-y-6">
             {/* Resume Info Header Card */}
-            <div className="bg-card/80 backdrop-blur-md border border-border/80 rounded-3xl p-6 shadow-sm flex flex-wrap items-center justify-between gap-4">
+            <div className="bg-card/80 backdrop-blur-md border border-border/80 rounded-3xl p-5 sm:p-6 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div className="flex items-center gap-4">
-                <div className="w-14 h-14 bg-primary/10 border border-primary/20 rounded-2xl flex items-center justify-center text-primary flex-shrink-0">
-                  <FileText className="w-7 h-7 text-primary" />
+                <div className="w-12 h-12 sm:w-14 sm:h-14 bg-primary/10 border border-primary/20 rounded-2xl flex items-center justify-center text-primary flex-shrink-0">
+                  <FileText className="w-6 h-6 sm:w-7 sm:h-7 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-extrabold text-text text-lg">{resume.fileName}</h3>
+                  <h3 className="font-extrabold text-text text-base sm:text-lg">{resume.fileName}</h3>
                   <p className="text-xs font-semibold text-muted mt-0.5">
                     Version {resume.version} · {formatFileSize(resume.fileSize)} · Uploaded {formatDate(resume.uploadedAt)}
                   </p>
                 </div>
               </div>
-              <div className="flex flex-wrap items-center gap-3">
-                <a href={resume.fileUrl} target="_blank" rel="noreferrer">
-                  <Button variant="outline" size="md" icon={<ExternalLink className="w-4 h-4" />}>
+              <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+                <a href={resume.fileUrl} target="_blank" rel="noreferrer" className="flex-1 sm:flex-none">
+                  <Button variant="outline" size="md" icon={<ExternalLink className="w-4 h-4" />} className="w-full sm:w-auto">
                     Open Original PDF
                   </Button>
                 </a>
-                <a href={resume.fileUrl} download={resume.fileName}>
-                  <Button size="md" icon={<Download className="w-4 h-4" />}>
+                <a href={resume.fileUrl} download={resume.fileName} className="flex-1 sm:flex-none">
+                  <Button size="md" icon={<Download className="w-4 h-4" />} className="w-full sm:w-auto">
                     Download Resume
                   </Button>
                 </a>

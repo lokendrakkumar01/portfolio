@@ -102,14 +102,14 @@ function HeroSection() {
 
               <motion.h1
                 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-                className="text-5xl sm:text-7xl font-extrabold text-text leading-tight tracking-tight mb-4"
+                className="text-3xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold text-text leading-tight tracking-tight mb-4"
               >
                 Hi, I'm <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">{profile?.name ?? 'Developer'}</span>
               </motion.h1>
 
               <motion.h2
                 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-                className="text-2xl sm:text-3xl font-bold text-muted mb-6"
+                className="text-lg sm:text-2xl lg:text-3xl font-bold text-muted mb-6"
               >
                 {profile?.title && profile.title !== '[YOUR TITLE]' ? profile.title : 'Full-Stack Developer & Software Engineer'}
               </motion.h2>
@@ -130,25 +130,24 @@ function HeroSection() {
                 {profile?.shortBio ?? 'Building modern, performant, and scalable web applications.'}
               </motion.p>
 
-              {/* Action CTA Buttons */}
               <motion.div
                 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
-                className="flex flex-wrap items-center gap-4 mb-10"
+                className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 mb-10"
               >
-                <Link to="/projects">
-                  <Button size="lg" icon={<ArrowRight className="w-4 h-4" />} className="shadow-lg shadow-primary/25">
+                <Link to="/projects" className="w-full sm:w-auto">
+                  <Button size="lg" icon={<ArrowRight className="w-4 h-4" />} className="w-full sm:w-auto shadow-lg shadow-primary/25">
                     Explore Projects
                   </Button>
                 </Link>
                 {currentResume && (
-                  <a href={currentResume.fileUrl} download target="_blank" rel="noreferrer">
-                    <Button variant="outline" size="lg" icon={<Download className="w-4 h-4" />} className="bg-surface/50 backdrop-blur-sm">
+                  <a href={currentResume.fileUrl} download target="_blank" rel="noreferrer" className="w-full sm:w-auto">
+                    <Button variant="outline" size="lg" icon={<Download className="w-4 h-4" />} className="w-full sm:w-auto bg-surface/50 backdrop-blur-sm">
                       Download Resume
                     </Button>
                   </a>
                 )}
-                <Link to="/contact">
-                  <Button variant="ghost" size="lg" icon={<Mail className="w-4 h-4" />}>
+                <Link to="/contact" className="w-full sm:w-auto">
+                  <Button variant="ghost" size="lg" icon={<Mail className="w-4 h-4" />} className="w-full sm:w-auto">
                     Get in Touch
                   </Button>
                 </Link>

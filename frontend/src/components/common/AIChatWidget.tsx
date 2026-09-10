@@ -220,7 +220,7 @@ export default function AIChatWidget() {
             </div>
 
             {/* Messages Container */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3.5" style={{ minHeight: 220 }}>
+            <div className="flex-1 overflow-y-auto p-4 space-y-3.5" style={{ minHeight: 160 }}>
               {messages.map((msg) => (
                 <div key={msg.id} className={`flex gap-2 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                   {msg.role === 'assistant' && (

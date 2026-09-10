@@ -42,24 +42,24 @@ export default function ProjectDetailPage() {
 
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
           <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
-            <div>
-              <h1 className="text-3xl font-bold text-text">{project.title}</h1>
-              <div className="flex items-center gap-2 mt-2">
+            <div className="min-w-0 flex-1">
+              <h1 className="text-2xl sm:text-3xl font-bold text-text">{project.title}</h1>
+              <div className="flex flex-wrap items-center gap-2 mt-2">
                 <Badge variant={project.status === 'completed' ? 'success' : 'warning'}>{project.status}</Badge>
                 <Badge>{project.category}</Badge>
                 {project.featured && <Badge variant="primary">Featured</Badge>}
               </div>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2 flex-shrink-0">
               {project.githubUrl && (
                 <a href={project.githubUrl} target="_blank" rel="noreferrer"
-                  className="flex items-center gap-2 px-4 py-2 text-sm bg-card border border-border rounded-lg hover:border-primary transition-colors text-text">
+                  className="flex items-center gap-2 px-4 py-2.5 min-h-[44px] text-sm bg-card border border-border rounded-lg hover:border-primary transition-colors text-text">
                   <Github className="w-4 h-4" /> Code
                 </a>
               )}
               {project.liveUrl && (
                 <a href={project.liveUrl} target="_blank" rel="noreferrer"
-                  className="flex items-center gap-2 px-4 py-2 text-sm bg-primary text-white rounded-lg hover:opacity-90 transition-opacity">
+                  className="flex items-center gap-2 px-4 py-2.5 min-h-[44px] text-sm bg-primary text-white rounded-lg hover:opacity-90 transition-opacity">
                   <ExternalLink className="w-4 h-4" /> Live Demo
                 </a>
               )}

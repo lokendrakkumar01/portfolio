@@ -37,35 +37,35 @@ export default function AchievementsPage() {
                 </h2>
                 
                 {/* Vertical Timeline Line */}
-                <div className="absolute left-8 top-16 bottom-0 w-0.5 bg-gradient-to-b from-primary/30 via-border to-transparent hidden md:block" />
+                <div className="absolute left-[7.5rem] top-20 bottom-0 w-0.5 bg-gradient-to-b from-primary/30 via-border to-transparent hidden md:block" />
 
                 <div className="space-y-6">
                   {catItems.map((a, i) => (
                     <motion.div key={a._id}
                       initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
-                      className="relative flex flex-col md:flex-row gap-6 md:gap-10 items-start group"
+                      className="relative flex flex-col md:flex-row gap-6 md:gap-8 items-start group"
                     >
                       {/* Timeline Node */}
-                      <div className="hidden md:flex absolute -left-[27px] top-6 w-4 h-4 rounded-full bg-surface border-2 border-primary shadow-[0_0_10px_rgba(var(--primary-rgb),0.5)] z-10 group-hover:scale-125 transition-transform" />
+                      <div className="hidden md:flex absolute left-[7rem] top-6 w-4 h-4 rounded-full bg-surface border-2 border-primary shadow-[0_0_10px_rgba(var(--primary-rgb),0.5)] z-10 group-hover:scale-125 transition-transform" />
                       
                       {/* Date Block (Desktop) */}
-                      <div className="hidden md:block w-32 pt-5 flex-shrink-0 text-right">
+                      <div className="hidden md:block w-28 pt-5 flex-shrink-0 text-right pr-2">
                         <span className="text-sm font-bold text-primary">{formatDate(a.date, 'month-year')}</span>
                       </div>
 
                       {/* Card Content */}
-                      <div className="flex-1 bg-card/80 backdrop-blur-md border border-border rounded-2xl p-6 hover:border-primary/50 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden">
+                      <div className="flex-1 bg-card/80 backdrop-blur-md border border-border rounded-2xl p-5 sm:p-6 hover:border-primary/50 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden md:ml-4">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none" />
                         
-                        <div className="flex flex-col sm:flex-row gap-5 items-start">
-                          <div className="bg-primary/10 text-primary p-4 rounded-2xl border border-primary/20 shadow-inner flex-shrink-0 group-hover:scale-110 transition-transform">
-                            <Trophy className="w-8 h-8" />
+                        <div className="flex flex-col sm:flex-row gap-4 sm:gap-5 items-start">
+                          <div className="bg-primary/10 text-primary p-3 sm:p-4 rounded-2xl border border-primary/20 shadow-inner flex-shrink-0 group-hover:scale-110 transition-transform">
+                            <Trophy className="w-6 h-6 sm:w-8 sm:h-8" />
                           </div>
                           
                           <div className="flex-1 min-w-0">
                             <div className="flex flex-wrap items-start justify-between gap-3 mb-2">
                               <div>
-                                <h3 className="text-xl font-bold text-text group-hover:text-primary transition-colors">{a.title}</h3>
+                                <h3 className="text-lg sm:text-xl font-bold text-text group-hover:text-primary transition-colors">{a.title}</h3>
                                 <div className="flex flex-wrap items-center gap-3 mt-1.5 text-sm text-muted">
                                   {a.organization && <span className="font-semibold">{a.organization}</span>}
                                   {a.event && <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> {a.event}</span>}
@@ -73,7 +73,7 @@ export default function AchievementsPage() {
                                 </div>
                               </div>
                               {a.rank && (
-                                <div className="bg-gradient-to-r from-accent/20 to-primary/20 border border-primary/30 text-primary px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm">
+                                <div className="bg-gradient-to-r from-accent/20 to-primary/20 border border-primary/30 text-primary px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm flex-shrink-0">
                                   {a.rank}
                                 </div>
                               )}

@@ -32,28 +32,28 @@ export default function ProjectsPage() {
         <SectionHeading title="My Projects" subtitle="A collection of things I've built" center />
 
         {/* Modern Filters */}
-        <div className="flex flex-col md:flex-row gap-4 mb-10 items-center justify-between bg-card/50 backdrop-blur-sm p-4 rounded-3xl border border-border shadow-sm">
-          <div className="flex flex-wrap gap-2 w-full md:w-auto">
+        <div className="flex flex-col gap-4 mb-10">
+          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
             <button
               onClick={() => { setCategory(''); setPage(1); }}
-              className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${category === '' ? 'bg-primary text-white shadow-md' : 'bg-surface hover:bg-surface/80 text-muted hover:text-text'}`}
+              className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-semibold transition-all ${category === '' ? 'bg-primary text-white shadow-md' : 'bg-surface border border-border hover:bg-surface/80 text-muted hover:text-text'}`}
             >All</button>
             {ALL_CATEGORIES.slice(0, 4).map(([v, l]) => (
               <button key={v} onClick={() => { setCategory(v); setPage(1); }}
-                className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${category === v ? 'bg-primary text-white shadow-md' : 'bg-surface hover:bg-surface/80 text-muted hover:text-text'}`}
+                className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-semibold transition-all ${category === v ? 'bg-primary text-white shadow-md' : 'bg-surface border border-border hover:bg-surface/80 text-muted hover:text-text'}`}
               >{l}</button>
             ))}
-            <select value={category} onChange={(e) => { setCategory(e.target.value as ProjectCategory | ''); setPage(1); }}
-              className="px-4 py-2 text-sm bg-surface rounded-full text-text focus:outline-none focus:ring-2 focus:ring-primary border-none max-w-[140px] appearance-none font-semibold cursor-pointer">
-              <option value="" disabled>More...</option>
-              {ALL_CATEGORIES.slice(4).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-            </select>
+            {ALL_CATEGORIES.slice(4).map(([v, l]) => (
+              <button key={v} onClick={() => { setCategory(v); setPage(1); }}
+                className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-semibold transition-all ${category === v ? 'bg-primary text-white shadow-md' : 'bg-surface border border-border hover:bg-surface/80 text-muted hover:text-text'}`}
+              >{l}</button>
+            ))}
           </div>
           
-          <div className="relative w-full md:w-72">
+          <div className="relative w-full md:w-72 self-end">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
             <input value={q} onChange={(e) => { setQ(e.target.value); setPage(1); }} placeholder="Search projects..."
-              className="w-full pl-11 pr-4 py-2.5 text-sm bg-surface border border-transparent hover:border-border rounded-full text-text placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary transition-all shadow-inner" />
+              className="w-full pl-11 pr-4 py-2.5 text-sm bg-surface border border-border hover:border-primary/50 rounded-full text-text placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary transition-all shadow-inner" />
           </div>
         </div>
 

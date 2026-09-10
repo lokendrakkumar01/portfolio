@@ -60,12 +60,12 @@ export default function CertificatesPage() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
         {/* Category Filters */}
-        <div className="flex flex-wrap gap-2 justify-center mb-12">
+        <div className="flex gap-2 overflow-x-auto pb-2 justify-start sm:justify-center mb-12 scrollbar-none">
           {categories.map((c) => (
             <button
               key={c.value}
               onClick={() => { setCategory(c.value); setPage(1); }}
-              className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-200 ${
+              className={`flex-shrink-0 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-200 ${
                 category === c.value
                   ? 'bg-primary text-white shadow-lg shadow-primary/25 scale-105'
                   : 'bg-card/80 border border-border/80 text-muted hover:text-text hover:border-primary/40'
