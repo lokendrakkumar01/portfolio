@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { NavLink, Link, useLocation, useNavigate } from 'react-router-dom';
+import { NavLink, Link, useLocation } from 'react-router-dom';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -32,7 +32,6 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const scrollY = useScrollPosition();
   const scrolled = scrollY > 20;
-  const navigate = useNavigate();
   const location = useLocation();
 
   const { data: settingsData } = useSettings();
@@ -64,9 +63,9 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
     setMobileOpen(false);
   }, [location.pathname]);
 
-  const handleNavClick = (to: string) => {
+  const closeMenu = () => {
     setMobileOpen(false);
-    navigate(to);
+    window.scrollTo(0, 0);
   };
 
   const linkCls = ({ isActive }: { isActive: boolean }) =>
@@ -145,18 +144,18 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2, ease: 'easeInOut' }}
+              transition={{ duration: 0.15, ease: 'easeInOut' }}
               className="fixed inset-0 z-[9999] w-full max-w-full h-[100dvh] bg-surface flex flex-col overflow-hidden lg:hidden"
               style={{ width: '100%', height: '100dvh', maxHeight: '100dvh' }}
             >
               {/* Top Drawer Header (Fixed) */}
               <div className="flex-shrink-0 flex items-center justify-between p-4 sm:p-5 border-b border-border bg-surface">
-                <button onClick={() => handleNavClick('/')} className="flex items-center gap-2.5 hover:opacity-80 transition-opacity min-w-0 text-left">
+                <Link to="/" onClick={closeMenu} className="flex items-center gap-2.5 hover:opacity-80 transition-opacity min-w-0 text-left">
                   <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-black text-base flex-shrink-0">
                     {siteName.charAt(0)}
                   </div>
                   <span className="font-bold text-text text-base tracking-tight truncate max-w-[160px] sm:max-w-[200px]">{siteName}</span>
-                </button>
+                </Link>
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <button
                     onClick={toggleTheme}
@@ -181,9 +180,10 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
                   const Icon = l.icon;
                   const isActive = location.pathname === l.to || (l.to !== '/' && location.pathname.startsWith(l.to));
                   return (
-                    <button
+                    <Link
                       key={l.to}
-                      onClick={() => handleNavClick(l.to)}
+                      to={l.to}
+                      onClick={closeMenu}
                       className={`w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-base font-bold transition-all text-left ${
                         isActive
                           ? 'bg-primary text-white shadow-lg shadow-primary/25 scale-[1.01]'
@@ -192,20 +192,21 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
                     >
                       <Icon className="w-5 h-5 flex-shrink-0" />
                       <span>{l.label}</span>
-                    </button>
+                    </Link>
                   );
                 })}
               </nav>
 
               {/* Bottom Drawer Actions (Fixed & Safe-area aware) */}
               <div className="flex-shrink-0 p-4 sm:p-5 pb-[calc(1rem+env(safe-area-inset-bottom,0px))] border-t border-border bg-surface/90 backdrop-blur-md space-y-3">
-                <button
-                  onClick={() => handleNavClick('/contact')}
+                <Link
+                  to="/contact"
+                  onClick={closeMenu}
                   className="w-full flex items-center justify-center gap-2 py-3.5 px-4 bg-primary text-white font-bold text-sm rounded-2xl shadow-lg shadow-primary/20 hover:opacity-90 active:scale-95 transition-all"
                 >
                   <span>Get In Touch</span>
                   <ArrowRight className="w-4 h-4" />
-                </button>
+                </Link>
 
                 {socialLinks.length > 0 && (
                   <div className="flex items-center justify-center gap-2 pt-1 flex-wrap">

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Outlet, Navigate, useNavigate, useLocation } from 'react-router-dom';
+import { Outlet, Navigate, useNavigate, useLocation, Link } from 'react-router-dom';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -41,19 +41,19 @@ function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
     navigate('/admin/login');
   };
 
-  const handleNavClick = (to: string) => {
+  const handleLinkClick = () => {
     onClose();
-    navigate(to);
+    window.scrollTo(0, 0);
   };
 
   const content = (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Header (Fixed) */}
       <div className="flex-shrink-0 flex items-center justify-between p-4 sm:p-5 border-b border-border bg-surface">
-        <button onClick={() => handleNavClick('/admin/dashboard')} className="hover:opacity-80 transition-opacity min-w-0 text-left">
+        <Link to="/admin/dashboard" onClick={handleLinkClick} className="hover:opacity-80 transition-opacity min-w-0 text-left">
           <span className="font-bold text-base text-text block truncate">Admin Panel</span>
           <p className="text-xs text-muted truncate max-w-[140px]">{user?.email}</p>
-        </button>
+        </Link>
         <button onClick={onClose} className="lg:hidden p-1.5 rounded-lg hover:bg-card transition-colors flex-shrink-0" aria-label="Close sidebar">
           <X className="w-5 h-5 text-text" />
         </button>
@@ -64,9 +64,10 @@ function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
         {navItems.map(({ to, label, icon: Icon, badge }) => {
           const isActive = location.pathname === to || location.pathname.startsWith(to);
           return (
-            <button
+            <Link
               key={to}
-              onClick={() => handleNavClick(to)}
+              to={to}
+              onClick={handleLinkClick}
               className={cn(
                 'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors w-full text-left',
                 isActive ? 'bg-primary/10 text-primary font-semibold' : 'text-muted hover:text-text hover:bg-card'
@@ -79,7 +80,7 @@ function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
                   {unread > 99 ? '99+' : unread}
                 </span>
               )}
-            </button>
+            </Link>
           );
         })}
       </nav>
@@ -112,7 +113,7 @@ function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2, ease: 'easeInOut' }}
+              transition={{ duration: 0.15, ease: 'easeInOut' }}
               className="fixed inset-0 z-[9999] w-full max-w-full h-[100dvh] bg-surface flex flex-col overflow-hidden lg:hidden"
               style={{ width: '100%', height: '100dvh', maxHeight: '100dvh' }}
             >
