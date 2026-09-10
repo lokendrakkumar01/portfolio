@@ -97,23 +97,18 @@ function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
         {content}
       </aside>
 
-      {/* Mobile drawer */}
+      {/* Mobile full-screen drawer */}
       <AnimatePresence>
         {open && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="fixed inset-0 z-40 bg-black/50 lg:hidden"
-              onClick={onClose}
-            />
-            <motion.aside
-              initial={{ x: '-100%' }} animate={{ x: 0 }} exit={{ x: '-100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed inset-y-0 left-0 z-50 w-64 h-[100dvh] bg-surface border-r border-border flex flex-col overflow-hidden lg:hidden"
-            >
-              {content}
-            </motion.aside>
-          </>
+          <motion.aside
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.25, ease: 'easeInOut' }}
+            className="fixed inset-0 z-50 w-screen h-[100dvh] bg-surface flex flex-col overflow-hidden lg:hidden"
+          >
+            {content}
+          </motion.aside>
         )}
       </AnimatePresence>
     </>
