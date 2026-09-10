@@ -80,7 +80,7 @@ export default function ExperienceAdminPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div><h1 className="text-2xl font-bold text-text">Experience</h1></div>
         <Button icon={<Plus className="w-4 h-4" />} onClick={() => setEditExp(null)}>Add Experience</Button>
       </div>
