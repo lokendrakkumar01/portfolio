@@ -16,11 +16,13 @@ export const galleryApi = {
   getById: (id: string) =>
     apiClient.get<ApiResponse<GalleryItem>>(`/gallery/${id}`).then((r) => r.data),
 
-  create: (data: Partial<GalleryItem>, file: File) => {
+  create: (data: Partial<GalleryItem>, file?: File) => {
     const fd = new FormData();
-    fd.append('image', file);
+    if (file) {
+      fd.append('image', file);
+    }
     Object.entries(data).forEach(([k, v]) => {
-      if (v !== undefined) fd.append(k, String(v));
+      if (v !== undefined && v !== null) fd.append(k, String(v));
     });
     return apiClient
       .post<ApiResponse<GalleryItem>>('/gallery', fd, {

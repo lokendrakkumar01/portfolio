@@ -40,10 +40,10 @@ export const useUpdateGalleryItem = () => {
 export const useCreateGalleryItem = () => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ data, file }: { data: Partial<GalleryItem>; file: File }) => galleryApi.create(data, file),
+    mutationFn: ({ data, file }: { data: Partial<GalleryItem>; file?: File }) => galleryApi.create(data, file),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: [GALLERY_KEY] });
-      toast.success('Image uploaded successfully');
+      toast.success('Gallery item created successfully');
     },
     onError: (err) => toast.error(getErrorMessage(err)),
   });

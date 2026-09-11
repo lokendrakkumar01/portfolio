@@ -72,7 +72,7 @@ export default function GalleryAdminPage() {
 
   const { data, isLoading, refetch } = useGallery({
     page,
-    limit: 12,
+    limit: 50,
     category: activeFilter === 'all' ? undefined : activeFilter,
     published: 'all',
   });
@@ -94,6 +94,8 @@ export default function GalleryAdminPage() {
       {
         onSuccess: () => {
           if (fileRef.current) fileRef.current.value = '';
+          setActiveFilter('all');
+          setPage(1);
           refetch();
         },
         onError: () => {
@@ -120,7 +122,6 @@ export default function GalleryAdminPage() {
           gridSpan: Number(videoGridSpan),
           published: true,
         },
-        file: new File([''], 'video_link.mp4', { type: 'video/mp4' }),
       },
       {
         onSuccess: () => {
@@ -129,6 +130,8 @@ export default function GalleryAdminPage() {
           setVideoUrl('');
           setVideoDescription('');
           setVideoGridSpan(1);
+          setActiveFilter('all');
+          setPage(1);
           refetch();
         },
       }
