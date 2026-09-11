@@ -7,6 +7,7 @@ import { Skeleton } from '../../components/ui/Skeleton';
 import { Button } from '../../components/ui/Button';
 import { useCurrentResume } from '../../hooks/useResume';
 import { formatDate, formatFileSize } from '../../utils/formatters';
+import { downloadResumeFile } from '../../utils/download';
 
 export default function ResumePage() {
   const { data, isLoading } = useCurrentResume();
@@ -55,11 +56,14 @@ export default function ResumePage() {
                     Open Original PDF
                   </Button>
                 </a>
-                <a href={resume.fileUrl} download={resume.fileName} className="flex-1 sm:flex-none">
-                  <Button size="md" icon={<Download className="w-4 h-4" />} className="w-full sm:w-auto">
-                    Download Resume
-                  </Button>
-                </a>
+                <Button
+                  size="md"
+                  icon={<Download className="w-4 h-4" />}
+                  onClick={() => downloadResumeFile(resume.fileUrl, resume.fileName || 'Lokendra_Kumar_Resume.pdf')}
+                  className="w-full sm:w-auto flex-1 sm:flex-none"
+                >
+                  Download Resume
+                </Button>
               </div>
             </div>
 

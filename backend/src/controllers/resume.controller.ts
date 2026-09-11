@@ -5,21 +5,44 @@ import { asyncHandler } from '../utils/asyncHandler';
 import { getStorageProvider } from '../services/storage/storage.factory';
 
 export const getResumes = asyncHandler(async (_req: Request, res: Response) => {
-  const items = await Resume.find().sort({ version: -1 });
+  const items = await Resume.find().sort({ version: -1 }).lean();
   sendSuccess(res, items);
 });
 
 export const getCurrentResume = asyncHandler(async (_req: Request, res: Response) => {
-  let item = await Resume.findOne({ isCurrent: true });
+  let item = await Resume.findOne({ isCurrent: true }).lean();
   if (!item) {
-    item = await Resume.findOne().sort({ version: -1 });
-    if (item) {
-      item.isCurrent = true;
-      await item.save();
+    const rawItem = await Resume.findOne().sort({ version: -1 });
+    if (rawItem) {
+      rawItem.isCurrent = true;
+      await rawItem.save();
+      item = rawItem.toObject() as any;
     }
   }
   if (!item) return sendError(res, 'No resume found', 404);
   sendSuccess(res, item);
+});
+
+export const downloadResume = asyncHandler(async (_req: Request, res: Response) => {
+  let item = await Resume.findOne({ isCurrent: true }).lean();
+  if (!item) {
+    item = await Resume.findOne().sort({ version: -1 }).lean();
+  }
+  if (!item || !item.fileUrl) return sendError(res, 'No resume available for download', 404);
+
+  const cleanName = (item.fileName || 'Lokendra_Kumar_Resume.pdf').endsWith('.pdf')
+    ? (item.fileName || 'Lokendra_Kumar_Resume.pdf')
+    : `${item.fileName}.pdf`;
+
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(cleanName)}"`);
+
+  let downloadUrl = item.fileUrl;
+  if (downloadUrl.includes('cloudinary.com') && downloadUrl.includes('/raw/upload/')) {
+    downloadUrl = downloadUrl.replace('/raw/upload/', `/raw/upload/fl_attachment:${encodeURIComponent(cleanName)}/`);
+  }
+
+  res.redirect(downloadUrl);
 });
 
 export const setResumeCurrent = asyncHandler(async (req: Request, res: Response) => {

@@ -7,6 +7,7 @@ import { Badge } from '../../components/ui/Badge';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { useResume, useUploadResume, useSetCurrentResume, useDeleteResume } from '../../hooks/useResume';
 import { formatDate, formatFileSize } from '../../utils/formatters';
+import { downloadResumeFile } from '../../utils/download';
 
 export default function ResumeAdminPage() {
   const { data, isLoading } = useResume();
@@ -80,11 +81,14 @@ export default function ResumeAdminPage() {
               </div>
 
               <div className="flex items-center gap-2 flex-shrink-0">
-                <a href={r.fileUrl} download target="_blank" rel="noreferrer">
-                  <Button variant="ghost" size="sm" icon={<Download className="w-4 h-4" />}>
-                    Download
-                  </Button>
-                </a>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  icon={<Download className="w-4 h-4" />}
+                  onClick={() => downloadResumeFile(r.fileUrl, r.fileName || 'Lokendra_Kumar_Resume.pdf')}
+                >
+                  Download
+                </Button>
                 {!r.isCurrent && (
                   <Button
                     variant="outline"

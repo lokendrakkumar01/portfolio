@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Download, Mail, ArrowRight, MapPin, FolderCode, Trophy, Sparkles, UserCheck, Award, Play, Film, ZoomIn, X, Image as ImageIcon } from 'lucide-react';
+import { Download, Mail, ArrowRight, MapPin, FolderCode, Trophy, Sparkles, UserCheck, Award, Play, Film, ZoomIn, X, Image as ImageIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useProfile } from '../../hooks/useProfile';
 import { useSocialLinks } from '../../hooks/useSocialLinks';
 import { useCurrentResume } from '../../hooks/useResume';
@@ -18,6 +18,7 @@ import { Badge } from '../../components/ui/Badge';
 import { Skeleton, SkeletonCard } from '../../components/ui/Skeleton';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { getSocialIcon, formatDate, getProficiencyLabel } from '../../utils/formatters';
+import { downloadResumeFile } from '../../utils/download';
 import { useRef, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -142,11 +143,15 @@ function HeroSection() {
                   </Button>
                 </Link>
                 {currentResume && (
-                  <a href={currentResume.fileUrl} download target="_blank" rel="noreferrer" className="w-full sm:w-auto">
-                    <Button variant="outline" size="lg" icon={<Download className="w-4 h-4" />} className="w-full sm:w-auto bg-surface/50 backdrop-blur-sm">
-                      Download Resume
-                    </Button>
-                  </a>
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    icon={<Download className="w-4 h-4" />}
+                    onClick={() => downloadResumeFile(currentResume.fileUrl, currentResume.fileName || 'Lokendra_Kumar_Resume.pdf')}
+                    className="w-full sm:w-auto bg-surface/50 backdrop-blur-sm shadow-md"
+                  >
+                    Download Resume
+                  </Button>
                 )}
                 <Link to="/contact" className="w-full sm:w-auto">
                   <Button variant="ghost" size="lg" icon={<Mail className="w-4 h-4" />} className="w-full sm:w-auto">
@@ -595,9 +600,17 @@ function CertificatesSection() {
 
 // ─── Gallery Section ─────────────────────────────────────────────────────────
 function GallerySection() {
-  const { data, isLoading } = useGallery({ limit: 6, published: 'true' });
+  const { data, isLoading } = useGallery({ limit: 16, published: 'true' });
   const items = data?.data ?? [];
   const [activeItem, setActiveItem] = useState<GalleryItem | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const handleScroll = (direction: 'left' | 'right') => {
+    if (scrollRef.current) {
+      const scrollAmount = direction === 'left' ? -340 : 340;
+      scrollRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
 
   if (!isLoading && items.length === 0) return null;
 
@@ -617,61 +630,85 @@ function GallerySection() {
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3.5">
-            {items.map((img, i) => {
-              const isVideo = img.mediaType === 'video' || img.imageUrl.includes('.mp4');
+          <div className="relative group/carousel">
+            {/* Left Scroll Arrow Button (<) */}
+            <button
+              onClick={() => handleScroll('left')}
+              className="absolute -left-3 sm:-left-5 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-card/90 backdrop-blur-md border border-border/80 text-primary shadow-xl hover:bg-primary hover:text-white transition-all duration-300 z-20 flex items-center justify-center active:scale-95 shadow-primary/10"
+              aria-label="Previous photos"
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </button>
 
-              return (
-                <motion.button
-                  key={img._id}
-                  initial={{ opacity: 0, scale: 0.9, y: 15 }}
-                  whileInView={{ opacity: 1, scale: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.35, delay: i * 0.04 }}
-                  whileHover={{ scale: 1.04, y: -4 }}
-                  whileTap={{ scale: 0.96 }}
-                  onClick={() => setActiveItem(img)}
-                  className="group relative aspect-square overflow-hidden rounded-2xl border border-border/80 bg-surface hover:border-primary/60 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 text-left focus:outline-none"
-                >
-                  {isVideo ? (
-                    <div className="w-full h-full bg-black relative flex items-center justify-center">
-                      {getYouTubeThumbnail(img.imageUrl) ? (
-                        <img src={getYouTubeThumbnail(img.imageUrl)!} alt={img.title} className="w-full h-full object-cover" />
-                      ) : img.imageUrl.includes('.mp4') || img.imageUrl.includes('/video/') ? (
-                        <video src={img.imageUrl} className="w-full h-full object-cover" muted />
-                      ) : (
-                        <div className="w-full h-full flex flex-col items-center justify-center bg-card p-3 text-center">
-                          <Film className="w-8 h-8 text-primary mb-1 animate-bounce" />
-                        </div>
-                      )}
-                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                        <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                          <Play className="w-5 h-5 fill-white ml-0.5" />
+            {/* Right Scroll Arrow Button (>) */}
+            <button
+              onClick={() => handleScroll('right')}
+              className="absolute -right-3 sm:-right-5 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-card/90 backdrop-blur-md border border-border/80 text-primary shadow-xl hover:bg-primary hover:text-white transition-all duration-300 z-20 flex items-center justify-center active:scale-95 shadow-primary/10"
+              aria-label="Next photos"
+            >
+              <ChevronRight className="w-6 h-6" />
+            </button>
+
+            {/* Horizontal Scrollable Carousel Container */}
+            <div
+              ref={scrollRef}
+              className="flex gap-4 overflow-x-auto scrollbar-none py-2 px-1 snap-x snap-mandatory scroll-smooth"
+            >
+              {items.map((img, i) => {
+                const isVideo = img.mediaType === 'video' || img.imageUrl.includes('.mp4');
+
+                return (
+                  <motion.button
+                    key={img._id}
+                    initial={{ opacity: 0, scale: 0.9, y: 15 }}
+                    whileInView={{ opacity: 1, scale: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.35, delay: i * 0.04 }}
+                    whileHover={{ scale: 1.04, y: -4 }}
+                    whileTap={{ scale: 0.96 }}
+                    onClick={() => setActiveItem(img)}
+                    className="flex-shrink-0 w-56 sm:w-64 aspect-square relative overflow-hidden rounded-2xl border border-border/80 bg-surface hover:border-primary/60 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 text-left snap-start focus:outline-none"
+                  >
+                    {isVideo ? (
+                      <div className="w-full h-full bg-black relative flex items-center justify-center">
+                        {getYouTubeThumbnail(img.imageUrl) ? (
+                          <img src={getYouTubeThumbnail(img.imageUrl)!} alt={img.title} className="w-full h-full object-cover" />
+                        ) : img.imageUrl.includes('.mp4') || img.imageUrl.includes('/video/') ? (
+                          <video src={img.imageUrl} className="w-full h-full object-cover" muted />
+                        ) : (
+                          <div className="w-full h-full flex flex-col items-center justify-center bg-card p-3 text-center">
+                            <Film className="w-8 h-8 text-primary mb-1 animate-bounce" />
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                          <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                            <Play className="w-5 h-5 fill-white ml-0.5" />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ) : (
-                    <img
-                      src={img.imageUrl}
-                      alt={img.title}
-                      loading="lazy"
-                      decoding="async"
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
-                    />
-                  )}
+                    ) : (
+                      <img
+                        src={img.imageUrl}
+                        alt={img.title}
+                        loading="lazy"
+                        decoding="async"
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                      />
+                    )}
 
-                  {/* Gradient Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-between p-3 pointer-events-none">
-                    <span className="text-[9px] font-black uppercase tracking-wider bg-primary text-white px-2 py-0.5 rounded-full self-start shadow-sm">
-                      {img.category}
-                    </span>
-                    <p className="text-white text-xs font-bold truncate leading-tight drop-shadow">
-                      {img.title}
-                    </p>
-                  </div>
-                </motion.button>
-              );
-            })}
+                    {/* Gradient Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-between p-3 pointer-events-none">
+                      <span className="text-[9px] font-black uppercase tracking-wider bg-primary text-white px-2 py-0.5 rounded-full self-start shadow-sm">
+                        {img.category}
+                      </span>
+                      <p className="text-white text-xs font-bold truncate leading-tight drop-shadow">
+                        {img.title}
+                      </p>
+                    </div>
+                  </motion.button>
+                );
+              })}
+            </div>
           </div>
         )}
       </div>
