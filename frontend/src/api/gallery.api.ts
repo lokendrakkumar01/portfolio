@@ -24,6 +24,7 @@ export const galleryApi = {
     return apiClient
       .post<ApiResponse<GalleryItem>>('/gallery', fd, {
         headers: { 'Content-Type': 'multipart/form-data' },
+        timeout: 300000, // 5 minutes timeout for large video/photo uploads
       })
       .then((r) => r.data);
   },
@@ -41,6 +42,7 @@ export const galleryApi = {
     return apiClient
       .post<ApiResponse<GalleryItem[]>>('/gallery/bulk', fd, {
         headers: { 'Content-Type': 'multipart/form-data' },
+        timeout: 300000, // 5 minutes timeout for bulk video/photo uploads
       })
       .then((r) => r.data);
   },
