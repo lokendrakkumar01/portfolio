@@ -31,6 +31,7 @@ export default function GalleryPage() {
     page,
     limit: 16,
     category: category || undefined,
+    published: 'true',
   });
 
   const rawItems = data?.data ?? [];

@@ -47,6 +47,7 @@ export default function GalleryAdminPage() {
     page,
     limit: 12,
     category: activeFilter === 'all' ? undefined : activeFilter,
+    published: 'all',
   });
 
   const bulkUploadMutation = useBulkUploadGallery();

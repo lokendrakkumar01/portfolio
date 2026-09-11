@@ -594,7 +594,7 @@ function CertificatesSection() {
 
 // ─── Gallery Section ─────────────────────────────────────────────────────────
 function GallerySection() {
-  const { data, isLoading } = useGallery({ limit: 6 });
+  const { data, isLoading } = useGallery({ limit: 6, published: 'true' });
   const items = data?.data ?? [];
   const [activeItem, setActiveItem] = useState<GalleryItem | null>(null);
 

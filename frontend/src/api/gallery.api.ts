@@ -6,6 +6,7 @@ export interface GetGalleryParams {
   limit?: number;
   category?: string;
   featured?: boolean;
+  published?: 'true' | 'false' | 'all';
 }
 
 export const galleryApi = {

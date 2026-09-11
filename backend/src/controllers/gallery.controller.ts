@@ -9,12 +9,15 @@ export const getGalleries = asyncHandler(async (req: Request, res: Response) => 
   const { category, featured, published } = req.query as Record<string, string>;
   const filter: any = {};
 
-  // If user is not logged in as admin, show only published items
-  if (!req.user) {
+  // Default behavior: ONLY return published items (published === true) for public portfolio.
+  // If published === 'all' (passed by Admin panel), return both published and hidden items.
+  if (published === 'all' && req.user) {
+    // Admin viewing all items
+  } else if (published === 'false') {
+    filter.published = false;
+  } else {
+    // Public portfolio view (default): return ONLY published items
     filter.published = true;
-  } else if (published !== undefined) {
-    // Admin can filter by published state if requested
-    filter.published = published === 'true';
   }
 
   if (category && category.trim()) filter.category = category.trim();
