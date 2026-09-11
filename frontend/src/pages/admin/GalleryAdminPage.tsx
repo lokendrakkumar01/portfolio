@@ -10,6 +10,7 @@ import { Modal } from '../../components/ui/Modal';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { Input, Select } from '../../components/ui/Input';
 import { Pagination } from '../../components/ui/Pagination';
+import { VideoPlayer } from '../../components/common/VideoPlayer';
 import {
   useGallery,
   useBulkUploadGallery,
@@ -335,24 +336,7 @@ export default function GalleryAdminPage() {
                   {/* Media View */}
                   <div className="relative aspect-video bg-black flex items-center justify-center overflow-hidden">
                     {isVideo ? (
-                      img.imageUrl.startsWith('http') && (img.mediaType === 'video' || img.imageUrl.includes('mp4') || img.imageUrl.includes('webm') || img.imageUrl.includes('/video/')) ? (
-                        <video src={img.imageUrl} controls className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex flex-col items-center justify-center bg-card text-muted p-4 text-center">
-                          <Film className="w-10 h-10 text-primary mb-2 animate-bounce" />
-                          <span className="text-xs font-bold text-text truncate max-w-full">
-                            Video Link
-                          </span>
-                          <a
-                            href={img.imageUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="mt-2 text-[10px] text-primary font-bold flex items-center gap-1 hover:underline"
-                          >
-                            Open Link <ExternalLink className="w-3 h-3" />
-                          </a>
-                        </div>
-                      )
+                      <VideoPlayer url={img.imageUrl} title={img.title} controls />
                     ) : (
                       <img
                         src={img.imageUrl}

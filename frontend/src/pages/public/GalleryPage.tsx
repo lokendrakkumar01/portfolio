@@ -7,6 +7,7 @@ import { EmptyState } from '../../components/ui/EmptyState';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { Pagination } from '../../components/ui/Pagination';
 import { useGallery } from '../../hooks/useGallery';
+import { VideoPlayer, getYouTubeThumbnail } from '../../components/common/VideoPlayer';
 import type { GalleryCategory, GalleryItem } from '../../types';
 
 const CATEGORIES: { value: GalleryCategory; label: string }[] = [
@@ -198,7 +199,9 @@ export default function GalleryPage() {
                   >
                     {isVideo ? (
                       <div className="w-full h-full bg-black relative flex items-center justify-center">
-                        {img.imageUrl.includes('.mp4') ? (
+                        {getYouTubeThumbnail(img.imageUrl) ? (
+                          <img src={getYouTubeThumbnail(img.imageUrl)!} alt={img.title} className="w-full h-full object-cover" />
+                        ) : img.imageUrl.includes('.mp4') || img.imageUrl.includes('/video/') ? (
                           <video src={img.imageUrl} className="w-full h-full object-cover" muted />
                         ) : (
                           <div className="w-full h-full flex flex-col items-center justify-center bg-card p-4 text-center">
@@ -297,23 +300,8 @@ export default function GalleryPage() {
             >
               {/* Media Player */}
               <div className="relative flex-1 bg-black flex items-center justify-center overflow-hidden min-h-[300px] max-h-[70vh]">
-                {activeItem.mediaType === 'video' || activeItem.imageUrl.includes('.mp4') ? (
-                  activeItem.imageUrl.startsWith('http') && activeItem.imageUrl.includes('.mp4') ? (
-                    <video src={activeItem.imageUrl} controls autoPlay className="max-w-full max-h-[70vh] object-contain" />
-                  ) : (
-                    <div className="p-8 text-center space-y-4">
-                      <Film className="w-16 h-16 text-primary mx-auto animate-pulse" />
-                      <h3 className="text-xl font-bold text-white">{activeItem.title}</h3>
-                      <a
-                        href={activeItem.imageUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white font-bold rounded-2xl shadow-lg hover:opacity-90 transition-all"
-                      >
-                        Watch Video <ExternalLink className="w-4 h-4" />
-                      </a>
-                    </div>
-                  )
+                {activeItem.mediaType === 'video' || activeItem.imageUrl.includes('.mp4') || activeItem.imageUrl.includes('youtube') || activeItem.imageUrl.includes('vimeo') || activeItem.imageUrl.includes('/video/') ? (
+                  <VideoPlayer url={activeItem.imageUrl} title={activeItem.title} autoPlay controls className="w-full h-full min-h-[350px]" />
                 ) : (
                   <img
                     src={activeItem.imageUrl}
