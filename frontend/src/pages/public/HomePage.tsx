@@ -485,7 +485,7 @@ function CertificatesSection() {
               >
                 {c.certificateImage ? (
                   <div className="w-16 h-16 rounded-2xl overflow-hidden bg-surface border border-border/60 flex-shrink-0 group-hover:shadow-md transition-shadow">
-                    <img src={c.certificateImage} alt={c.title} className="w-full h-full object-contain p-1" />
+                    <img src={c.certificateImage} alt={c.title} loading="lazy" decoding="async" className="w-full h-full object-contain p-1" />
                   </div>
                 ) : (
                   <div className="w-16 h-16 rounded-2xl bg-surface border border-border/60 flex items-center justify-center flex-shrink-0 group-hover:border-primary/40 transition-colors">

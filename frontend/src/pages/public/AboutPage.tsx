@@ -32,7 +32,7 @@ export default function AboutPage() {
             {isLoading ? <Skeleton className="w-36 h-36 rounded-full" /> : (
               <div className="w-36 h-36 rounded-full overflow-hidden border-4 border-border shadow-xl">
                 {profile?.profileImage ? (
-                  <img src={profile.profileImage} alt={profile.name} className="w-full h-full object-cover" />
+                  <img src={profile.profileImage} alt={profile.name} loading="lazy" decoding="async" className="w-full h-full object-cover" />
                 ) : <div className="w-full h-full bg-card flex items-center justify-center text-5xl">👤</div>}
               </div>
             )}

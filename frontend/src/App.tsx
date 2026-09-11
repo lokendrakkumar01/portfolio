@@ -3,11 +3,26 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { HelmetProvider } from 'react-helmet-async';
 import { Toaster } from 'react-hot-toast';
 import { lazy, Suspense } from 'react';
+
+// Lightweight skeleton — only the content area shows loading, navbar stays visible
+function PageSkeleton() {
+  return (
+    <div className="flex-1 animate-pulse p-8 space-y-6 max-w-4xl mx-auto w-full">
+      <div className="h-8 bg-card rounded-xl w-2/5" />
+      <div className="h-4 bg-card rounded-lg w-3/5" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="h-40 bg-card rounded-2xl" />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// Public pages — lazy loaded for code splitting
 import PublicLayout from './layouts/PublicLayout';
 import AdminLayout from './layouts/AdminLayout';
-import { Spinner } from './components/ui/Spinner';
 
-// Public pages
 const HomePage = lazy(() => import('./pages/public/HomePage'));
 const AboutPage = lazy(() => import('./pages/public/AboutPage'));
 const SkillsPage = lazy(() => import('./pages/public/SkillsPage'));
@@ -39,14 +54,30 @@ const SocialLinksAdminPage = lazy(() => import('./pages/admin/SocialLinksAdminPa
 const MessagesAdminPage = lazy(() => import('./pages/admin/MessagesAdminPage'));
 const SettingsAdminPage = lazy(() => import('./pages/admin/SettingsAdminPage'));
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // Don't refetch data just because user clicked elsewhere or switched tabs
+      refetchOnWindowFocus: false,
+      // Don't refetch on reconnect unless data is actually stale
+      refetchOnReconnect: 'always',
+      // Keep unused cached data for 10 minutes before garbage collecting
+      gcTime: 10 * 60 * 1000,
+      // Default stale time — hooks can override per-query
+      staleTime: 5 * 60 * 1000,
+      // Retry once on failure, not the default 3 times
+      retry: 1,
+      retryDelay: 1000,
+    },
+  },
+});
 
 export default function App() {
   return (
     <HelmetProvider>
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
-          <Suspense fallback={<Spinner />}>
+          <Suspense fallback={<PageSkeleton />}>
             <Routes>
               {/* Public routes */}
               <Route element={<PublicLayout />}>

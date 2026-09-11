@@ -102,7 +102,7 @@ export default function CertificatesPage() {
                       <div className="flex items-start justify-between gap-3 mb-4">
                         <div className="w-12 h-12 bg-primary/10 border border-primary/20 rounded-2xl flex items-center justify-center text-primary flex-shrink-0 group-hover:scale-110 transition-transform">
                           {c.certificateImage ? (
-                            <img src={c.certificateImage} alt={c.title} className="w-full h-full object-cover rounded-2xl" />
+                            <img src={c.certificateImage} alt={c.title} loading="lazy" decoding="async" className="w-full h-full object-cover rounded-2xl" />
                           ) : (
                             <Award className="w-6 h-6 text-primary" />
                           )}
