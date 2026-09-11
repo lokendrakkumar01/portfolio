@@ -6,10 +6,12 @@ import { getPaginationParams } from '../utils/pagination';
 import { getStorageProvider } from '../services/storage/storage.factory';
 
 export const getGalleries = asyncHandler(async (req: Request, res: Response) => {
-  const { category } = req.query as Record<string, string>;
+  const { category, featured } = req.query as Record<string, string>;
   const filter: any = {};
   if (!req.user) filter.published = true;
-  if (category) filter.category = category;
+  if (category && category.trim()) filter.category = category.trim();
+  if (featured === 'true') filter.featured = true;
+
   const { page, limit, skip } = getPaginationParams(req.query as Record<string, string>);
   const [items, total] = await Promise.all([
     Gallery.find(filter).sort({ displayOrder: 1, createdAt: -1 }).skip(skip).limit(limit),
@@ -29,9 +31,13 @@ export const createGallery = asyncHandler(async (req: Request, res: Response) =>
   const storage = getStorageProvider();
   const result = await storage.upload(req.file.buffer, req.file.mimetype, { folder: 'portfolio/gallery' });
   const item = await Gallery.create({
-    ...req.body,
+    title: req.body.title || req.file.originalname.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' '),
+    description: req.body.description || '',
+    category: req.body.category || 'events',
     imageUrl: result.url,
     imagePublicId: result.publicId,
+    published: req.body.published !== undefined ? req.body.published === 'true' || req.body.published === true : true,
+    featured: req.body.featured === 'true' || req.body.featured === true,
   });
   sendSuccess(res, item, 'Gallery item created', 201);
 });
@@ -45,7 +51,11 @@ export const updateGallery = asyncHandler(async (req: Request, res: Response) =>
 export const deleteGallery = asyncHandler(async (req: Request, res: Response) => {
   const item = await Gallery.findByIdAndDelete(req.params.id);
   if (!item) return sendError(res, 'Gallery item not found', 404);
-  try { await getStorageProvider().delete(item.imagePublicId); } catch {}
+  try {
+    if (item.imagePublicId) {
+      await getStorageProvider().delete(item.imagePublicId);
+    }
+  } catch {}
   sendSuccess(res, null, 'Gallery item deleted');
 });
 
@@ -53,14 +63,21 @@ export const uploadBulkGallery = asyncHandler(async (req: Request, res: Response
   const files = req.files as Express.Multer.File[];
   if (!files || files.length === 0) return sendError(res, 'No files provided', 400);
   const storage = getStorageProvider();
-  const items = await Promise.all(files.map(async (file) => {
-    const result = await storage.upload(file.buffer, file.mimetype, { folder: 'portfolio/gallery' });
-    return Gallery.create({
-      title: file.originalname,
-      imageUrl: result.url,
-      imagePublicId: result.publicId,
-      category: req.body.category || 'other',
-    });
-  }));
+  const category = req.body.category || 'events';
+
+  const items = await Promise.all(
+    files.map(async (file) => {
+      const result = await storage.upload(file.buffer, file.mimetype, { folder: 'portfolio/gallery' });
+      const cleanTitle = file.originalname.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ');
+      return Gallery.create({
+        title: cleanTitle,
+        imageUrl: result.url,
+        imagePublicId: result.publicId,
+        category,
+        published: true,
+        featured: false,
+      });
+    })
+  );
   sendSuccess(res, items, 'Bulk upload successful', 201);
 });
