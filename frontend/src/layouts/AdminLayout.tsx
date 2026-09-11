@@ -43,7 +43,6 @@ function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
 
   const handleLinkClick = () => {
     onClose();
-    window.scrollTo(0, 0);
   };
 
   const content = (
@@ -110,12 +109,12 @@ function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
         <AnimatePresence>
           {open && (
             <motion.aside
-              initial={{ opacity: 0, y: -10 }}
+              initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.15, ease: 'easeInOut' }}
+              exit={{ opacity: 0, y: -8, pointerEvents: 'none' }}
+              transition={{ duration: 0.1, ease: 'easeInOut' }}
               className="fixed inset-0 z-[9999] w-full max-w-full h-[100dvh] bg-surface flex flex-col overflow-hidden lg:hidden"
-              style={{ width: '100%', height: '100dvh', maxHeight: '100dvh' }}
+              style={{ width: '100%', height: '100dvh', maxHeight: '100dvh', pointerEvents: open ? 'auto' : 'none' }}
             >
               {content}
             </motion.aside>
