@@ -10,6 +10,7 @@ import { useSettings } from '../../hooks/useSettings';
 import { useScrollPosition } from '../../hooks/useScrollPosition';
 import type { Theme } from '../../hooks/useTheme';
 import { useSocialLinks } from '../../hooks/useSocialLinks';
+import { useProfile } from '../../hooks/useProfile';
 import { getSocialIcon } from '../../utils/formatters';
 
 const navLinks = [
@@ -37,7 +38,9 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
 
   const { data: settingsData } = useSettings();
   const { data: socialData } = useSocialLinks();
-  const siteName = settingsData?.data?.siteName ?? 'Portfolio';
+  const { data: profileData } = useProfile();
+  const profile = profileData?.data;
+  const siteName = settingsData?.data?.siteName || profile?.name || 'Portfolio';
   const socialLinks = (socialData?.data ?? []).filter((l) => l.active).slice(0, 5);
 
   // Mount portal target on client
@@ -108,8 +111,12 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
           onClick={closeMenu}
           className="flex items-center gap-2.5 hover:opacity-80 transition-opacity min-w-0"
         >
-          <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-black text-base flex-shrink-0">
-            {siteName.charAt(0)}
+          <div className="w-9 h-9 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-black text-base flex-shrink-0 overflow-hidden shadow-sm">
+            {profile?.profileImage ? (
+              <img src={profile.profileImage} alt={siteName} className="w-full h-full object-cover" />
+            ) : (
+              siteName.charAt(0)
+            )}
           </div>
           <span className="font-bold text-text text-base tracking-tight truncate max-w-[180px]">
             {siteName}
@@ -218,10 +225,14 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
           {/* Logo */}
           <Link
             to="/"
-            className="flex items-center gap-2 font-black text-xl sm:text-2xl text-text hover:text-primary transition-colors tracking-tight"
+            className="flex items-center gap-2.5 font-black text-xl sm:text-2xl text-text hover:text-primary transition-colors tracking-tight"
           >
-            <div className="w-8 h-8 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-sm">
-              {siteName.charAt(0)}
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-sm flex-shrink-0 overflow-hidden shadow-sm">
+              {profile?.profileImage ? (
+                <img src={profile.profileImage} alt={siteName} className="w-full h-full object-cover" />
+              ) : (
+                siteName.charAt(0)
+              )}
             </div>
             <span>{siteName}</span>
           </Link>

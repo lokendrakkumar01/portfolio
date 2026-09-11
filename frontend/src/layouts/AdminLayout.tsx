@@ -9,6 +9,7 @@ import {
 import { useAuthStore } from '../store/auth.store';
 import { useTheme } from '../hooks/useTheme';
 import { useStats } from '../hooks/useStats';
+import { useProfile } from '../hooks/useProfile';
 import { cn } from '../utils/cn';
 
 const navItems = [
@@ -38,6 +39,8 @@ function SidebarContent({
   unread: number;
 }) {
   const { user } = useAuthStore();
+  const { data: profileData } = useProfile();
+  const profile = profileData?.data;
   const location = useLocation();
 
   return (
@@ -47,10 +50,23 @@ function SidebarContent({
         <Link
           to="/admin/dashboard"
           onClick={onClose}
-          className="hover:opacity-80 transition-opacity min-w-0"
+          className="flex items-center gap-3 hover:opacity-80 transition-opacity min-w-0"
         >
-          <span className="font-bold text-base text-text block truncate">Admin Panel</span>
-          <p className="text-xs text-muted truncate max-w-[160px]">{user?.email}</p>
+          <div className="w-9 h-9 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-sm flex-shrink-0 overflow-hidden shadow-sm">
+            {profile?.profileImage ? (
+              <img
+                src={profile.profileImage}
+                alt={profile.name || 'Admin'}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              (profile?.name || user?.email || 'A').charAt(0).toUpperCase()
+            )}
+          </div>
+          <div className="min-w-0">
+            <span className="font-bold text-sm text-text block truncate">{profile?.name || 'Admin Panel'}</span>
+            <p className="text-xs text-muted truncate max-w-[130px]">{user?.email}</p>
+          </div>
         </Link>
         <button
           onClick={onClose}
@@ -112,6 +128,8 @@ function SidebarContent({
 
 export default function AdminLayout() {
   const { isAuthenticated, logout } = useAuthStore();
+  const { data: profileData } = useProfile();
+  const profile = profileData?.data;
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const { theme, toggleTheme } = useTheme();
@@ -207,6 +225,20 @@ export default function AdminLayout() {
             <Menu className="w-5 h-5 text-text" />
           </button>
           <h1 className="text-sm font-semibold text-text flex-1">Admin Dashboard</h1>
+          <div className="flex items-center gap-2.5 bg-card/60 border border-border/80 rounded-full px-2.5 py-1">
+            <div className="w-7 h-7 rounded-full bg-primary/10 border border-primary/20 overflow-hidden flex items-center justify-center text-primary font-bold text-xs flex-shrink-0">
+              {profile?.profileImage ? (
+                <img
+                  src={profile.profileImage}
+                  alt={profile.name || 'Admin'}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                (profile?.name || 'A').charAt(0).toUpperCase()
+              )}
+            </div>
+            <span className="text-xs font-semibold text-text hidden sm:inline pr-1">{profile?.name || 'Lokendra Kumar'}</span>
+          </div>
           <button
             onClick={toggleTheme}
             className="p-2 rounded-lg hover:bg-card transition-colors text-muted"
