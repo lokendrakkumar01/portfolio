@@ -272,6 +272,21 @@ function AboutSection() {
 }
 
 // ─── Skills Section ───────────────────────────────────────────────────────────
+const getProficiencyBadgeStyle = (val: number) => {
+  switch (val) {
+    case 5:
+      return 'bg-gradient-to-r from-amber-500/15 via-orange-500/15 to-red-500/15 text-amber-400 border-amber-500/40 shadow-sm shadow-amber-500/20';
+    case 4:
+      return 'bg-gradient-to-r from-purple-500/15 via-fuchsia-500/15 to-pink-500/15 text-purple-300 border-purple-500/40 shadow-sm shadow-purple-500/20';
+    case 3:
+      return 'bg-gradient-to-r from-blue-500/15 via-cyan-500/15 to-sky-500/15 text-cyan-300 border-cyan-500/40 shadow-sm shadow-cyan-500/20';
+    case 2:
+      return 'bg-gradient-to-r from-emerald-500/15 via-teal-500/15 to-green-500/15 text-emerald-300 border-emerald-500/40 shadow-sm shadow-emerald-500/20';
+    default:
+      return 'bg-gradient-to-r from-slate-500/15 to-gray-500/15 text-slate-300 border-slate-500/30';
+  }
+};
+
 function SkillsSection() {
   const { data, isLoading } = useSkills({ featured: true });
   const skills = data?.data ?? [];
@@ -281,42 +296,112 @@ function SkillsSection() {
     return acc;
   }, {});
 
+  const categoryTitles: Record<string, string> = {
+    programming: 'Programming Languages',
+    frontend: 'Frontend Development',
+    backend: 'Backend & APIs',
+    database: 'Databases & Storage',
+    devops: 'DevOps & Cloud',
+    tools: 'Tools & Utilities',
+    other: 'Other Skills',
+  };
+
   return (
-    <section className="py-24 px-4 sm:px-6 lg:px-8 bg-surface/30 border-y border-border/40 relative">
-      <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.02] mix-blend-overlay pointer-events-none" />
+    <section className="py-24 px-4 sm:px-6 lg:px-8 bg-surface/30 border-y border-border/40 relative overflow-hidden">
+      {/* Background glow accents */}
+      <div className="absolute top-1/4 left-10 w-96 h-96 bg-primary/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-1/4 right-10 w-96 h-96 bg-accent/10 rounded-full blur-[120px] pointer-events-none" />
+
       <div className="max-w-7xl mx-auto relative z-10">
-        <SectionHeading title="Skills & Tech Stack" subtitle="Technologies and tools I use to bring ideas to life" viewAllLink="/skills" />
+        <SectionHeading title="Skills & Tech Stack" subtitle="Technologies and tools I use to engineer scalable web applications" viewAllLink="/skills" />
         {isLoading ? (
-          <div className="flex flex-wrap gap-2">
-            {Array.from({ length: 16 }).map((_, i) => (
-              <Skeleton key={i} className="h-10 w-32 rounded-full" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {Array.from({ length: 12 }).map((_, i) => (
+              <Skeleton key={i} className="h-20 rounded-2xl" />
             ))}
           </div>
         ) : skills.length === 0 ? (
           <EmptyState title="Skills coming soon" description="Skills will appear here once added." />
         ) : (
-          <div className="space-y-10">
-            {Object.entries(grouped).map(([cat, catSkills]) => (
-              <div key={cat}>
-                <h3 className="text-sm font-extrabold text-muted uppercase tracking-widest mb-4 capitalize flex items-center gap-3">
-                  <span className="w-3 h-3 rounded-full bg-gradient-to-r from-primary to-accent shadow-[0_0_8px_rgba(var(--primary-rgb),0.6)]" /> {cat}
-                </h3>
-                <div className="flex flex-wrap gap-3">
-                  {catSkills.map((s) => (
-                    <motion.div
-                      key={s._id}
-                      whileHover={{ scale: 1.05, y: -2 }}
-                      className="flex items-center gap-3 px-4 py-2.5 bg-card/80 backdrop-blur-md border border-border/80 rounded-2xl text-sm text-text hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 transition-all cursor-default"
-                    >
-                      {s.icon && <span className="text-xl drop-shadow-md">{s.icon}</span>}
-                      <span className="font-bold">{s.name}</span>
-                      <span className="text-[10px] text-primary font-bold bg-primary/10 px-2 py-1 rounded-md border border-primary/20 tracking-wide uppercase">
-                        {getProficiencyLabel(s.proficiency)}
-                      </span>
-                    </motion.div>
-                  ))}
+          <div className="space-y-12">
+            {Object.entries(grouped).map(([cat, catSkills], catIdx) => (
+              <motion.div
+                key={cat}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: catIdx * 0.08 }}
+              >
+                {/* Category Header */}
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="w-3 h-3 rounded-full bg-gradient-to-r from-primary to-accent shadow-[0_0_12px_rgba(var(--primary-rgb),0.8)] animate-pulse" />
+                  <h3 className="text-sm sm:text-base font-extrabold text-text tracking-wide uppercase">
+                    {categoryTitles[cat] || cat}
+                  </h3>
+                  <div className="h-px flex-1 bg-gradient-to-r from-border via-border/50 to-transparent ml-2" />
+                  <span className="text-xs font-bold text-muted bg-card px-3 py-1 rounded-full border border-border/60">
+                    {catSkills.length} {catSkills.length === 1 ? 'skill' : 'skills'}
+                  </span>
                 </div>
-              </div>
+
+                {/* Animated Skill Cards Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {catSkills.map((s, i) => {
+                    const levelLabel = getProficiencyLabel(s.proficiency);
+                    const badgeStyle = getProficiencyBadgeStyle(s.proficiency);
+                    const percent = s.proficiency * 20;
+
+                    return (
+                      <motion.div
+                        key={s._id}
+                        initial={{ opacity: 0, scale: 0.92, y: 15 }}
+                        whileInView={{ opacity: 1, scale: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.4, delay: i * 0.04 }}
+                        whileHover={{ scale: 1.03, y: -4 }}
+                        whileTap={{ scale: 0.98 }}
+                        className="group relative bg-card/80 backdrop-blur-xl border border-border/80 hover:border-primary/60 rounded-2xl p-4.5 transition-all duration-300 shadow-sm hover:shadow-xl hover:shadow-primary/10 overflow-hidden flex flex-col justify-between cursor-default"
+                      >
+                        {/* Shimmering beam effect */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out pointer-events-none" />
+
+                        {/* Top: Icon + Name + Badge */}
+                        <div className="flex items-center justify-between gap-2.5 mb-3">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="w-10 h-10 rounded-xl bg-surface border border-border/60 flex items-center justify-center text-xl flex-shrink-0 group-hover:scale-110 group-hover:border-primary/50 group-hover:shadow-md transition-all duration-300 shadow-inner">
+                              {s.icon || '⚡'}
+                            </div>
+                            <span className="font-bold text-text text-sm truncate group-hover:text-primary transition-colors">
+                              {s.name}
+                            </span>
+                          </div>
+
+                          <span className={`text-[10px] font-black uppercase px-2.5 py-1 rounded-full border tracking-wider flex-shrink-0 ${badgeStyle}`}>
+                            {levelLabel}
+                          </span>
+                        </div>
+
+                        {/* Bottom: Progress Bar */}
+                        <div className="space-y-1 pt-1">
+                          <div className="flex justify-between text-[10px] font-extrabold text-muted">
+                            <span className="text-muted/70">Proficiency</span>
+                            <span className="text-primary font-black">{percent}%</span>
+                          </div>
+                          <div className="w-full bg-surface border border-border/40 rounded-full h-1.5 overflow-hidden">
+                            <motion.div
+                              initial={{ width: 0 }}
+                              whileInView={{ width: `${percent}%` }}
+                              viewport={{ once: true }}
+                              transition={{ duration: 0.8, delay: 0.1 + i * 0.02, ease: 'easeOut' }}
+                              className="h-full rounded-full bg-gradient-to-r from-primary via-primary to-accent"
+                            />
+                          </div>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              </motion.div>
             ))}
           </div>
         )}
