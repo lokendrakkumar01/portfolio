@@ -181,7 +181,7 @@ export default function GalleryAdminPage() {
           <input
             ref={fileRef}
             type="file"
-            accept="image/*,video/*"
+            accept="image/*,video/*,.jpg,.jpeg,.png,.webp,.gif,.heic,.heif,.jfif,.mp4,.mov,.webm,.m4v,.3gp"
             multiple
             className="sr-only"
             onChange={handleFileUpload}
