@@ -23,14 +23,14 @@ export const getProjects = asyncHandler(async (req: Request, res: Response) => {
   }
   const { page, limit, skip } = getPaginationParams(req.query as Record<string, string>);
   const [items, total] = await Promise.all([
-    Project.find(filter).sort({ displayOrder: 1, createdAt: -1 }).skip(skip).limit(limit),
+    Project.find(filter).sort({ displayOrder: 1, createdAt: -1 }).skip(skip).limit(limit).lean(),
     Project.countDocuments(filter),
   ]);
   sendPaginatedSuccess(res, items, { page, limit, total, totalPages: Math.ceil(total / limit) });
 });
 
 export const getProject = asyncHandler(async (req: Request, res: Response) => {
-  const item = await Project.findById(req.params.id);
+  const item = await Project.findById(req.params.id).lean();
   if (!item) return sendError(res, 'Project not found', 404);
   sendSuccess(res, item);
 });
@@ -38,7 +38,7 @@ export const getProject = asyncHandler(async (req: Request, res: Response) => {
 export const getProjectBySlug = asyncHandler(async (req: Request, res: Response) => {
   const filter: any = { slug: req.params.slug };
   if (!req.user) filter.published = true;
-  const item = await Project.findOne(filter);
+  const item = await Project.findOne(filter).lean();
   if (!item) return sendError(res, 'Project not found', 404);
   sendSuccess(res, item);
 });

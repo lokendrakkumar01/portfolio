@@ -12,6 +12,9 @@ import { ContactMessage } from '../models/ContactMessage';
 
 export const getStats = asyncHandler(async (req: Request, res: Response) => {
   const isAdmin = !!req.user;
+  if (!isAdmin) {
+    res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
+  }
   const filter = isAdmin ? {} : { published: true };
 
   const [projects, certificates, achievements, skills, education, experience, gallery, messages] = await Promise.all([

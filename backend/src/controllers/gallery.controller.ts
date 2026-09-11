@@ -27,7 +27,7 @@ export const getGalleries = asyncHandler(async (req: Request, res: Response) => 
 
   const { page, limit, skip } = getPaginationParams(req.query as Record<string, string>);
   const [items, total] = await Promise.all([
-    Gallery.find(filter).sort({ displayOrder: 1, createdAt: -1 }).skip(skip).limit(limit),
+    Gallery.find(filter).sort({ displayOrder: 1, createdAt: -1 }).skip(skip).limit(limit).lean(),
     Gallery.countDocuments(filter),
   ]);
   sendPaginatedSuccess(res, items, { page, limit, total, totalPages: Math.ceil(total / limit) });

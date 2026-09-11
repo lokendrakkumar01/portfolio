@@ -12,14 +12,14 @@ export const getAchievements = asyncHandler(async (req: Request, res: Response) 
   if (featured === 'false') filter.featured = false;
   const { page, limit, skip } = getPaginationParams(req.query as Record<string, string>);
   const [items, total] = await Promise.all([
-    Achievement.find(filter).sort({ date: -1 }).skip(skip).limit(limit),
+    Achievement.find(filter).sort({ date: -1 }).skip(skip).limit(limit).lean(),
     Achievement.countDocuments(filter),
   ]);
   sendPaginatedSuccess(res, items, { page, limit, total, totalPages: Math.ceil(total / limit) });
 });
 
 export const getAchievement = asyncHandler(async (req: Request, res: Response) => {
-  const item = await Achievement.findById(req.params.id);
+  const item = await Achievement.findById(req.params.id).lean();
   if (!item) return sendError(res, 'Achievement not found', 404);
   sendSuccess(res, item);
 });

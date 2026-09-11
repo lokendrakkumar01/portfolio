@@ -6,7 +6,7 @@ import { asyncHandler } from '../utils/asyncHandler';
 export const getSocialLinks = asyncHandler(async (req: Request, res: Response) => {
   const filter: any = {};
   if (!req.user) filter.active = true;
-  const items = await SocialLink.find(filter).sort({ displayOrder: 1 });
+  const items = await SocialLink.find(filter).sort({ displayOrder: 1 }).lean();
   sendSuccess(res, items);
 });
 

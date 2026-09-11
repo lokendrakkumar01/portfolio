@@ -19,14 +19,14 @@ export const getCertificates = asyncHandler(async (req: Request, res: Response) 
   }
   const { page, limit, skip } = getPaginationParams(req.query as Record<string, string>);
   const [items, total] = await Promise.all([
-    Certificate.find(filter).sort({ displayOrder: 1, issueDate: -1 }).skip(skip).limit(limit),
+    Certificate.find(filter).sort({ displayOrder: 1, issueDate: -1 }).skip(skip).limit(limit).lean(),
     Certificate.countDocuments(filter),
   ]);
   sendPaginatedSuccess(res, items, { page, limit, total, totalPages: Math.ceil(total / limit) });
 });
 
 export const getCertificate = asyncHandler(async (req: Request, res: Response) => {
-  const item = await Certificate.findById(req.params.id);
+  const item = await Certificate.findById(req.params.id).lean();
   if (!item) return sendError(res, 'Certificate not found', 404);
   sendSuccess(res, item);
 });

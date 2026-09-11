@@ -6,12 +6,12 @@ import { asyncHandler } from '../utils/asyncHandler';
 export const getEducations = asyncHandler(async (req: Request, res: Response) => {
   const filter: Record<string, unknown> = {};
   if (!req.user) filter.published = true;
-  const items = await Education.find(filter).sort({ displayOrder: 1, startDate: -1 });
+  const items = await Education.find(filter).sort({ displayOrder: 1, startDate: -1 }).lean();
   sendSuccess(res, items);
 });
 
 export const getEducation = asyncHandler(async (req: Request, res: Response) => {
-  const item = await Education.findById(req.params.id);
+  const item = await Education.findById(req.params.id).lean();
   if (!item) return sendError(res, 'Education not found', 404);
   sendSuccess(res, item);
 });
