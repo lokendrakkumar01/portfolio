@@ -5,21 +5,27 @@ import { Profile } from '../models/Profile';
 import { Skill } from '../models/Skill';
 import { Project } from '../models/Project';
 import { Experience } from '../models/Experience';
+import { Gallery } from '../models/Gallery';
 import { sendSuccess } from '../utils/response';
 import { asyncHandler } from '../utils/asyncHandler';
 
 const getPortfolioData = async () => {
-  const [profile, skills, projects, experiences] = await Promise.all([
+  const [profile, skills, projects, experiences, gallery] = await Promise.all([
     Profile.findOne().lean(),
     Skill.find({ published: true }).lean(),
     Project.find({ published: true }).select('title shortDescription technologies category status').lean(),
     Experience.find({ published: true }).select('company position startDate endDate current').lean(),
+    Gallery.find({ published: true }).select('title description category mediaType featured createdAt').sort({ createdAt: -1 }).lean(),
   ]);
-  return { profile, skills, projects, experiences };
+  return { profile, skills, projects, experiences, gallery };
 };
 
 const buildSystemContext = (data: any): string => {
-  const { profile, skills, projects, experiences } = data;
+  const { profile, skills, projects, experiences, gallery = [] } = data;
+  const photoCount = gallery.filter((g: any) => g.mediaType === 'image').length;
+  const videoCount = gallery.filter((g: any) => g.mediaType === 'video').length;
+  const latestMedia = gallery.slice(0, 5).map((g: any) => `${g.title || 'Untitled'} (${g.mediaType}, ${g.category})`).join(', ');
+
   return `You are an AI Assistant for Lokendra Kumar's Developer Portfolio.
 Name: Lokendra Kumar
 Title: ${profile?.title || 'Full-Stack Developer & Software Engineer'}
@@ -33,7 +39,9 @@ Projects: ${projects.map((p: any) => `${p.title} (${p.category}): ${p.shortDescr
 
 Experience & Education: ${experiences.map((e: any) => `${e.position} at ${e.company}`).join('; ') || 'Software Development'}
 
-Your Goal: Assist recruiters, clients, and visitors. Explain Lokendra's expertise, showcase his projects, and guide them to navigate to specific sections (/projects, /skills, /certificates, /about, /contact). Be concise (2-3 sentences max), professional, and friendly. Always refer to him as Lokendra Kumar.`;
+Gallery & Media: ${gallery.length} published items (${photoCount} photos, ${videoCount} videos). Latest uploaded media: ${latestMedia || 'None'}.
+
+Your Goal: Assist recruiters, clients, and visitors. Explain Lokendra's expertise, showcase his projects, gallery photos/videos, and guide them to navigate to specific sections (/projects, /skills, /gallery, /certificates, /about, /contact). Be concise (2-3 sentences max), professional, and friendly. Always refer to him as Lokendra Kumar.`;
 };
 
 const generateSmartFallback = (query: string, data: any): string => {
@@ -42,7 +50,14 @@ const generateSmartFallback = (query: string, data: any): string => {
   const title = data.profile?.title || 'Full-Stack Developer & Software Engineer';
 
   if (q.includes('hi') || q.includes('hello') || q.includes('hey') || q.includes('namaste')) {
-    return `Hello! 👋 I'm the AI Assistant for ${name}'s portfolio. I can answer questions about his software engineering experience, projects, skills, or help you contact him!`;
+    return `Hello! 👋 I'm the AI Assistant for ${name}'s portfolio. I can answer questions about his software engineering experience, projects, gallery photos/videos, skills, or help you contact him!`;
+  }
+
+  if (q.includes('gallery') || q.includes('photo') || q.includes('video') || q.includes('picture') || q.includes('media')) {
+    const galleryItems = data.gallery || [];
+    const photos = galleryItems.filter((g: any) => g.mediaType === 'image').length;
+    const videos = galleryItems.filter((g: any) => g.mediaType === 'video').length;
+    return `${name}'s Portfolio features a dynamic Gallery with ${photos} photos and ${videos} videos showcasing events, hackathons, and projects! You can view them on the Gallery page (/gallery) or Home Page showcase.`;
   }
 
   if (q.includes('lokendra') || q.includes('who') || q.includes('about') || q.includes('bio') || q.includes('profile')) {

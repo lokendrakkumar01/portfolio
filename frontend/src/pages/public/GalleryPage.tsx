@@ -169,16 +169,32 @@ export default function GalleryPage() {
                 const isVideo = img.mediaType === 'video' || img.imageUrl.includes('.mp4');
                 const isBroken = brokenImages[img._id];
 
+                const spanClass = img.gridSpan && img.gridSpan > 1
+                  ? img.gridSpan === 4
+                    ? 'col-span-1 sm:col-span-2 md:col-span-3 lg:col-span-4'
+                    : img.gridSpan === 3
+                    ? 'col-span-1 sm:col-span-2 md:col-span-3'
+                    : 'col-span-1 sm:col-span-2'
+                  : 'col-span-1';
+
+                const aspectClass = img.aspectRatio === 'video'
+                  ? 'aspect-video'
+                  : img.aspectRatio === 'portrait'
+                  ? 'aspect-[4/5]'
+                  : img.aspectRatio === 'wide'
+                  ? 'aspect-[21/9]'
+                  : 'aspect-square';
+
                 return (
                   <motion.button
                     key={img._id}
                     initial={{ opacity: 0, scale: 0.9, y: 15 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     transition={{ duration: 0.35, delay: i * 0.03 }}
-                    whileHover={{ scale: 1.03, y: -4 }}
+                    whileHover={{ scale: 1.02, y: -4 }}
                     whileTap={{ scale: 0.97 }}
                     onClick={() => !isBroken && setActiveItem(img)}
-                    className="group relative aspect-square overflow-hidden rounded-3xl border border-border/80 bg-surface hover:border-primary/60 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300 text-left focus:outline-none"
+                    className={`group relative ${spanClass} ${aspectClass} overflow-hidden rounded-3xl border border-border/80 bg-surface hover:border-primary/60 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300 text-left focus:outline-none`}
                   >
                     {isVideo ? (
                       <div className="w-full h-full bg-black relative flex items-center justify-center">

@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import {
   Trash2, Upload, Eye, EyeOff, Star, Film, Image as ImageIcon,
-  CheckCircle, RefreshCw, Video, Plus, ExternalLink
+  CheckCircle, RefreshCw, Video, Plus, ExternalLink, Pencil, LayoutGrid, Frame
 } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { EmptyState } from '../../components/ui/EmptyState';
@@ -31,15 +31,42 @@ const CATEGORIES: { value: GalleryCategory; label: string }[] = [
   { value: 'other', label: 'Other' },
 ];
 
+const FRAME_OPTIONS = [
+  { value: '1', label: '1 Column (Standard)' },
+  { value: '2', label: '2 Columns (Medium Frame)' },
+  { value: '3', label: '3 Columns (Large Frame)' },
+  { value: '4', label: '4 Columns (Full Width Hero Frame)' },
+];
+
+const ASPECT_OPTIONS = [
+  { value: 'square', label: 'Square (1:1)' },
+  { value: 'video', label: 'Landscape Video (16:9)' },
+  { value: 'portrait', label: 'Portrait (4:5)' },
+  { value: 'wide', label: 'Wide Banner (21:9)' },
+];
+
 export default function GalleryAdminPage() {
   const [page, setPage] = useState(1);
   const [activeFilter, setActiveFilter] = useState<GalleryCategory | 'all'>('all');
   const [deleteItem, setDeleteItem] = useState<GalleryItem | null>(null);
+  const [editingItem, setEditingItem] = useState<GalleryItem | null>(null);
+
   const [uploadCategory, setUploadCategory] = useState<GalleryCategory>('events');
   const [showVideoModal, setShowVideoModal] = useState(false);
   const [videoTitle, setVideoTitle] = useState('');
   const [videoUrl, setVideoUrl] = useState('');
   const [videoCategory, setVideoCategory] = useState<GalleryCategory>('events');
+  const [videoDescription, setVideoDescription] = useState('');
+  const [videoGridSpan, setVideoGridSpan] = useState<number>(1);
+
+  // Edit form states
+  const [editTitle, setEditTitle] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+  const [editCategory, setEditCategory] = useState<GalleryCategory>('events');
+  const [editGridSpan, setEditGridSpan] = useState<number>(1);
+  const [editAspectRatio, setEditAspectRatio] = useState<'square' | 'video' | 'portrait' | 'wide'>('square');
+  const [editPublished, setEditPublished] = useState(true);
+  const [editFeatured, setEditFeatured] = useState(false);
 
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -82,16 +109,15 @@ export default function GalleryAdminPage() {
       return;
     }
 
-    // Pass video data to create API
-    const fd = new FormData();
-    // We can pass video URL as data
     createMutation.mutate(
       {
         data: {
           title: videoTitle,
+          description: videoDescription,
           imageUrl: videoUrl,
           mediaType: 'video',
           category: videoCategory,
+          gridSpan: Number(videoGridSpan),
           published: true,
         },
         file: new File([''], 'video_link.mp4', { type: 'video/mp4' }),
@@ -101,6 +127,44 @@ export default function GalleryAdminPage() {
           setShowVideoModal(false);
           setVideoTitle('');
           setVideoUrl('');
+          setVideoDescription('');
+          setVideoGridSpan(1);
+          refetch();
+        },
+      }
+    );
+  };
+
+  const openEditModal = (img: GalleryItem) => {
+    setEditingItem(img);
+    setEditTitle(img.title || '');
+    setEditDescription(img.description || '');
+    setEditCategory(img.category || 'events');
+    setEditGridSpan(img.gridSpan || 1);
+    setEditAspectRatio(img.aspectRatio || 'square');
+    setEditPublished(img.published);
+    setEditFeatured(img.featured);
+  };
+
+  const handleSaveEdit = () => {
+    if (!editingItem) return;
+
+    updateMutation.mutate(
+      {
+        id: editingItem._id,
+        data: {
+          title: editTitle,
+          description: editDescription,
+          category: editCategory,
+          gridSpan: Number(editGridSpan),
+          aspectRatio: editAspectRatio,
+          published: editPublished,
+          featured: editFeatured,
+        },
+      },
+      {
+        onSuccess: () => {
+          setEditingItem(null);
           refetch();
         },
       }
@@ -113,7 +177,7 @@ export default function GalleryAdminPage() {
       { id: img._id, data: { published: nextPublished } },
       {
         onSuccess: () => {
-          toast.success(nextPublished ? 'Photo/Video is now SHOWN on portfolio' : 'Photo/Video is now HIDDEN from portfolio');
+          toast.success(nextPublished ? 'Shown on portfolio' : 'Hidden from portfolio');
         },
       }
     );
@@ -138,17 +202,17 @@ export default function GalleryAdminPage() {
         <div>
           <h1 className="text-2xl font-black text-text tracking-tight flex items-center gap-2">
             <ImageIcon className="w-6 h-6 text-primary" />
-            Gallery & Video Management
+            Gallery & Video Studio
           </h1>
           <p className="text-muted text-xs font-semibold mt-1">
-            {pagination?.total ?? 0} total photos & videos. Control which items are shown or hidden on your portfolio.
+            {pagination?.total ?? 0} photos & videos. Customize titles, descriptions, and 1–4 column display frames.
           </p>
         </div>
 
         {/* Action Controls */}
         <div className="flex items-center gap-2 flex-wrap">
           <div className="flex items-center gap-1.5 bg-surface border border-border px-3 py-1.5 rounded-2xl">
-            <span className="text-xs font-bold text-muted">Category:</span>
+            <span className="text-xs font-bold text-muted">Upload Category:</span>
             <select
               value={uploadCategory}
               onChange={(e) => setUploadCategory(e.target.value as GalleryCategory)}
@@ -229,7 +293,7 @@ export default function GalleryAdminPage() {
         <div className="p-4 rounded-2xl bg-primary/10 border border-primary/30 flex items-center gap-3 animate-pulse">
           <RefreshCw className="w-5 h-5 text-primary animate-spin" />
           <span className="text-xs font-bold text-primary">
-            Uploading files to cloud database... Please wait.
+            Uploading media files to cloud... Please wait.
           </span>
         </div>
       )}
@@ -256,6 +320,7 @@ export default function GalleryAdminPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {items.map((img) => {
               const isVideo = img.mediaType === 'video' || img.imageUrl.includes('.mp4') || img.imageUrl.includes('youtube') || img.imageUrl.includes('vimeo');
+              const spanLabel = img.gridSpan && img.gridSpan > 1 ? `${img.gridSpan} Col Frame` : '1 Col Frame';
 
               return (
                 <div
@@ -264,7 +329,7 @@ export default function GalleryAdminPage() {
                     img.published ? 'border-border/80 hover:border-primary/60' : 'border-error/40 bg-error/5'
                   }`}
                 >
-                  {/* Media View (Image or Video) */}
+                  {/* Media View */}
                   <div className="relative aspect-video bg-black flex items-center justify-center overflow-hidden">
                     {isVideo ? (
                       img.imageUrl.startsWith('http') && (img.imageUrl.includes('mp4') || img.imageUrl.includes('webm')) ? (
@@ -295,10 +360,15 @@ export default function GalleryAdminPage() {
                     )}
 
                     {/* Category & Status Badges */}
-                    <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none">
-                      <span className="text-[9px] font-black uppercase tracking-wider bg-black/70 backdrop-blur-md text-white px-2.5 py-1 rounded-full border border-white/20">
-                        {img.category} {isVideo && '• Video'}
-                      </span>
+                    <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none gap-2">
+                      <div className="flex gap-1 items-center">
+                        <span className="text-[9px] font-black uppercase tracking-wider bg-black/70 backdrop-blur-md text-white px-2.5 py-1 rounded-full border border-white/20">
+                          {img.category} {isVideo && '• Video'}
+                        </span>
+                        <span className="text-[9px] font-black uppercase tracking-wider bg-primary/80 backdrop-blur-md text-white px-2 py-0.5 rounded-full border border-white/20">
+                          {spanLabel}
+                        </span>
+                      </div>
 
                       {img.published ? (
                         <span className="text-[9px] font-black uppercase tracking-wider bg-green-500/90 text-white px-2.5 py-1 rounded-full shadow">
@@ -312,17 +382,22 @@ export default function GalleryAdminPage() {
                     </div>
                   </div>
 
-                  {/* Card Details & Action Toolbar */}
+                  {/* Card Details */}
                   <div className="p-4 flex flex-col justify-between flex-1 space-y-3">
-                    <h3 className="font-bold text-text text-sm line-clamp-1">{img.title}</h3>
+                    <div>
+                      <h3 className="font-extrabold text-text text-sm line-clamp-1">{img.title}</h3>
+                      {img.description && (
+                        <p className="text-xs text-muted line-clamp-2 mt-0.5 font-medium">{img.description}</p>
+                      )}
+                    </div>
 
-                    {/* Controls Row: Show/Hide Toggle, Featured Toggle, Delete */}
+                    {/* Toolbar: Edit, Show/Hide Toggle, Featured Toggle, Delete */}
                     <div className="flex items-center justify-between pt-2 border-t border-border/60 gap-2">
                       {/* Show / Hide Toggle Button */}
                       <button
                         onClick={() => togglePublish(img)}
                         disabled={updateMutation.isPending}
-                        className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-xl text-xs font-bold transition-all ${
+                        className={`flex-1 flex items-center justify-center gap-1 py-1.5 px-2.5 rounded-xl text-xs font-bold transition-all ${
                           img.published
                             ? 'bg-primary/10 text-primary border border-primary/30 hover:bg-primary/20'
                             : 'bg-error/10 text-error border border-error/30 hover:bg-error/20'
@@ -340,6 +415,15 @@ export default function GalleryAdminPage() {
                             <span>Hidden</span>
                           </>
                         )}
+                      </button>
+
+                      {/* Edit Button */}
+                      <button
+                        onClick={() => openEditModal(img)}
+                        className="p-2 bg-surface hover:bg-primary/10 hover:text-primary rounded-xl border border-border text-text transition-colors"
+                        title="Edit Title, Description & Frame Size"
+                      >
+                        <Pencil className="w-4 h-4" />
                       </button>
 
                       {/* Featured Toggle */}
@@ -383,16 +467,104 @@ export default function GalleryAdminPage() {
         </>
       )}
 
+      {/* Edit Photo / Video Modal */}
+      <Modal
+        open={!!editingItem}
+        onClose={() => setEditingItem(null)}
+        title={`Edit ${editingItem?.mediaType === 'video' ? 'Video' : 'Photo'} Details`}
+        size="md"
+      >
+        <div className="space-y-4">
+          <Input
+            label="Title / Name *"
+            placeholder="e.g. Hackathon Demo Presentation"
+            value={editTitle}
+            onChange={(e) => setEditTitle(e.target.value)}
+          />
+
+          <div>
+            <label className="block text-xs font-semibold text-text mb-1">
+              Description / About Photo or Video
+            </label>
+            <textarea
+              rows={3}
+              value={editDescription}
+              onChange={(e) => setEditDescription(e.target.value)}
+              placeholder="Provide context or details about this photo/video..."
+              className="w-full px-4 py-2.5 text-sm bg-surface border border-border rounded-xl text-text placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary resize-none"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Select
+              label="Category"
+              options={CATEGORIES}
+              value={editCategory}
+              onChange={(e) => setEditCategory(e.target.value as GalleryCategory)}
+            />
+
+            <Select
+              label="Display Frame Size (Grid Columns)"
+              options={FRAME_OPTIONS}
+              value={String(editGridSpan)}
+              onChange={(e) => setEditGridSpan(Number(e.target.value))}
+            />
+          </div>
+
+          <Select
+            label="Aspect Ratio Frame"
+            options={ASPECT_OPTIONS}
+            value={editAspectRatio}
+            onChange={(e) => setEditAspectRatio(e.target.value as any)}
+          />
+
+          <div className="flex items-center gap-6 pt-2">
+            <label className="flex items-center gap-2 text-sm font-semibold text-text cursor-pointer">
+              <input
+                type="checkbox"
+                checked={editPublished}
+                onChange={(e) => setEditPublished(e.target.checked)}
+                className="w-4 h-4 accent-primary rounded"
+              />
+              Show on Portfolio (Published)
+            </label>
+
+            <label className="flex items-center gap-2 text-sm font-semibold text-text cursor-pointer">
+              <input
+                type="checkbox"
+                checked={editFeatured}
+                onChange={(e) => setEditFeatured(e.target.checked)}
+                className="w-4 h-4 accent-primary rounded"
+              />
+              Featured Media
+            </label>
+          </div>
+
+          <div className="flex gap-3 justify-end pt-4 border-t border-border">
+            <Button variant="secondary" onClick={() => setEditingItem(null)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSaveEdit}
+              loading={updateMutation.isPending}
+              icon={<CheckCircle className="w-4 h-4" />}
+            >
+              Save Changes
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
       {/* Add Video Link Modal */}
       <Modal
         open={showVideoModal}
         onClose={() => setShowVideoModal(false)}
         title="Add Video Link"
-        size="sm"
+        size="md"
       >
         <div className="space-y-4">
           <Input
-            label="Video Title *"
+            label="Video Title / Name *"
             placeholder="e.g. Hackathon Demo Video"
             value={videoTitle}
             onChange={(e) => setVideoTitle(e.target.value)}
@@ -405,12 +577,34 @@ export default function GalleryAdminPage() {
             onChange={(e) => setVideoUrl(e.target.value)}
           />
 
-          <Select
-            label="Category"
-            options={CATEGORIES}
-            value={videoCategory}
-            onChange={(e) => setVideoCategory(e.target.value as GalleryCategory)}
-          />
+          <div>
+            <label className="block text-xs font-semibold text-text mb-1">
+              About Video (Description)
+            </label>
+            <textarea
+              rows={3}
+              value={videoDescription}
+              onChange={(e) => setVideoDescription(e.target.value)}
+              placeholder="Tell visitors about this video..."
+              className="w-full px-4 py-2.5 text-sm bg-surface border border-border rounded-xl text-text placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary resize-none"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Select
+              label="Category"
+              options={CATEGORIES}
+              value={videoCategory}
+              onChange={(e) => setVideoCategory(e.target.value as GalleryCategory)}
+            />
+
+            <Select
+              label="Display Frame Size"
+              options={FRAME_OPTIONS}
+              value={String(videoGridSpan)}
+              onChange={(e) => setVideoGridSpan(Number(e.target.value))}
+            />
+          </div>
 
           <div className="flex gap-3 justify-end pt-3 border-t border-border">
             <Button variant="secondary" onClick={() => setShowVideoModal(false)}>

@@ -7,6 +7,8 @@ export interface IGallery extends Document {
   imagePublicId: string;
   mediaType: 'image' | 'video';
   category: 'events' | 'hackathons' | 'college' | 'projects' | 'achievements' | 'certificates' | 'personal' | 'other';
+  gridSpan: number;
+  aspectRatio: 'square' | 'video' | 'portrait' | 'wide';
   date?: Date;
   location?: string;
   featured: boolean;
@@ -28,6 +30,8 @@ const gallerySchema = new Schema<IGallery>(
       enum: ['events', 'hackathons', 'college', 'projects', 'achievements', 'certificates', 'personal', 'other'],
       default: 'events',
     },
+    gridSpan: { type: Number, default: 1, min: 1, max: 4 },
+    aspectRatio: { type: String, enum: ['square', 'video', 'portrait', 'wide'], default: 'square' },
     date: { type: Date },
     location: { type: String },
     featured: { type: Boolean, default: false },

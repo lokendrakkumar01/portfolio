@@ -204,6 +204,8 @@ export interface GalleryItem {
   imagePublicId: string;
   mediaType?: 'image' | 'video';
   category: GalleryCategory;
+  gridSpan?: number;
+  aspectRatio?: 'square' | 'video' | 'portrait' | 'wide';
   date?: string;
   location?: string;
   featured: boolean;
