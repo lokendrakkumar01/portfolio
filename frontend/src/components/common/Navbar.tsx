@@ -81,6 +81,7 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
       aria-modal="true"
       role="dialog"
       aria-label="Mobile navigation"
+      data-theme={theme}
       style={{
         position: 'fixed',
         inset: 0,
@@ -90,13 +91,12 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden',
-        backgroundColor: 'var(--color-surface, #fff)',
         transition: 'opacity 0.15s ease, visibility 0.15s ease',
         opacity: mobileOpen ? 1 : 0,
         visibility: mobileOpen ? 'visible' : 'hidden',
         pointerEvents: mobileOpen ? 'auto' : 'none',
       }}
-      className="lg:hidden"
+      className="bg-surface lg:hidden"
     >
       {/* ── Header ── */}
       <div

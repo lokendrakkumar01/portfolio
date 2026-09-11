@@ -156,6 +156,7 @@ export default function AdminLayout() {
       aria-modal="true"
       role="dialog"
       aria-label="Admin navigation"
+      data-theme={theme}
       style={{
         position: 'fixed',
         inset: 0,
@@ -165,13 +166,12 @@ export default function AdminLayout() {
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden',
-        backgroundColor: 'var(--color-surface, #fff)',
         transition: 'opacity 0.15s ease, visibility 0.15s ease',
         opacity: sidebarOpen ? 1 : 0,
         visibility: sidebarOpen ? 'visible' : 'hidden',
         pointerEvents: sidebarOpen ? 'auto' : 'none',
       }}
-      className="lg:hidden"
+      className="bg-surface lg:hidden"
     >
       <SidebarContent
         onClose={() => setSidebarOpen(false)}
