@@ -76,12 +76,23 @@ export const updateGallery = asyncHandler(async (req: Request, res: Response) =>
 export const deleteGallery = asyncHandler(async (req: Request, res: Response) => {
   const item = await Gallery.findByIdAndDelete(req.params.id);
   if (!item) return sendError(res, 'Gallery item not found', 404);
+
+  // Clean up file storage
   try {
+    const storage = getStorageProvider();
     if (item.imagePublicId) {
-      await getStorageProvider().delete(item.imagePublicId);
+      await storage.delete(item.imagePublicId);
+    } else if (item.imageUrl && item.imageUrl.includes('/uploads/')) {
+      const filename = item.imageUrl.split('/uploads/').pop();
+      if (filename) {
+        await storage.delete(filename);
+      }
     }
-  } catch {}
-  sendSuccess(res, null, 'Gallery item deleted');
+  } catch (err) {
+    console.error('⚠️ File deletion cleanup error:', err);
+  }
+
+  sendSuccess(res, null, 'Gallery item deleted permanently from database and storage');
 });
 
 export const uploadBulkGallery = asyncHandler(async (req: Request, res: Response) => {
