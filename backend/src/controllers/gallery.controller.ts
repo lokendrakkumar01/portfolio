@@ -11,8 +11,8 @@ export const getGalleries = asyncHandler(async (req: Request, res: Response) => 
 
   // Default behavior: ONLY return published items (published === true) for public portfolio.
   // If published === 'all' (passed by Admin panel), return both published and hidden items.
-  if (published === 'all' && req.user) {
-    // Admin viewing all items
+  if (published === 'all') {
+    // Admin viewing all items - no filter on published
   } else if (published === 'false') {
     filter.published = false;
   } else {
@@ -20,7 +20,9 @@ export const getGalleries = asyncHandler(async (req: Request, res: Response) => 
     filter.published = true;
   }
 
-  if (category && category.trim()) filter.category = category.trim();
+  if (category && category.trim() && category.trim() !== 'all') {
+    filter.category = category.trim();
+  }
   if (featured === 'true') filter.featured = true;
 
   const { page, limit, skip } = getPaginationParams(req.query as Record<string, string>);
@@ -77,14 +79,33 @@ export const updateGallery = asyncHandler(async (req: Request, res: Response) =>
 });
 
 export const deleteGallery = asyncHandler(async (req: Request, res: Response) => {
-  const item = await Gallery.findByIdAndDelete(req.params.id);
+  const item = await Gallery.findById(req.params.id);
   if (!item) return sendError(res, 'Gallery item not found', 404);
 
-  // Clean up file storage
+  // Permanently delete from MongoDB Database
+  await Gallery.findByIdAndDelete(req.params.id);
+
+  // Clean up Cloudinary / Local file storage
   try {
     const storage = getStorageProvider();
-    if (item.imagePublicId) {
-      await storage.delete(item.imagePublicId);
+    let publicId = item.imagePublicId;
+    let resourceType: 'image' | 'video' | 'raw' = item.mediaType === 'video' ? 'video' : 'image';
+
+    if (!publicId && item.imageUrl && item.imageUrl.includes('cloudinary.com')) {
+      if (item.imageUrl.includes('/video/upload/')) {
+        resourceType = 'video';
+      }
+      const parts = item.imageUrl.split('/upload/');
+      if (parts.length > 1) {
+        let afterUpload = parts[1];
+        afterUpload = afterUpload.replace(/^v\d+\//, '');
+        publicId = afterUpload.replace(/\.[^/.]+$/, '');
+      }
+    }
+
+    if (publicId) {
+      console.log(`🗑️ Deleting Cloudinary asset: publicId=${publicId}, resourceType=${resourceType}`);
+      await storage.delete(publicId, resourceType);
     } else if (item.imageUrl && item.imageUrl.includes('/uploads/')) {
       const filename = item.imageUrl.split('/uploads/').pop();
       if (filename) {
@@ -95,7 +116,7 @@ export const deleteGallery = asyncHandler(async (req: Request, res: Response) =>
     console.error('⚠️ File deletion cleanup error:', err);
   }
 
-  sendSuccess(res, null, 'Gallery item deleted permanently from database and storage');
+  sendSuccess(res, null, 'Gallery item deleted permanently from database and Cloudinary storage');
 });
 
 export const uploadBulkGallery = asyncHandler(async (req: Request, res: Response) => {

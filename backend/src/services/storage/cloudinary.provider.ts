@@ -51,12 +51,13 @@ export class CloudinaryProvider implements StorageProvider {
     });
   }
 
-  async delete(publicId: string, resourceType: 'image' | 'raw' = 'image'): Promise<void> {
+  async delete(publicId: string, resourceType: 'image' | 'video' | 'raw' = 'image'): Promise<void> {
     if (!publicId) return;
     try {
-      await cloudinary.uploader.destroy(publicId, { resource_type: resourceType });
-    } catch {
-      // Ignore deletion errors for legacy or non-existent items
+      const res = await cloudinary.uploader.destroy(publicId, { resource_type: resourceType, invalidate: true });
+      console.log(`🗑️ Cloudinary destroy (${resourceType}) result for ${publicId}:`, res);
+    } catch (err: any) {
+      console.error(`⚠️ Cloudinary deletion error for ${publicId}:`, err?.message || err);
     }
   }
 }

@@ -267,7 +267,7 @@ export default function GalleryAdminPage() {
               : 'bg-card border border-border text-muted hover:text-text'
           }`}
         >
-          All Items ({pagination?.total ?? 0})
+          All Items {activeFilter === 'all' ? `(${pagination?.total ?? 0})` : ''}
         </button>
 
         {CATEGORIES.map((c) => (
@@ -283,7 +283,7 @@ export default function GalleryAdminPage() {
                 : 'bg-card border border-border text-muted hover:text-text'
             }`}
           >
-            {c.label}
+            {c.label} {activeFilter === c.value ? `(${pagination?.total ?? 0})` : ''}
           </button>
         ))}
       </div>
@@ -319,7 +319,7 @@ export default function GalleryAdminPage() {
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {items.map((img) => {
-              const isVideo = img.mediaType === 'video' || img.imageUrl.includes('.mp4') || img.imageUrl.includes('youtube') || img.imageUrl.includes('vimeo');
+              const isVideo = img.mediaType === 'video' || img.imageUrl.includes('.mp4') || img.imageUrl.includes('/video/') || img.imageUrl.includes('youtube') || img.imageUrl.includes('vimeo');
               const spanLabel = img.gridSpan && img.gridSpan > 1 ? `${img.gridSpan} Col Frame` : '1 Col Frame';
 
               return (
@@ -332,7 +332,7 @@ export default function GalleryAdminPage() {
                   {/* Media View */}
                   <div className="relative aspect-video bg-black flex items-center justify-center overflow-hidden">
                     {isVideo ? (
-                      img.imageUrl.startsWith('http') && (img.imageUrl.includes('mp4') || img.imageUrl.includes('webm')) ? (
+                      img.imageUrl.startsWith('http') && (img.mediaType === 'video' || img.imageUrl.includes('mp4') || img.imageUrl.includes('webm') || img.imageUrl.includes('/video/')) ? (
                         <video src={img.imageUrl} controls className="w-full h-full object-cover" />
                       ) : (
                         <div className="w-full h-full flex flex-col items-center justify-center bg-card text-muted p-4 text-center">

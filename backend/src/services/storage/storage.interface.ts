@@ -14,5 +14,5 @@ export interface UploadResult {
 
 export interface StorageProvider {
   upload(fileBuffer: Buffer, mimeType: string, options?: UploadOptions): Promise<UploadResult>;
-  delete(publicId: string, resourceType?: 'image' | 'raw'): Promise<void>;
+  delete(publicId: string, resourceType?: 'image' | 'video' | 'raw'): Promise<void>;
 }
