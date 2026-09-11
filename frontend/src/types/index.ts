@@ -202,6 +202,7 @@ export interface GalleryItem {
   description?: string;
   imageUrl: string;
   imagePublicId: string;
+  mediaType?: 'image' | 'video';
   category: GalleryCategory;
   date?: string;
   location?: string;

@@ -1,11 +1,22 @@
 import { useState, useRef } from 'react';
-import { Trash2, Upload, Sparkles, Filter, Image as ImageIcon, CheckCircle, RefreshCw } from 'lucide-react';
+import {
+  Trash2, Upload, Eye, EyeOff, Star, Film, Image as ImageIcon,
+  CheckCircle, RefreshCw, Video, Plus, ExternalLink
+} from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
+import { Modal } from '../../components/ui/Modal';
 import { Skeleton } from '../../components/ui/Skeleton';
+import { Input, Select } from '../../components/ui/Input';
 import { Pagination } from '../../components/ui/Pagination';
-import { useGallery, useBulkUploadGallery, useDeleteGalleryItem } from '../../hooks/useGallery';
+import {
+  useGallery,
+  useBulkUploadGallery,
+  useDeleteGalleryItem,
+  useUpdateGalleryItem,
+  useCreateGalleryItem
+} from '../../hooks/useGallery';
 import type { GalleryCategory, GalleryItem } from '../../types';
 import toast from 'react-hot-toast';
 
@@ -25,7 +36,10 @@ export default function GalleryAdminPage() {
   const [activeFilter, setActiveFilter] = useState<GalleryCategory | 'all'>('all');
   const [deleteItem, setDeleteItem] = useState<GalleryItem | null>(null);
   const [uploadCategory, setUploadCategory] = useState<GalleryCategory>('events');
-  const [brokenImages, setBrokenImages] = useState<Record<string, boolean>>({});
+  const [showVideoModal, setShowVideoModal] = useState(false);
+  const [videoTitle, setVideoTitle] = useState('');
+  const [videoUrl, setVideoUrl] = useState('');
+  const [videoCategory, setVideoCategory] = useState<GalleryCategory>('events');
 
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -36,12 +50,14 @@ export default function GalleryAdminPage() {
   });
 
   const bulkUploadMutation = useBulkUploadGallery();
+  const createMutation = useCreateGalleryItem();
+  const updateMutation = useUpdateGalleryItem();
   const deleteMutation = useDeleteGalleryItem();
 
   const items = data?.data ?? [];
   const pagination = data?.pagination;
 
-  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
     if (!files.length) return;
 
@@ -59,8 +75,59 @@ export default function GalleryAdminPage() {
     );
   };
 
-  const handleImageError = (id: string) => {
-    setBrokenImages((prev) => ({ ...prev, [id]: true }));
+  const handleAddVideoUrl = () => {
+    if (!videoUrl.trim() || !videoTitle.trim()) {
+      toast.error('Please enter video title and URL');
+      return;
+    }
+
+    // Pass video data to create API
+    const fd = new FormData();
+    // We can pass video URL as data
+    createMutation.mutate(
+      {
+        data: {
+          title: videoTitle,
+          imageUrl: videoUrl,
+          mediaType: 'video',
+          category: videoCategory,
+          published: true,
+        },
+        file: new File([''], 'video_link.mp4', { type: 'video/mp4' }),
+      },
+      {
+        onSuccess: () => {
+          setShowVideoModal(false);
+          setVideoTitle('');
+          setVideoUrl('');
+          refetch();
+        },
+      }
+    );
+  };
+
+  const togglePublish = (img: GalleryItem) => {
+    const nextPublished = !img.published;
+    updateMutation.mutate(
+      { id: img._id, data: { published: nextPublished } },
+      {
+        onSuccess: () => {
+          toast.success(nextPublished ? 'Photo/Video is now SHOWN on portfolio' : 'Photo/Video is now HIDDEN from portfolio');
+        },
+      }
+    );
+  };
+
+  const toggleFeatured = (img: GalleryItem) => {
+    const nextFeatured = !img.featured;
+    updateMutation.mutate(
+      { id: img._id, data: { featured: nextFeatured } },
+      {
+        onSuccess: () => {
+          toast.success(nextFeatured ? 'Marked as Featured' : 'Removed from Featured');
+        },
+      }
+    );
   };
 
   return (
@@ -70,21 +137,21 @@ export default function GalleryAdminPage() {
         <div>
           <h1 className="text-2xl font-black text-text tracking-tight flex items-center gap-2">
             <ImageIcon className="w-6 h-6 text-primary" />
-            Gallery Management
+            Gallery & Video Management
           </h1>
           <p className="text-muted text-xs font-semibold mt-1">
-            {pagination?.total ?? 0} total photos stored in cloud database
+            {pagination?.total ?? 0} total photos & videos. Control which items are shown or hidden on your portfolio.
           </p>
         </div>
 
-        {/* Upload Controls */}
-        <div className="flex items-center gap-2.5 flex-wrap">
+        {/* Action Controls */}
+        <div className="flex items-center gap-2 flex-wrap">
           <div className="flex items-center gap-1.5 bg-surface border border-border px-3 py-1.5 rounded-2xl">
-            <span className="text-xs font-bold text-muted">Upload Category:</span>
+            <span className="text-xs font-bold text-muted">Category:</span>
             <select
               value={uploadCategory}
               onChange={(e) => setUploadCategory(e.target.value as GalleryCategory)}
-              className="bg-transparent text-xs font-extrabold text-primary focus:outline-none capitalize cursor-pointer"
+              className="bg-transparent text-xs font-extrabold text-primary focus:outline-none cursor-pointer"
             >
               {CATEGORIES.map((c) => (
                 <option key={c.value} value={c.value} className="bg-surface text-text">
@@ -100,16 +167,24 @@ export default function GalleryAdminPage() {
             onClick={() => fileRef.current?.click()}
             className="shadow-lg shadow-primary/20"
           >
-            Upload Photos
+            Upload Photos/Videos
+          </Button>
+
+          <Button
+            variant="secondary"
+            icon={<Video className="w-4 h-4 text-accent" />}
+            onClick={() => setShowVideoModal(true)}
+          >
+            Add Video Link
           </Button>
 
           <input
             ref={fileRef}
             type="file"
-            accept="image/*"
+            accept="image/*,video/*"
             multiple
             className="sr-only"
-            onChange={handleUpload}
+            onChange={handleFileUpload}
           />
         </div>
       </div>
@@ -127,7 +202,7 @@ export default function GalleryAdminPage() {
               : 'bg-card border border-border text-muted hover:text-text'
           }`}
         >
-          All Photos
+          All Items ({pagination?.total ?? 0})
         </button>
 
         {CATEGORIES.map((c) => (
@@ -153,74 +228,142 @@ export default function GalleryAdminPage() {
         <div className="p-4 rounded-2xl bg-primary/10 border border-primary/30 flex items-center gap-3 animate-pulse">
           <RefreshCw className="w-5 h-5 text-primary animate-spin" />
           <span className="text-xs font-bold text-primary">
-            Uploading images to Cloud & syncing database... Please wait.
+            Uploading files to cloud database... Please wait.
           </span>
         </div>
       )}
 
-      {/* Gallery Grid */}
+      {/* Media Grid */}
       {isLoading ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-          {Array.from({ length: 12 }).map((_, i) => (
-            <Skeleton key={i} className="aspect-square rounded-2xl" />
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <Skeleton key={i} className="aspect-square rounded-3xl" />
           ))}
         </div>
       ) : items.length === 0 ? (
         <EmptyState
-          title="No photos found"
+          title="No gallery items yet"
           description={
             activeFilter === 'all'
-              ? 'Upload your first gallery photos using the button above.'
-              : `No photos uploaded in category "${activeFilter}".`
+              ? 'Upload photos/videos or add video links to populate your gallery.'
+              : `No items found in category "${activeFilter}".`
           }
-          action={{ label: 'Upload Photos', onClick: () => fileRef.current?.click() }}
+          action={{ label: 'Upload Media', onClick: () => fileRef.current?.click() }}
         />
       ) : (
         <>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {items.map((img) => {
-              const isBroken = brokenImages[img._id];
+              const isVideo = img.mediaType === 'video' || img.imageUrl.includes('.mp4') || img.imageUrl.includes('youtube') || img.imageUrl.includes('vimeo');
 
               return (
                 <div
                   key={img._id}
-                  className="group relative aspect-square overflow-hidden rounded-2xl border border-border/80 bg-surface shadow-sm hover:shadow-xl hover:border-primary/50 transition-all duration-300"
+                  className={`group relative bg-card border rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between ${
+                    img.published ? 'border-border/80 hover:border-primary/60' : 'border-error/40 bg-error/5'
+                  }`}
                 >
-                  {!isBroken ? (
-                    <img
-                      src={img.imageUrl}
-                      alt={img.title}
-                      loading="lazy"
-                      onError={() => handleImageError(img._id)}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex flex-col items-center justify-center bg-card text-muted p-2 text-center">
-                      <ImageIcon className="w-8 h-8 opacity-40 mb-1" />
-                      <span className="text-[10px] font-bold truncate max-w-full">
-                        Image Unavailable
-                      </span>
-                    </div>
-                  )}
+                  {/* Media View (Image or Video) */}
+                  <div className="relative aspect-video bg-black flex items-center justify-center overflow-hidden">
+                    {isVideo ? (
+                      img.imageUrl.startsWith('http') && (img.imageUrl.includes('mp4') || img.imageUrl.includes('webm')) ? (
+                        <video src={img.imageUrl} controls className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex flex-col items-center justify-center bg-card text-muted p-4 text-center">
+                          <Film className="w-10 h-10 text-primary mb-2 animate-bounce" />
+                          <span className="text-xs font-bold text-text truncate max-w-full">
+                            Video Link
+                          </span>
+                          <a
+                            href={img.imageUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="mt-2 text-[10px] text-primary font-bold flex items-center gap-1 hover:underline"
+                          >
+                            Open Link <ExternalLink className="w-3 h-3" />
+                          </a>
+                        </div>
+                      )
+                    ) : (
+                      <img
+                        src={img.imageUrl}
+                        alt={img.title}
+                        loading="lazy"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    )}
 
-                  {/* Dark overlay on hover */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-2.5">
-                    <div className="flex justify-between items-center">
-                      <span className="text-[9px] font-black uppercase tracking-wider bg-primary/80 text-white px-2 py-0.5 rounded-full backdrop-blur-md">
-                        {img.category}
+                    {/* Category & Status Badges */}
+                    <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none">
+                      <span className="text-[9px] font-black uppercase tracking-wider bg-black/70 backdrop-blur-md text-white px-2.5 py-1 rounded-full border border-white/20">
+                        {img.category} {isVideo && '• Video'}
                       </span>
+
+                      {img.published ? (
+                        <span className="text-[9px] font-black uppercase tracking-wider bg-green-500/90 text-white px-2.5 py-1 rounded-full shadow">
+                          🟢 Visible
+                        </span>
+                      ) : (
+                        <span className="text-[9px] font-black uppercase tracking-wider bg-error/90 text-white px-2.5 py-1 rounded-full shadow">
+                          🙈 Hidden
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Card Details & Action Toolbar */}
+                  <div className="p-4 flex flex-col justify-between flex-1 space-y-3">
+                    <h3 className="font-bold text-text text-sm line-clamp-1">{img.title}</h3>
+
+                    {/* Controls Row: Show/Hide Toggle, Featured Toggle, Delete */}
+                    <div className="flex items-center justify-between pt-2 border-t border-border/60 gap-2">
+                      {/* Show / Hide Toggle Button */}
+                      <button
+                        onClick={() => togglePublish(img)}
+                        disabled={updateMutation.isPending}
+                        className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-xl text-xs font-bold transition-all ${
+                          img.published
+                            ? 'bg-primary/10 text-primary border border-primary/30 hover:bg-primary/20'
+                            : 'bg-error/10 text-error border border-error/30 hover:bg-error/20'
+                        }`}
+                        title={img.published ? 'Click to hide from portfolio' : 'Click to show on portfolio'}
+                      >
+                        {img.published ? (
+                          <>
+                            <Eye className="w-3.5 h-3.5" />
+                            <span>Showing</span>
+                          </>
+                        ) : (
+                          <>
+                            <EyeOff className="w-3.5 h-3.5" />
+                            <span>Hidden</span>
+                          </>
+                        )}
+                      </button>
+
+                      {/* Featured Toggle */}
+                      <button
+                        onClick={() => toggleFeatured(img)}
+                        disabled={updateMutation.isPending}
+                        className={`p-2 rounded-xl transition-all border ${
+                          img.featured
+                            ? 'bg-amber-500/20 text-amber-400 border-amber-500/40'
+                            : 'bg-surface text-muted border-border hover:text-amber-400'
+                        }`}
+                        title={img.featured ? 'Featured' : 'Mark as Featured'}
+                      >
+                        <Star className={`w-4 h-4 ${img.featured ? 'fill-amber-400' : ''}`} />
+                      </button>
+
+                      {/* Delete Button */}
                       <button
                         onClick={() => setDeleteItem(img)}
-                        className="p-1.5 bg-error/90 hover:bg-error text-white rounded-xl transition-all shadow-md active:scale-95"
-                        title="Delete image"
+                        className="p-2 bg-card hover:bg-error/10 text-muted hover:text-error rounded-xl border border-border transition-colors"
+                        title="Delete item"
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
-
-                    <p className="text-white text-xs font-bold truncate leading-tight drop-shadow">
-                      {img.title}
-                    </p>
                   </div>
                 </div>
               );
@@ -239,6 +382,50 @@ export default function GalleryAdminPage() {
         </>
       )}
 
+      {/* Add Video Link Modal */}
+      <Modal
+        open={showVideoModal}
+        onClose={() => setShowVideoModal(false)}
+        title="Add Video Link"
+        size="sm"
+      >
+        <div className="space-y-4">
+          <Input
+            label="Video Title *"
+            placeholder="e.g. Hackathon Demo Video"
+            value={videoTitle}
+            onChange={(e) => setVideoTitle(e.target.value)}
+          />
+
+          <Input
+            label="Video URL / Embed Link *"
+            placeholder="e.g. https://www.youtube.com/watch?v=... or direct MP4 URL"
+            value={videoUrl}
+            onChange={(e) => setVideoUrl(e.target.value)}
+          />
+
+          <Select
+            label="Category"
+            options={CATEGORIES}
+            value={videoCategory}
+            onChange={(e) => setVideoCategory(e.target.value as GalleryCategory)}
+          />
+
+          <div className="flex gap-3 justify-end pt-3 border-t border-border">
+            <Button variant="secondary" onClick={() => setShowVideoModal(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleAddVideoUrl}
+              loading={createMutation.isPending}
+              icon={<Video className="w-4 h-4" />}
+            >
+              Add Video
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
       {/* Delete Confirmation */}
       <ConfirmDialog
         open={!!deleteItem}
@@ -251,8 +438,8 @@ export default function GalleryAdminPage() {
           }
         }}
         loading={deleteMutation.isPending}
-        title="Delete Photo?"
-        description={`Are you sure you want to delete "${deleteItem?.title || 'this photo'}"? This will permanently remove it from the Cloud database.`}
+        title="Delete Photo/Video?"
+        description={`Are you sure you want to delete "${deleteItem?.title || 'this item'}"?`}
       />
     </div>
   );

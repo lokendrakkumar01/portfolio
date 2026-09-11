@@ -6,9 +6,17 @@ import { getPaginationParams } from '../utils/pagination';
 import { getStorageProvider } from '../services/storage/storage.factory';
 
 export const getGalleries = asyncHandler(async (req: Request, res: Response) => {
-  const { category, featured } = req.query as Record<string, string>;
+  const { category, featured, published } = req.query as Record<string, string>;
   const filter: any = {};
-  if (!req.user) filter.published = true;
+
+  // If user is not logged in as admin, show only published items
+  if (!req.user) {
+    filter.published = true;
+  } else if (published !== undefined) {
+    // Admin can filter by published state if requested
+    filter.published = published === 'true';
+  }
+
   if (category && category.trim()) filter.category = category.trim();
   if (featured === 'true') filter.featured = true;
 
@@ -27,18 +35,35 @@ export const getGallery = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const createGallery = asyncHandler(async (req: Request, res: Response) => {
-  if (!req.file) return sendError(res, 'No image provided', 400);
-  const storage = getStorageProvider();
-  const result = await storage.upload(req.file.buffer, req.file.mimetype, { folder: 'portfolio/gallery' });
+  let imageUrl = req.body.imageUrl || '';
+  let imagePublicId = '';
+  let mediaType = req.body.mediaType || 'image';
+
+  if (req.file) {
+    const storage = getStorageProvider();
+    const result = await storage.upload(req.file.buffer, req.file.mimetype, { folder: 'portfolio/gallery' });
+    imageUrl = result.url;
+    imagePublicId = result.publicId;
+    if (req.file.mimetype.startsWith('video/')) {
+      mediaType = 'video';
+    }
+  }
+
+  if (!imageUrl) {
+    return sendError(res, 'No image or video provided', 400);
+  }
+
   const item = await Gallery.create({
-    title: req.body.title || req.file.originalname.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' '),
+    title: req.body.title || (req.file ? req.file.originalname.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ') : 'Gallery Item'),
     description: req.body.description || '',
     category: req.body.category || 'events',
-    imageUrl: result.url,
-    imagePublicId: result.publicId,
+    imageUrl,
+    imagePublicId,
+    mediaType,
     published: req.body.published !== undefined ? req.body.published === 'true' || req.body.published === true : true,
     featured: req.body.featured === 'true' || req.body.featured === true,
   });
+
   sendSuccess(res, item, 'Gallery item created', 201);
 });
 
@@ -69,10 +94,12 @@ export const uploadBulkGallery = asyncHandler(async (req: Request, res: Response
     files.map(async (file) => {
       const result = await storage.upload(file.buffer, file.mimetype, { folder: 'portfolio/gallery' });
       const cleanTitle = file.originalname.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ');
+      const mediaType = file.mimetype.startsWith('video/') ? 'video' : 'image';
       return Gallery.create({
         title: cleanTitle,
         imageUrl: result.url,
         imagePublicId: result.publicId,
+        mediaType,
         category,
         published: true,
         featured: false,

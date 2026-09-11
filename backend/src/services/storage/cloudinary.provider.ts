@@ -13,7 +13,11 @@ cloudinary.config({
 export class CloudinaryProvider implements StorageProvider {
   async upload(fileBuffer: Buffer, mimeType: string, options: UploadOptions = {}): Promise<UploadResult> {
     return new Promise((resolve, reject) => {
-      const resourceType = mimeType === 'application/pdf' ? 'raw' : 'image';
+      const resourceType = mimeType.startsWith('video/')
+        ? 'video'
+        : mimeType === 'application/pdf'
+        ? 'raw'
+        : 'auto';
       const uploadOptions: Record<string, any> = {
         folder: options.folder || 'portfolio',
         resource_type: resourceType,
