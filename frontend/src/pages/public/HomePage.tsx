@@ -1,6 +1,6 @@
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Download, Mail, ArrowRight, MapPin, FolderCode, Trophy, Sparkles, UserCheck, Award } from 'lucide-react';
+import { Download, Mail, ArrowRight, MapPin, FolderCode, Trophy, Sparkles, UserCheck, Award, Play, Film, ZoomIn, X, Image as ImageIcon } from 'lucide-react';
 import { useProfile } from '../../hooks/useProfile';
 import { useSocialLinks } from '../../hooks/useSocialLinks';
 import { useCurrentResume } from '../../hooks/useResume';
@@ -9,6 +9,7 @@ import { useSkills } from '../../hooks/useSkills';
 import { useProjects } from '../../hooks/useProjects';
 import { useCertificates } from '../../hooks/useCertificates';
 import { useAchievements } from '../../hooks/useAchievements';
+import { useGallery } from '../../hooks/useGallery';
 import { SEO } from '../../components/common/SEO';
 import { SectionHeading } from '../../components/common/SectionHeading';
 import { Button } from '../../components/ui/Button';
@@ -22,7 +23,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { contactApi } from '../../api/contact.api';
 import toast from 'react-hot-toast';
-import type { Skill } from '../../types';
+import type { Skill, GalleryItem } from '../../types';
 
 // ─── Animated Counter ────────────────────────────────────────────────────────
 function AnimatedCounter({ end, label, suffix = '' }: { end: number; label: string; suffix?: string }) {
@@ -591,6 +592,163 @@ function CertificatesSection() {
   );
 }
 
+// ─── Gallery Section ─────────────────────────────────────────────────────────
+function GallerySection() {
+  const { data, isLoading } = useGallery({ limit: 6 });
+  const items = data?.data ?? [];
+  const [activeItem, setActiveItem] = useState<GalleryItem | null>(null);
+
+  if (!isLoading && items.length === 0) return null;
+
+  return (
+    <section className="py-24 px-4 sm:px-6 lg:px-8 bg-surface/30 border-t border-border/40 relative overflow-hidden">
+      <div className="max-w-7xl mx-auto relative z-10">
+        <SectionHeading
+          title="Moments & Video Gallery"
+          subtitle="Event photos, hackathons, and video highlights from my journey"
+          viewAllLink="/gallery"
+        />
+
+        {isLoading ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Skeleton key={i} className="aspect-square rounded-2xl" />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3.5">
+            {items.map((img, i) => {
+              const isVideo = img.mediaType === 'video' || img.imageUrl.includes('.mp4');
+
+              return (
+                <motion.button
+                  key={img._id}
+                  initial={{ opacity: 0, scale: 0.9, y: 15 }}
+                  whileInView={{ opacity: 1, scale: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.35, delay: i * 0.04 }}
+                  whileHover={{ scale: 1.04, y: -4 }}
+                  whileTap={{ scale: 0.96 }}
+                  onClick={() => setActiveItem(img)}
+                  className="group relative aspect-square overflow-hidden rounded-2xl border border-border/80 bg-surface hover:border-primary/60 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 text-left focus:outline-none"
+                >
+                  {isVideo ? (
+                    <div className="w-full h-full bg-black relative flex items-center justify-center">
+                      {img.imageUrl.includes('.mp4') ? (
+                        <video src={img.imageUrl} className="w-full h-full object-cover" muted />
+                      ) : (
+                        <div className="w-full h-full flex flex-col items-center justify-center bg-card p-3 text-center">
+                          <Film className="w-8 h-8 text-primary mb-1 animate-bounce" />
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                        <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                          <Play className="w-5 h-5 fill-white ml-0.5" />
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <img
+                      src={img.imageUrl}
+                      alt={img.title}
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                    />
+                  )}
+
+                  {/* Gradient Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-between p-3 pointer-events-none">
+                    <span className="text-[9px] font-black uppercase tracking-wider bg-primary text-white px-2 py-0.5 rounded-full self-start shadow-sm">
+                      {img.category}
+                    </span>
+                    <p className="text-white text-xs font-bold truncate leading-tight drop-shadow">
+                      {img.title}
+                    </p>
+                  </div>
+                </motion.button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Lightbox / Video Modal */}
+      <AnimatePresence>
+        {activeItem && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 sm:p-6"
+            onClick={() => setActiveItem(null)}
+          >
+            <button
+              onClick={() => setActiveItem(null)}
+              className="absolute top-5 right-5 p-3 rounded-full bg-white/10 text-white hover:bg-white/20 transition-all z-10 border border-white/20 active:scale-95"
+              aria-label="Close"
+            >
+              <X className="w-6 h-6" />
+            </button>
+
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative max-w-4xl w-full max-h-[90vh] bg-surface/90 border border-white/10 rounded-3xl overflow-hidden flex flex-col shadow-2xl"
+            >
+              <div className="relative flex-1 bg-black flex items-center justify-center overflow-hidden min-h-[300px] max-h-[70vh]">
+                {activeItem.mediaType === 'video' || activeItem.imageUrl.includes('.mp4') ? (
+                  activeItem.imageUrl.startsWith('http') && activeItem.imageUrl.includes('.mp4') ? (
+                    <video src={activeItem.imageUrl} controls autoPlay className="max-w-full max-h-[70vh] object-contain" />
+                  ) : (
+                    <div className="p-8 text-center space-y-4">
+                      <Film className="w-16 h-16 text-primary mx-auto animate-pulse" />
+                      <h3 className="text-xl font-bold text-white">{activeItem.title}</h3>
+                      <a
+                        href={activeItem.imageUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white font-bold rounded-2xl shadow-lg hover:opacity-90 transition-all"
+                      >
+                        Watch Video ↗
+                      </a>
+                    </div>
+                  )
+                ) : (
+                  <img
+                    src={activeItem.imageUrl}
+                    alt={activeItem.title}
+                    className="max-w-full max-h-[70vh] object-contain"
+                  />
+                )}
+              </div>
+
+              <div className="p-5 bg-card border-t border-border flex items-center justify-between gap-4 flex-wrap">
+                <div>
+                  <span className="text-[10px] font-black uppercase tracking-wider bg-primary/10 border border-primary/30 text-primary px-3 py-0.5 rounded-full">
+                    {activeItem.category}
+                  </span>
+                  <h3 className="text-base font-black text-text mt-1">{activeItem.title}</h3>
+                </div>
+                <Link
+                  to="/gallery"
+                  onClick={() => setActiveItem(null)}
+                  className="px-4 py-2 bg-primary text-white text-xs font-bold rounded-2xl hover:opacity-90 transition-all shadow-md"
+                >
+                  View Full Gallery ↗
+                </Link>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </section>
+  );
+}
+
 // ─── Contact Form Component ───────────────────────────────────────────────────
 const contactSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -716,6 +874,7 @@ export default function HomePage() {
       <ProjectsSection />
       <AchievementsSection />
       <CertificatesSection />
+      <GallerySection />
       <ContactSection />
     </>
   );
