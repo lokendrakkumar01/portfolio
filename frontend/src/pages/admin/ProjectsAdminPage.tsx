@@ -21,7 +21,11 @@ export default function ProjectsAdminPage() {
   const deleteProject = useDeleteProject();
   const uploadCover = useUploadProjectCover();
 
-  const projects = data?.data ?? [];
+  const rawProjects = data?.data ?? [];
+  const projects = [...rawProjects].sort((a, b) => {
+    const getRank = (c?: string) => (c === 'advanced' ? 1 : c === 'basic' ? 3 : 2);
+    return getRank(a.complexity) - getRank(b.complexity);
+  });
   const pagination = data?.pagination;
 
   const handleImageClick = (projectId: string) => {
@@ -86,6 +90,7 @@ export default function ProjectsAdminPage() {
                 <tr>
                   <th className="text-left px-4 py-3.5 text-xs font-bold text-muted uppercase tracking-wider">Cover & Project</th>
                   <th className="text-left px-4 py-3.5 text-xs font-bold text-muted uppercase tracking-wider hidden md:table-cell">Category</th>
+                  <th className="text-left px-4 py-3.5 text-xs font-bold text-muted uppercase tracking-wider hidden md:table-cell">Level</th>
                   <th className="text-left px-4 py-3.5 text-xs font-bold text-muted uppercase tracking-wider hidden lg:table-cell">Status</th>
                   <th className="text-left px-4 py-3.5 text-xs font-bold text-muted uppercase tracking-wider hidden lg:table-cell">Created</th>
                   <th className="text-right px-4 py-3.5 text-xs font-bold text-muted uppercase tracking-wider">Actions</th>
@@ -122,6 +127,11 @@ export default function ProjectsAdminPage() {
                     </td>
                     <td className="px-4 py-3 hidden md:table-cell">
                       <Badge size="sm" variant="primary">{p.category}</Badge>
+                    </td>
+                    <td className="px-4 py-3 hidden md:table-cell">
+                      <Badge size="sm" variant={p.complexity === 'advanced' ? 'primary' : p.complexity === 'basic' ? 'default' : 'warning'}>
+                        {p.complexity === 'advanced' ? '🚀 Advanced' : p.complexity === 'basic' ? '📝 Basic' : '⚡ Medium'}
+                      </Badge>
                     </td>
                     <td className="px-4 py-3 hidden lg:table-cell">
                       <Badge variant={p.status === 'completed' ? 'success' : 'warning'} size="sm">{p.status}</Badge>

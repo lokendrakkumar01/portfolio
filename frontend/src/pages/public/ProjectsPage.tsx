@@ -23,7 +23,14 @@ export default function ProjectsPage() {
   const [category, setCategory] = useState<ProjectCategory | ''>('');
   const [level, setLevel] = useState<string>('');
   const { data, isLoading } = useProjects({ page, limit: 9, q: q || undefined, category: category || undefined, level: level || undefined });
-  const projects = data?.data ?? [];
+  const rawProjects = data?.data ?? [];
+  
+  // Sort projects: Advanced (1) -> Medium (2) -> Basic (3)
+  const projects = [...rawProjects].sort((a, b) => {
+    const getRank = (c?: string) => (c === 'advanced' ? 1 : c === 'basic' ? 3 : 2);
+    return getRank(a.complexity) - getRank(b.complexity);
+  });
+  
   const pagination = data?.pagination;
 
   return (

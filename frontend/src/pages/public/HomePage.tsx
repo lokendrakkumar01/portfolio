@@ -423,7 +423,14 @@ function ProjectsSection() {
   const { data: allData, isLoading: isAllLoading } = useProjects({ limit: 6 });
   const featuredProjects = featuredData?.data ?? [];
   const allProjects = allData?.data ?? [];
-  const projects = featuredProjects.length > 0 ? featuredProjects : allProjects;
+  const rawProjects = featuredProjects.length > 0 ? featuredProjects : allProjects;
+  
+  // Sort projects: Advanced (1) -> Medium (2) -> Basic (3)
+  const projects = [...rawProjects].sort((a, b) => {
+    const getRank = (c?: string) => (c === 'advanced' ? 1 : c === 'basic' ? 3 : 2);
+    return getRank(a.complexity) - getRank(b.complexity);
+  });
+  
   const isLoading = isFeaturedLoading && isAllLoading;
 
   return (
@@ -468,13 +475,26 @@ function ProjectsSection() {
                   
                   <div className="p-6 flex-1 flex flex-col justify-between relative z-20 -mt-8 bg-card rounded-t-3xl border-t border-border/50">
                     <div>
-                      <div className="flex items-start justify-between gap-3 mb-3">
+                      <div className="flex items-start justify-between gap-2 mb-3">
                         <h3 className="font-extrabold text-xl text-text group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-primary group-hover:to-accent transition-all line-clamp-1">
                           {p.title}
                         </h3>
-                        <Badge variant={p.status === 'completed' ? 'success' : 'warning'} className="shadow-sm">
-                          {p.status}
-                        </Badge>
+                        <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                          <Badge variant={p.status === 'completed' ? 'success' : 'warning'} className="shadow-sm">
+                            {p.status}
+                          </Badge>
+                          {p.complexity && (
+                            <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-md border tracking-wider ${
+                              p.complexity === 'advanced'
+                                ? 'bg-accent/20 text-accent border-accent/40'
+                                : p.complexity === 'basic'
+                                ? 'bg-muted/10 text-muted border-border'
+                                : 'bg-primary/20 text-primary border-primary/40'
+                            }`}>
+                              {p.complexity === 'advanced' ? '🚀 ADVANCED' : p.complexity === 'basic' ? '📝 BASIC' : '⚡ MEDIUM'}
+                            </span>
+                          )}
+                        </div>
                       </div>
                       <p className="text-sm text-muted mb-5 line-clamp-2 leading-relaxed font-medium">
                         {p.shortDescription}
