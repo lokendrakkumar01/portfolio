@@ -55,7 +55,13 @@ apiClient.interceptors.response.use(
 
 export const getErrorMessage = (error: unknown): string => {
   if (error instanceof AxiosError) {
-    return error.response?.data?.message ?? error.message;
+    const data = error.response?.data as { message?: string; errors?: Array<{ field: string; message: string }> } | undefined;
+    // Show field-level validation errors if present
+    if (data?.errors && Array.isArray(data.errors) && data.errors.length > 0) {
+      const fieldMessages = data.errors.map(e => `${e.field ? e.field + ': ' : ''}${e.message}`).join(' | ');
+      return `${data.message ?? 'Validation failed'} — ${fieldMessages}`;
+    }
+    return data?.message ?? error.message;
   }
   if (error instanceof Error) return error.message;
   return 'An unexpected error occurred';

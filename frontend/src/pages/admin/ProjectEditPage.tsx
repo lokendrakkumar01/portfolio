@@ -16,16 +16,22 @@ import {
 } from '../../hooks/useProjects';
 import toast from 'react-hot-toast';
 
+const urlOrEmpty = z.string()
+  .transform(v => v?.trim() ?? '')
+  .refine(v => v === '' || /^https?:\/\/.+/.test(v), { message: 'Must be a valid URL starting with http:// or https://' })
+  .optional()
+  .or(z.literal(''));
+
 const schema = z.object({
-  title: z.string().min(2, 'Title required'),
-  shortDescription: z.string().min(10, 'Short description must be at least 10 chars'),
-  description: z.string().min(20, 'Full description must be at least 20 chars'),
-  technologies: z.string().min(1, 'Add at least one technology'),
+  title: z.string().min(2, 'Title must be at least 2 characters').max(200, 'Title too long'),
+  shortDescription: z.string().min(10, 'Short description must be at least 10 characters').max(500, 'Short description too long (max 500 chars)'),
+  description: z.string().min(20, 'Full description must be at least 20 characters').max(10000, 'Description too long'),
+  technologies: z.string().min(1, 'Add at least one technology (comma separated)'),
   features: z.string().optional(),
   category: z.enum(['web', 'mobile', 'ai-ml', 'backend', 'open-source', 'academic', 'hackathon', 'other']),
   status: z.enum(['completed', 'in-progress', 'archived']),
-  githubUrl: z.string().url().optional().or(z.literal('')),
-  liveUrl: z.string().url().optional().or(z.literal('')),
+  githubUrl: urlOrEmpty,
+  liveUrl: urlOrEmpty,
   featured: z.boolean().optional(),
   published: z.boolean().optional(),
   displayOrder: z.number().optional(),
@@ -62,6 +68,13 @@ export default function ProjectEditPage() {
     resolver: zodResolver(schema),
     defaultValues: { category: 'web', status: 'in-progress', featured: false, published: true },
   });
+
+  const onInvalid = (errs: typeof errors) => {
+    const messages = Object.values(errs).map(e => e?.message).filter(Boolean);
+    if (messages.length > 0) {
+      toast.error('Please fix the form errors: ' + messages[0]);
+    }
+  };
 
   useEffect(() => {
     if (project && isEdit) {
@@ -103,12 +116,15 @@ export default function ProjectEditPage() {
   };
 
   const onSubmit = (formData: Form) => {
+    const githubUrl = typeof formData.githubUrl === 'string' ? formData.githubUrl.trim() : '';
+    const liveUrl = typeof formData.liveUrl === 'string' ? formData.liveUrl.trim() : '';
+
     const payload = {
       ...formData,
       technologies: formData.technologies.split(',').map((t) => t.trim()).filter(Boolean),
       features: formData.features?.split('\n').map((f) => f.trim()).filter(Boolean) ?? [],
-      githubUrl: formData.githubUrl || undefined,
-      liveUrl: formData.liveUrl || undefined,
+      githubUrl: githubUrl || undefined,
+      liveUrl: liveUrl || undefined,
     };
 
     if (isEdit && id) {
@@ -144,7 +160,7 @@ export default function ProjectEditPage() {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-6">
         {/* Cover Image Upload Section */}
         <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
           <h3 className="text-sm font-bold text-text uppercase tracking-wider flex items-center gap-2">
@@ -208,8 +224,8 @@ export default function ProjectEditPage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Input label="GitHub Source URL" type="url" placeholder="https://github.com/username/repo" {...register('githubUrl')} />
-            <Input label="Live Demo URL" type="url" placeholder="https://myproject.com" {...register('liveUrl')} />
+            <Input label="GitHub Source URL" placeholder="https://github.com/username/repo" error={errors.githubUrl?.message} {...register('githubUrl')} hint="Optional – must start with https://" />
+            <Input label="Live Demo URL" placeholder="https://myproject.com" error={errors.liveUrl?.message} {...register('liveUrl')} hint="Optional – must start with https://" />
           </div>
 
           <div className="flex items-center gap-6 pt-2 border-t border-border/50">
