@@ -136,6 +136,7 @@ export interface Project {
   liveUrl?: string;
   videoUrl?: string;
   documentationUrl?: string;
+  complexity?: 'advanced' | 'medium' | 'basic';
   featured: boolean;
   status: ProjectStatus;
   published: boolean;

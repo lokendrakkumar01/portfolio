@@ -61,10 +61,10 @@ const queryClient = new QueryClient({
       refetchOnWindowFocus: false,
       // Don't refetch on reconnect unless data is actually stale
       refetchOnReconnect: 'always',
-      // Keep unused cached data for 10 minutes before garbage collecting
-      gcTime: 10 * 60 * 1000,
+      // Keep unused cached data for 1 hour before garbage collecting
+      gcTime: 60 * 60 * 1000,
       // Default stale time — hooks can override per-query
-      staleTime: 5 * 60 * 1000,
+      staleTime: 15 * 60 * 1000,
       // Retry once on failure, not the default 3 times
       retry: 1,
       retryDelay: 1000,

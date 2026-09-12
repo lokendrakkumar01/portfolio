@@ -7,25 +7,37 @@ import { getStorageProvider } from '../services/storage/storage.factory';
 import { slugify } from '../utils/slugify';
 
 export const getProjects = asyncHandler(async (req: Request, res: Response) => {
-  const { q, category, status, featured } = req.query as Record<string, string>;
-  const filter: any = {};
-  if (!req.user) filter.published = true;
-  if (category) filter.category = category;
-  if (status) filter.status = status;
-  if (featured === 'true') filter.featured = true;
-  if (featured === 'false') filter.featured = false;
+  const { q, category, status, featured, level } = req.query as Record<string, string>;
+  const match: any = {};
+  if (!req.user) match.published = true;
+  if (category) match.category = category;
+  if (status) match.status = status;
+  if (level) match.complexity = level;
+  if (featured === 'true') match.featured = true;
+  if (featured === 'false') match.featured = false;
   if (q) {
-    filter.$or = [
+    match.$or = [
       { title: { $regex: q, $options: 'i' } },
       { shortDescription: { $regex: q, $options: 'i' } },
       { technologies: { $regex: q, $options: 'i' } },
     ];
   }
   const { page, limit, skip } = getPaginationParams(req.query as Record<string, string>);
-  const [items, total] = await Promise.all([
-    Project.find(filter).sort({ displayOrder: 1, createdAt: -1 }).skip(skip).limit(limit).lean(),
-    Project.countDocuments(filter),
+  const [items, countArr] = await Promise.all([
+    Project.aggregate([
+      { $match: match },
+      { $addFields: { _complexityOrder: { $switch: { branches: [
+        { case: { $eq: ['$complexity', 'advanced'] }, then: 1 },
+        { case: { $eq: ['$complexity', 'medium'] }, then: 2 },
+        { case: { $eq: ['$complexity', 'basic'] }, then: 3 },
+      ], default: 2 } } } },
+      { $sort: { _complexityOrder: 1, displayOrder: 1, createdAt: -1 } },
+      { $skip: skip },
+      { $limit: limit },
+    ]),
+    Project.aggregate([{ $match: match }, { $count: 'total' }]),
   ]);
+  const total = countArr[0]?.total ?? 0;
   sendPaginatedSuccess(res, items, { page, limit, total, totalPages: Math.ceil(total / limit) });
 });
 

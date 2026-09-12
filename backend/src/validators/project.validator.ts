@@ -26,6 +26,7 @@ export const createProjectSchema = z.object({
   published: z.boolean().optional().default(false),
   startDate: z.string().or(z.date()).optional(),
   endDate: z.string().or(z.date()).optional(),
+  complexity: z.enum(['advanced', 'medium', 'basic']).optional().default('medium'),
   displayOrder: z.number().optional().default(0),
 });
 

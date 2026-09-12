@@ -17,6 +17,7 @@ export interface IProject extends Document {
   liveUrl?: string;
   videoUrl?: string;
   documentationUrl?: string;
+  complexity?: 'advanced' | 'medium' | 'basic';
   featured: boolean;
   status: 'completed' | 'in-progress' | 'archived';
   published: boolean;
@@ -50,6 +51,7 @@ const projectSchema = new Schema<IProject>({
   videoUrl: { type: String },
   documentationUrl: { type: String },
   featured: { type: Boolean, default: false },
+  complexity: { type: String, enum: ['advanced', 'medium', 'basic'], default: 'medium' },
   status: { type: String, enum: ['completed','in-progress','archived'], default: 'completed' },
   published: { type: Boolean, default: false },
   startDate: { type: Date },
@@ -60,5 +62,6 @@ const projectSchema = new Schema<IProject>({
 projectSchema.index({ slug: 1 }, { unique: true });
 projectSchema.index({ category: 1, featured: 1 });
 projectSchema.index({ published: 1, displayOrder: 1 });
+projectSchema.index({ complexity: 1 });
 
 export const Project = mongoose.model<IProject>('Project', projectSchema);

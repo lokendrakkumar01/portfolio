@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import mongoSanitize from 'express-mongo-sanitize';
@@ -63,6 +63,14 @@ app.use(
     },
   })
 );
+
+// Cache public GET responses for 60s
+app.use((req: Request, res: Response, next: NextFunction) => {
+  if (req.method === 'GET') {
+    res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
+  }
+  next();
+});
 
 // Rate limiting
 app.use('/api/', apiLimiter);

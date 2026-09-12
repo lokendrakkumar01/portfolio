@@ -8,6 +8,7 @@ export interface GetProjectsParams {
   category?: string;
   status?: string;
   featured?: boolean;
+  level?: string;
 }
 
 export const projectsApi = {

@@ -9,7 +9,7 @@ export const useProfile = () =>
   useQuery({
     queryKey: PROFILE_KEY,
     queryFn: profileApi.get,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 30 * 60 * 1000,
   });
 
 export const useUpdateProfile = () => {

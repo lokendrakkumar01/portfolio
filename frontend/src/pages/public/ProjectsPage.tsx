@@ -21,7 +21,8 @@ export default function ProjectsPage() {
   const [page, setPage] = useState(1);
   const [q, setQ] = useState('');
   const [category, setCategory] = useState<ProjectCategory | ''>('');
-  const { data, isLoading } = useProjects({ page, limit: 9, q: q || undefined, category: category || undefined });
+  const [level, setLevel] = useState<string>('');
+  const { data, isLoading } = useProjects({ page, limit: 9, q: q || undefined, category: category || undefined, level: level || undefined });
   const projects = data?.data ?? [];
   const pagination = data?.pagination;
 
@@ -47,6 +48,16 @@ export default function ProjectsPage() {
               <button key={v} onClick={() => { setCategory(v); setPage(1); }}
                 className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-semibold transition-all ${category === v ? 'bg-primary text-white shadow-md' : 'bg-surface border border-border hover:bg-surface/80 text-muted hover:text-text'}`}
               >{l}</button>
+            ))}
+          </div>
+
+          {/* Level filter */}
+          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none mt-2">
+            {([['', 'All Levels'], ['advanced', '🚀 Advanced'], ['medium', '⚡ Medium'], ['basic', '📝 Basic']] as [string, string][]).map(([v, l]) => (
+              <button key={v} onClick={() => { setLevel(v); setPage(1); }}
+                className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
+                  level === v ? 'bg-accent text-white shadow-md' : 'bg-surface border border-border hover:bg-surface/80 text-muted hover:text-text'
+                }`}>{l}</button>
             ))}
           </div>
           
@@ -80,13 +91,24 @@ export default function ProjectsPage() {
                       <div className="relative w-full h-56 overflow-hidden bg-surface">
                         <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent z-10" />
                         {p.coverImage ? (
-                          <img src={p.coverImage} alt={p.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out" />
+                          <img src={p.coverImage} alt={p.title} loading={i < 3 ? 'eager' : 'lazy'} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out" />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-muted/30 group-hover:scale-110 transition-transform duration-700">
                             <FolderGit2 className="w-20 h-20" />
                           </div>
                         )}
                         
+                        {/* Complexity Badge Over Image */}
+                        <div className="absolute top-4 left-4 z-20">
+                          {p.complexity && p.complexity !== 'medium' && (
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-black tracking-wider ${
+                              p.complexity === 'advanced' ? 'bg-accent/20 text-accent border border-accent/30' : 'bg-muted/10 text-muted border border-border'
+                            }`}>
+                              {p.complexity === 'advanced' ? '🚀 ADVANCED' : '📝 BASIC'}
+                            </span>
+                          )}
+                        </div>
+
                         {/* Status Badge Over Image */}
                         <div className="absolute top-4 right-4 z-20">
                           <Badge variant={p.status === 'completed' ? 'success' : p.status === 'archived' ? 'error' : 'warning'} className="shadow-lg backdrop-blur-md bg-opacity-90">

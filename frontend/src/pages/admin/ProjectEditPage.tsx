@@ -30,6 +30,7 @@ const schema = z.object({
   features: z.string().optional(),
   category: z.enum(['web', 'mobile', 'ai-ml', 'backend', 'open-source', 'academic', 'hackathon', 'other']),
   status: z.enum(['completed', 'in-progress', 'archived']),
+  complexity: z.enum(['advanced', 'medium', 'basic']).optional(),
   githubUrl: urlOrEmpty,
   liveUrl: urlOrEmpty,
   featured: z.boolean().optional(),
@@ -46,6 +47,11 @@ const statusOptions = ['completed', 'in-progress', 'archived'].map((v) => ({
   value: v,
   label: v.replace('-', ' ').toUpperCase(),
 }));
+const complexityOptions = [
+  { value: 'advanced', label: '🚀 Advanced / Large Project' },
+  { value: 'medium', label: '⚡ Medium Project' },
+  { value: 'basic', label: '📝 Basic / Small Project' },
+];
 
 export default function ProjectEditPage() {
   const { id } = useParams<{ id?: string }>();
@@ -66,7 +72,7 @@ export default function ProjectEditPage() {
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<Form>({
     resolver: zodResolver(schema),
-    defaultValues: { category: 'web', status: 'in-progress', featured: false, published: true },
+    defaultValues: { category: 'web', status: 'in-progress', complexity: 'medium', featured: false, published: true },
   });
 
   const onInvalid = (errs: typeof errors) => {
@@ -86,6 +92,7 @@ export default function ProjectEditPage() {
         features: project.features.join('\n'),
         category: project.category,
         status: project.status,
+        complexity: (project.complexity ?? 'medium') as 'advanced' | 'medium' | 'basic',
         githubUrl: project.githubUrl ?? '',
         liveUrl: project.liveUrl ?? '',
         featured: project.featured,
@@ -218,9 +225,10 @@ export default function ProjectEditPage() {
           <Input label="Technologies Used *" error={errors.technologies?.message} required placeholder="React, Node.js, MongoDB, Tailwind CSS" {...register('technologies')} hint="Comma separated values" />
           <Textarea label="Key Features" error={errors.features?.message} rows={4} placeholder="One key feature per line..." {...register('features')} />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Select label="Category *" options={catOptions} {...register('category')} />
             <Select label="Status *" options={statusOptions} {...register('status')} />
+            <Select label="Project Level *" options={complexityOptions} {...register('complexity')} />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
