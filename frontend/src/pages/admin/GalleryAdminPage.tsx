@@ -146,7 +146,7 @@ export default function GalleryAdminPage() {
     setEditCategory(img.category || 'events');
     setEditGridSpan(img.gridSpan || 1);
     setEditAspectRatio(img.aspectRatio || 'square');
-    setEditPublished(img.published);
+    setEditPublished(img.published !== false);
     setEditFeatured(img.featured);
   };
 
@@ -176,12 +176,14 @@ export default function GalleryAdminPage() {
   };
 
   const togglePublish = (img: GalleryItem) => {
-    const nextPublished = !img.published;
+    const isCurrentlyPublished = img.published !== false;
+    const nextPublished = !isCurrentlyPublished;
     updateMutation.mutate(
       { id: img._id, data: { published: nextPublished } },
       {
         onSuccess: () => {
-          toast.success(nextPublished ? 'Shown on portfolio' : 'Hidden from portfolio');
+          toast.success(nextPublished ? '🟢 Shown on portfolio' : '🔴 Hidden from portfolio');
+          refetch();
         },
       }
     );
@@ -330,7 +332,7 @@ export default function GalleryAdminPage() {
                 <div
                   key={img._id}
                   className={`group relative bg-card border rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between ${
-                    img.published ? 'border-border/80 hover:border-primary/60' : 'border-error/40 bg-error/5'
+                    img.published !== false ? 'border-border/80 hover:border-primary/60' : 'border-error/40 bg-error/5'
                   }`}
                 >
                   {/* Media View */}
@@ -357,7 +359,7 @@ export default function GalleryAdminPage() {
                         </span>
                       </div>
 
-                      {img.published ? (
+                      {img.published !== false ? (
                         <span className="text-[9px] font-black uppercase tracking-wider bg-green-500/90 text-white px-2.5 py-1 rounded-full shadow">
                           🟢 Visible
                         </span>
@@ -385,13 +387,13 @@ export default function GalleryAdminPage() {
                         onClick={() => togglePublish(img)}
                         disabled={updateMutation.isPending}
                         className={`flex-1 flex items-center justify-center gap-1 py-1.5 px-2.5 rounded-xl text-xs font-bold transition-all ${
-                          img.published
+                          img.published !== false
                             ? 'bg-primary/10 text-primary border border-primary/30 hover:bg-primary/20'
                             : 'bg-error/10 text-error border border-error/30 hover:bg-error/20'
                         }`}
-                        title={img.published ? 'Click to hide from portfolio' : 'Click to show on portfolio'}
+                        title={img.published !== false ? 'Click to hide from portfolio' : 'Click to show on portfolio'}
                       >
-                        {img.published ? (
+                        {img.published !== false ? (
                           <>
                             <Eye className="w-3.5 h-3.5" />
                             <span>Showing</span>

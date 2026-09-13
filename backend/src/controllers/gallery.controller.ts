@@ -16,8 +16,8 @@ export const getGalleries = asyncHandler(async (req: Request, res: Response) => 
   } else if (published === 'false') {
     filter.published = false;
   } else {
-    // Public portfolio view (default): return ONLY published items
-    filter.published = true;
+    // Public portfolio view (default): return ONLY published items (published !== false)
+    filter.published = { $ne: false };
   }
 
   if (category && category.trim() && category.trim() !== 'all') {
