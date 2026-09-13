@@ -170,7 +170,10 @@ export default function ProjectsAdminPage() {
                     <td className="px-4 py-3 hidden lg:table-cell">
                       <Badge variant={p.status === 'completed' ? 'success' : 'warning'} size="sm">{p.status}</Badge>
                     </td>
-                    <td className="px-4 py-3 hidden lg:table-cell text-xs text-muted">{formatDate(p.createdAt, 'short')}</td>
+                    <td className="px-4 py-3 hidden lg:table-cell text-xs text-muted">
+                      <div>{formatDate(p.startDate || p.createdAt, 'short')}</div>
+                      {p.startDate && <span className="text-[10px] text-primary/80 font-medium">Built Date</span>}
+                    </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center justify-end gap-1">
                         <button

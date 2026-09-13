@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, ExternalLink, Github, FolderGit2 } from 'lucide-react';
+import { Search, ExternalLink, Github, FolderGit2, Calendar } from 'lucide-react';
 import { SEO } from '../../components/common/SEO';
 import { SectionHeading } from '../../components/common/SectionHeading';
 import { Badge } from '../../components/ui/Badge';
@@ -9,6 +9,7 @@ import { EmptyState } from '../../components/ui/EmptyState';
 import { SkeletonCard } from '../../components/ui/Skeleton';
 import { Pagination } from '../../components/ui/Pagination';
 import { useProjects } from '../../hooks/useProjects';
+import { formatDate, optimizeCloudinaryUrl } from '../../utils/formatters';
 import type { ProjectCategory } from '../../types';
 
 const CATEGORY_LABELS: Partial<Record<ProjectCategory, string>> = {
@@ -98,7 +99,7 @@ export default function ProjectsPage() {
                       <div className="relative w-full h-56 overflow-hidden bg-surface">
                         <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent z-10" />
                         {p.coverImage ? (
-                          <img src={p.coverImage} alt={p.title} loading={i < 3 ? 'eager' : 'lazy'} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out" />
+                          <img src={optimizeCloudinaryUrl(p.coverImage, 700)} alt={p.title} loading={i < 3 ? 'eager' : 'lazy'} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out" />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-muted/30 group-hover:scale-110 transition-transform duration-700">
                             <FolderGit2 className="w-20 h-20" />
@@ -127,7 +128,11 @@ export default function ProjectsPage() {
                       {/* Content */}
                       <div className="p-6 flex-1 flex flex-col justify-between relative z-20 -mt-6 bg-card rounded-t-3xl border-t border-border/50">
                         <div>
-                          <h3 className="font-extrabold text-xl text-text group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-primary group-hover:to-accent transition-all mb-2">{p.title}</h3>
+                          <div className="flex items-center gap-1.5 text-xs text-muted mb-2 font-medium">
+                            <Calendar className="w-3.5 h-3.5 text-primary" />
+                            <span>Built: {formatDate(p.startDate || p.createdAt, 'month-year')}</span>
+                          </div>
+                          <h3 className="font-extrabold text-xl text-text break-words group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-primary group-hover:to-accent transition-all mb-2">{p.title}</h3>
                           <p className="text-sm text-muted mb-5 line-clamp-2 leading-relaxed">{p.shortDescription}</p>
                         </div>
                         
@@ -140,7 +145,7 @@ export default function ProjectsPage() {
                           </div>
                           
                           {/* Quick Links Footer */}
-                          <div className="flex items-center gap-3 pt-4 border-t border-border/60">
+                          <div className="flex flex-wrap items-center gap-2 pt-4 border-t border-border/60">
                             {p.githubUrl && (
                               <a href={p.githubUrl} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}
                                 className="flex items-center gap-1.5 text-xs font-semibold text-text hover:text-primary transition-colors bg-surface px-3 py-1.5 rounded-lg border border-border hover:border-primary/30">

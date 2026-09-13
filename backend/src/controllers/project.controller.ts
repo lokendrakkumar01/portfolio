@@ -39,7 +39,7 @@ export const getProjects = asyncHandler(async (req: Request, res: Response) => {
     ];
   }
   const { page, limit, skip } = getPaginationParams(req.query as Record<string, string>);
-  const [items, countArr] = await Promise.all([
+  const [items, total] = await Promise.all([
     Project.aggregate([
       { $match: match },
       { $addFields: { _complexityOrder: { $switch: { branches: [
@@ -47,13 +47,12 @@ export const getProjects = asyncHandler(async (req: Request, res: Response) => {
         { case: { $eq: ['$complexity', 'medium'] }, then: 2 },
         { case: { $eq: ['$complexity', 'basic'] }, then: 3 },
       ], default: 2 } } } },
-      { $sort: { _complexityOrder: 1, displayOrder: 1, createdAt: -1 } },
+      { $sort: { _complexityOrder: 1, displayOrder: 1, startDate: -1, createdAt: -1 } },
       { $skip: skip },
       { $limit: limit },
     ]),
-    Project.aggregate([{ $match: match }, { $count: 'total' }]),
+    Project.countDocuments(match),
   ]);
-  const total = countArr[0]?.total ?? 0;
   sendPaginatedSuccess(res, items, { page, limit, total, totalPages: Math.ceil(total / limit) });
 });
 

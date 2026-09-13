@@ -8,6 +8,12 @@ const optionalUrl = z.string()
   .or(z.literal(''))
   .or(z.undefined());
 
+const optionalDate = z.string()
+  .transform(v => (v && v.trim() !== '' ? new Date(v) : undefined))
+  .optional()
+  .or(z.date().optional())
+  .or(z.literal('').transform(() => undefined));
+
 export const createProjectSchema = z.object({
   title: z.string().min(1).max(200),
   shortDescription: z.string().min(1).max(500),
@@ -24,8 +30,8 @@ export const createProjectSchema = z.object({
   featured: z.boolean().optional().default(false),
   status: z.enum(['completed','in-progress','archived']).optional().default('in-progress'),
   published: z.boolean().optional().default(false),
-  startDate: z.string().or(z.date()).optional(),
-  endDate: z.string().or(z.date()).optional(),
+  startDate: optionalDate,
+  endDate: optionalDate,
   complexity: z.enum(['advanced', 'medium', 'basic']).optional().default('medium'),
   displayOrder: z.number().optional().default(0),
 });

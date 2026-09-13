@@ -31,6 +31,8 @@ const schema = z.object({
   category: z.enum(['web', 'mobile', 'ai-ml', 'backend', 'open-source', 'academic', 'hackathon', 'other']),
   status: z.enum(['completed', 'in-progress', 'archived']),
   complexity: z.enum(['advanced', 'medium', 'basic']).optional(),
+  startDate: z.string().optional().or(z.literal('')),
+  endDate: z.string().optional().or(z.literal('')),
   githubUrl: urlOrEmpty,
   liveUrl: urlOrEmpty,
   featured: z.boolean().optional(),
@@ -72,7 +74,7 @@ export default function ProjectEditPage() {
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<Form>({
     resolver: zodResolver(schema),
-    defaultValues: { category: 'web', status: 'in-progress', complexity: 'medium', featured: false, published: true },
+    defaultValues: { category: 'web', status: 'in-progress', complexity: 'medium', featured: false, published: true, startDate: '', endDate: '' },
   });
 
   const onInvalid = (errs: typeof errors) => {
@@ -93,6 +95,8 @@ export default function ProjectEditPage() {
         category: project.category,
         status: project.status,
         complexity: (project.complexity ?? 'medium') as 'advanced' | 'medium' | 'basic',
+        startDate: project.startDate ? project.startDate.slice(0, 10) : '',
+        endDate: project.endDate ? project.endDate.slice(0, 10) : '',
         githubUrl: project.githubUrl ?? '',
         liveUrl: project.liveUrl ?? '',
         featured: project.featured,
@@ -132,6 +136,8 @@ export default function ProjectEditPage() {
       features: formData.features?.split('\n').map((f) => f.trim()).filter(Boolean) ?? [],
       githubUrl: githubUrl || undefined,
       liveUrl: liveUrl || undefined,
+      startDate: formData.startDate || undefined,
+      endDate: formData.endDate || undefined,
     };
 
     if (isEdit && id) {
@@ -234,6 +240,23 @@ export default function ProjectEditPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input label="GitHub Source URL" placeholder="https://github.com/username/repo" error={errors.githubUrl?.message} {...register('githubUrl')} hint="Optional – must start with https://" />
             <Input label="Live Demo URL" placeholder="https://myproject.com" error={errors.liveUrl?.message} {...register('liveUrl')} hint="Optional – must start with https://" />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input
+              type="date"
+              label="Project Built / Creation Date"
+              error={errors.startDate?.message}
+              {...register('startDate')}
+              hint="Date when this project was created / built"
+            />
+            <Input
+              type="date"
+              label="Completion / End Date"
+              error={errors.endDate?.message}
+              {...register('endDate')}
+              hint="Leave empty if single-day or ongoing"
+            />
           </div>
 
           <div className="flex items-center gap-6 pt-2 border-t border-border/50">

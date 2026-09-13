@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Download, Mail, ArrowRight, MapPin, FolderCode, Trophy, Sparkles, UserCheck, Award, Play, Film, ZoomIn, X, Image as ImageIcon, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Download, Mail, ArrowRight, MapPin, FolderCode, Trophy, Sparkles, UserCheck, Award, Play, Film, ZoomIn, X, Image as ImageIcon, ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import { useProfile } from '../../hooks/useProfile';
 import { useSocialLinks } from '../../hooks/useSocialLinks';
 import { useCurrentResume } from '../../hooks/useResume';
@@ -17,7 +17,7 @@ import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { Skeleton, SkeletonCard } from '../../components/ui/Skeleton';
 import { EmptyState } from '../../components/ui/EmptyState';
-import { getSocialIcon, formatDate, getProficiencyLabel } from '../../utils/formatters';
+import { getSocialIcon, formatDate, getProficiencyLabel, optimizeCloudinaryUrl } from '../../utils/formatters';
 import { downloadResumeFile } from '../../utils/download';
 import { useRef, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -461,10 +461,10 @@ function ProjectsSection() {
                   {p.coverImage ? (
                     <div className="w-full h-56 overflow-hidden bg-surface relative">
                       <img
-                        src={p.coverImage}
+                        src={optimizeCloudinaryUrl(p.coverImage, 700)}
                         alt={p.title}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
-                        loading="lazy"
+                        loading={i < 3 ? 'eager' : 'lazy'}
                       />
                     </div>
                   ) : (
@@ -475,8 +475,12 @@ function ProjectsSection() {
                   
                   <div className="p-6 flex-1 flex flex-col justify-between relative z-20 -mt-8 bg-card rounded-t-3xl border-t border-border/50">
                     <div>
+                      <div className="flex items-center gap-1.5 text-xs text-muted mb-2 font-medium">
+                        <Calendar className="w-3.5 h-3.5 text-primary" />
+                        <span>Built: {formatDate(p.startDate || p.createdAt, 'month-year')}</span>
+                      </div>
                       <div className="flex items-start justify-between gap-2 mb-3">
-                        <h3 className="font-extrabold text-xl text-text group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-primary group-hover:to-accent transition-all line-clamp-1">
+                        <h3 className="font-extrabold text-xl text-text group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-primary group-hover:to-accent transition-all break-words line-clamp-1">
                           {p.title}
                         </h3>
                         <div className="flex flex-col items-end gap-1 flex-shrink-0">

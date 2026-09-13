@@ -6,7 +6,7 @@ import { Badge } from '../../components/ui/Badge';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { useProject } from '../../hooks/useProjects';
-import { formatDate } from '../../utils/formatters';
+import { formatDate, optimizeCloudinaryUrl } from '../../utils/formatters';
 
 export default function ProjectDetailPage() {
   const { slug = '' } = useParams<{ slug: string }>();
@@ -36,43 +36,47 @@ export default function ProjectDetailPage() {
         </Link>
 
         {project.coverImage && (
-          <motion.img initial={{ opacity: 0 }} animate={{ opacity: 1 }} src={project.coverImage} alt={project.title}
+          <motion.img initial={{ opacity: 0 }} animate={{ opacity: 1 }} src={optimizeCloudinaryUrl(project.coverImage, 1200)} alt={project.title}
             className="w-full h-72 sm:h-96 object-cover rounded-2xl mb-8 border border-border" />
         )}
 
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
-          <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-4">
             <div className="min-w-0 flex-1">
-              <h1 className="text-2xl sm:text-3xl font-bold text-text">{project.title}</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold text-text break-words">{project.title}</h1>
               <div className="flex flex-wrap items-center gap-2 mt-2">
                 <Badge variant={project.status === 'completed' ? 'success' : 'warning'}>{project.status}</Badge>
                 <Badge>{project.category}</Badge>
+                {project.complexity && (
+                  <Badge variant={project.complexity === 'advanced' ? 'primary' : 'default'}>
+                    {project.complexity === 'advanced' ? '🚀 Advanced' : project.complexity === 'basic' ? '📝 Basic' : '⚡ Medium'}
+                  </Badge>
+                )}
                 {project.featured && <Badge variant="primary">Featured</Badge>}
               </div>
             </div>
-            <div className="flex flex-wrap gap-2 flex-shrink-0">
+            <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
               {project.githubUrl && (
                 <a href={project.githubUrl} target="_blank" rel="noreferrer"
-                  className="flex items-center gap-2 px-4 py-2.5 min-h-[44px] text-sm bg-card border border-border rounded-lg hover:border-primary transition-colors text-text">
+                  className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 min-h-[44px] text-sm bg-card border border-border rounded-lg hover:border-primary transition-colors text-text font-medium">
                   <Github className="w-4 h-4" /> Code
                 </a>
               )}
               {project.liveUrl && (
                 <a href={project.liveUrl} target="_blank" rel="noreferrer"
-                  className="flex items-center gap-2 px-4 py-2.5 min-h-[44px] text-sm bg-primary text-white rounded-lg hover:opacity-90 transition-opacity">
+                  className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 min-h-[44px] text-sm bg-primary text-white rounded-lg hover:opacity-90 transition-opacity font-medium shadow-sm">
                   <ExternalLink className="w-4 h-4" /> Live Demo
                 </a>
               )}
             </div>
           </div>
 
-          {(project.startDate || project.endDate) && (
-            <div className="flex items-center gap-1 text-sm text-muted mb-6">
-              <Calendar className="w-4 h-4" />
-              {project.startDate && formatDate(project.startDate, 'month-year')}
-              {project.endDate && ` — ${formatDate(project.endDate, 'month-year')}`}
-            </div>
-          )}
+          <div className="flex items-center gap-1.5 text-sm text-muted mb-6 bg-surface/50 border border-border/60 w-fit px-3 py-1.5 rounded-lg">
+            <Calendar className="w-4 h-4 text-primary" />
+            <span className="font-medium text-text">Built:</span>
+            <span>{formatDate(project.startDate || project.createdAt, 'month-year')}</span>
+            {project.endDate && <span>— {formatDate(project.endDate, 'month-year')}</span>}
+          </div>
 
           <p className="text-muted leading-relaxed mb-6">{project.description}</p>
 
@@ -104,7 +108,7 @@ export default function ProjectDetailPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {project.screenshots.map((s) => (
                   <div key={s._id} className="rounded-xl overflow-hidden border border-border">
-                    <img src={s.url} alt={s.caption ?? project.title} loading="lazy" className="w-full object-cover" />
+                    <img src={optimizeCloudinaryUrl(s.url, 800)} alt={s.caption ?? project.title} loading="lazy" className="w-full object-cover" />
                     {s.caption && <p className="text-xs text-center text-muted py-2">{s.caption}</p>}
                   </div>
                 ))}
