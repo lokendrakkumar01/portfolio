@@ -1,14 +1,16 @@
 import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Pencil, Trash2, ExternalLink, Search, Camera, FolderCode } from 'lucide-react';
+import { Plus, Pencil, Trash2, ExternalLink, Search, Camera, FolderCode, Eye, EyeOff } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { Pagination } from '../../components/ui/Pagination';
-import { useProjects, useDeleteProject, useUploadProjectCover } from '../../hooks/useProjects';
+import { useProjects, useDeleteProject, useUploadProjectCover, useUpdateProject } from '../../hooks/useProjects';
 import { formatDate } from '../../utils/formatters';
+import type { Project } from '../../types';
+import toast from 'react-hot-toast';
 
 export default function ProjectsAdminPage() {
   const [page, setPage] = useState(1);
@@ -20,6 +22,19 @@ export default function ProjectsAdminPage() {
   const { data, isLoading } = useProjects({ page, limit: 10, q: q || undefined });
   const deleteProject = useDeleteProject();
   const uploadCover = useUploadProjectCover();
+  const updateProject = useUpdateProject();
+
+  const togglePublish = (project: Project) => {
+    const nextStatus = project.published === false ? true : false;
+    updateProject.mutate(
+      { id: project._id, data: { published: nextStatus } },
+      {
+        onSuccess: () => {
+          toast.success(nextStatus ? '🟢 Project is now Published (Showing on Portfolio)' : '🔴 Project is now Hidden (Draft)');
+        },
+      }
+    );
+  };
 
   const rawProjects = data?.data ?? [];
   const projects = [...rawProjects].sort((a, b) => {
@@ -91,6 +106,7 @@ export default function ProjectsAdminPage() {
                   <th className="text-left px-4 py-3.5 text-xs font-bold text-muted uppercase tracking-wider">Cover & Project</th>
                   <th className="text-left px-4 py-3.5 text-xs font-bold text-muted uppercase tracking-wider hidden md:table-cell">Category</th>
                   <th className="text-left px-4 py-3.5 text-xs font-bold text-muted uppercase tracking-wider hidden md:table-cell">Level</th>
+                  <th className="text-left px-4 py-3.5 text-xs font-bold text-muted uppercase tracking-wider">Visibility</th>
                   <th className="text-left px-4 py-3.5 text-xs font-bold text-muted uppercase tracking-wider hidden lg:table-cell">Status</th>
                   <th className="text-left px-4 py-3.5 text-xs font-bold text-muted uppercase tracking-wider hidden lg:table-cell">Created</th>
                   <th className="text-right px-4 py-3.5 text-xs font-bold text-muted uppercase tracking-wider">Actions</th>
@@ -133,12 +149,38 @@ export default function ProjectsAdminPage() {
                         {p.complexity === 'advanced' ? '🚀 Advanced' : p.complexity === 'basic' ? '📝 Basic' : '⚡ Medium'}
                       </Badge>
                     </td>
+                    <td className="px-4 py-3">
+                      <button
+                        onClick={() => togglePublish(p)}
+                        title={p.published !== false ? "Click to Hide project from portfolio" : "Click to Show project on portfolio"}
+                        className="focus:outline-none flex items-center gap-1 group"
+                      >
+                        {p.published !== false ? (
+                          <span className="inline-flex items-center gap-1 text-[11px] font-bold bg-green-500/10 text-green-500 px-2.5 py-1 rounded-full border border-green-500/20 group-hover:bg-green-500/20 transition-colors">
+                            <Eye className="w-3 h-3" /> Showing
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-[11px] font-bold bg-red-500/10 text-red-500 px-2.5 py-1 rounded-full border border-red-500/20 group-hover:bg-red-500/20 transition-colors">
+                            <EyeOff className="w-3 h-3" /> Hidden
+                          </span>
+                        )}
+                      </button>
+                    </td>
                     <td className="px-4 py-3 hidden lg:table-cell">
                       <Badge variant={p.status === 'completed' ? 'success' : 'warning'} size="sm">{p.status}</Badge>
                     </td>
                     <td className="px-4 py-3 hidden lg:table-cell text-xs text-muted">{formatDate(p.createdAt, 'short')}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center justify-end gap-1">
+                        <button
+                          onClick={() => togglePublish(p)}
+                          className={`p-2 rounded-lg transition-colors hover:bg-surface ${
+                            p.published !== false ? 'text-green-500 hover:text-green-600' : 'text-red-400 hover:text-red-500'
+                          }`}
+                          title={p.published !== false ? 'Click to Hide project' : 'Click to Show project'}
+                        >
+                          {p.published !== false ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                        </button>
                         <Button
                           size="sm"
                           variant="ghost"

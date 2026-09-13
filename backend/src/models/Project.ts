@@ -53,7 +53,7 @@ const projectSchema = new Schema<IProject>({
   featured: { type: Boolean, default: false },
   complexity: { type: String, enum: ['advanced', 'medium', 'basic'], default: 'medium' },
   status: { type: String, enum: ['completed','in-progress','archived'], default: 'completed' },
-  published: { type: Boolean, default: false },
+  published: { type: Boolean, default: true },
   startDate: { type: Date },
   endDate: { type: Date },
   displayOrder: { type: Number, default: 0 },

@@ -9,7 +9,7 @@ import { slugify } from '../utils/slugify';
 export const getProjects = asyncHandler(async (req: Request, res: Response) => {
   const { q, category, status, featured, level } = req.query as Record<string, string>;
   const match: any = {};
-  if (!req.user) match.published = true;
+  if (!req.user) match.published = { $ne: false };
   if (category) match.category = category;
   if (status) match.status = status;
   if (level) match.complexity = level;
@@ -49,7 +49,7 @@ export const getProject = asyncHandler(async (req: Request, res: Response) => {
 
 export const getProjectBySlug = asyncHandler(async (req: Request, res: Response) => {
   const filter: any = { slug: req.params.slug };
-  if (!req.user) filter.published = true;
+  if (!req.user) filter.published = { $ne: false };
   const item = await Project.findOne(filter).lean();
   if (!item) return sendError(res, 'Project not found', 404);
   sendSuccess(res, item);
