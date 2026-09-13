@@ -4,19 +4,24 @@ import { sendSuccess, sendError, sendPaginatedSuccess } from '../utils/response'
 import { asyncHandler } from '../utils/asyncHandler';
 import { getPaginationParams } from '../utils/pagination';
 import { getStorageProvider } from '../services/storage/storage.factory';
+import { isUserAdminRequest } from '../utils/adminCheck';
 
 export const getGalleries = asyncHandler(async (req: Request, res: Response) => {
   const { category, featured, published } = req.query as Record<string, string>;
   const filter: any = {};
 
-  // Default behavior: ONLY return published items (published === true) for public portfolio.
-  // If published === 'all' (passed by Admin panel), return both published and hidden items.
-  if (published === 'all') {
-    // Admin viewing all items - no filter on published
-  } else if (published === 'false') {
-    filter.published = false;
+  const isAdmin = isUserAdminRequest(req);
+
+  // If request is from authenticated admin viewing admin panel
+  if (isAdmin) {
+    if (published === 'false') {
+      filter.published = false;
+    } else if (published === 'true') {
+      filter.published = { $ne: false };
+    }
+    // If published is 'all' or omitted in admin view, return both visible & hidden
   } else {
-    // Public portfolio view (default): return ONLY published items (published !== false)
+    // Public portfolio view (default): return ONLY published items!
     filter.published = { $ne: false };
   }
 

@@ -421,8 +421,8 @@ function SkillsSection() {
 function ProjectsSection() {
   const { data: featuredData, isLoading: isFeaturedLoading } = useProjects({ featured: true, limit: 6 });
   const { data: allData, isLoading: isAllLoading } = useProjects({ limit: 6 });
-  const featuredProjects = featuredData?.data ?? [];
-  const allProjects = allData?.data ?? [];
+  const featuredProjects = (featuredData?.data ?? []).filter((p) => p.published !== false);
+  const allProjects = (allData?.data ?? []).filter((p) => p.published !== false);
   const rawProjects = featuredProjects.length > 0 ? featuredProjects : allProjects;
   
   // Sort projects: Advanced (1) -> Medium (2) -> Basic (3)

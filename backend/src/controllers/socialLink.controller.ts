@@ -2,10 +2,11 @@ import { Request, Response } from 'express';
 import { SocialLink } from '../models/SocialLink';
 import { sendSuccess, sendError } from '../utils/response';
 import { asyncHandler } from '../utils/asyncHandler';
+import { isUserAdminRequest } from '../utils/adminCheck';
 
 export const getSocialLinks = asyncHandler(async (req: Request, res: Response) => {
   const filter: any = {};
-  if (!req.user) filter.active = true;
+  if (!isUserAdminRequest(req)) filter.active = true;
   const items = await SocialLink.find(filter).sort({ displayOrder: 1 }).lean();
   sendSuccess(res, items);
 });

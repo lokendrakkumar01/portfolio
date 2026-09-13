@@ -63,8 +63,8 @@ const queryClient = new QueryClient({
       refetchOnReconnect: 'always',
       // Keep unused cached data for 1 hour before garbage collecting
       gcTime: 60 * 60 * 1000,
-      // Default stale time — hooks can override per-query
-      staleTime: 15 * 60 * 1000,
+      // Default stale time — 30 seconds allows instant page-to-page navigation while staying reactive
+      staleTime: 30 * 1000,
       // Retry once on failure, not the default 3 times
       retry: 1,
       retryDelay: 1000,

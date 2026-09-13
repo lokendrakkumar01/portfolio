@@ -5,11 +5,27 @@ import { asyncHandler } from '../utils/asyncHandler';
 import { getPaginationParams } from '../utils/pagination';
 import { getStorageProvider } from '../services/storage/storage.factory';
 import { slugify } from '../utils/slugify';
+import { isUserAdminRequest } from '../utils/adminCheck';
 
 export const getProjects = asyncHandler(async (req: Request, res: Response) => {
-  const { q, category, status, featured, level } = req.query as Record<string, string>;
+  const { q, category, status, featured, level, published } = req.query as Record<string, string>;
   const match: any = {};
-  if (!req.user) match.published = { $ne: false };
+
+  const isAdmin = isUserAdminRequest(req);
+
+  // If request is from authenticated admin viewing admin panel
+  if (isAdmin) {
+    if (published === 'false') {
+      match.published = false;
+    } else if (published === 'true') {
+      match.published = { $ne: false };
+    }
+    // If published is 'all' or omitted in admin view, return all (both visible & hidden)
+  } else {
+    // Public portfolio view (default): STRICTLY return ONLY published items!
+    match.published = { $ne: false };
+  }
+
   if (category) match.category = category;
   if (status) match.status = status;
   if (level) match.complexity = level;
@@ -49,7 +65,9 @@ export const getProject = asyncHandler(async (req: Request, res: Response) => {
 
 export const getProjectBySlug = asyncHandler(async (req: Request, res: Response) => {
   const filter: any = { slug: req.params.slug };
-  if (!req.user) filter.published = { $ne: false };
+  if (!isUserAdminRequest(req)) {
+    filter.published = { $ne: false };
+  }
   const item = await Project.findOne(filter).lean();
   if (!item) return sendError(res, 'Project not found', 404);
   sendSuccess(res, item);

@@ -73,7 +73,7 @@ const getSkillIcon = (name: string, customIcon?: string): string => {
 export default function SkillsPage() {
   const { data, isLoading } = useSkills();
   const { data: socialData } = useSocialLinks();
-  const skills = data?.data ?? [];
+  const skills = (data?.data ?? []).filter((s) => s.published !== false);
   const socialLinks = (socialData?.data ?? []).filter((l) => l.active);
 
   const codingLinks = socialLinks.filter((l) =>

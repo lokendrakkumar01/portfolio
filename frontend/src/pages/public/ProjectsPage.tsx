@@ -23,7 +23,7 @@ export default function ProjectsPage() {
   const [category, setCategory] = useState<ProjectCategory | ''>('');
   const [level, setLevel] = useState<string>('');
   const { data, isLoading } = useProjects({ page, limit: 9, q: q || undefined, category: category || undefined, level: level || undefined });
-  const rawProjects = data?.data ?? [];
+  const rawProjects = (data?.data ?? []).filter((p) => p.published !== false);
   
   // Sort projects: Advanced (1) -> Medium (2) -> Basic (3)
   const projects = [...rawProjects].sort((a, b) => {

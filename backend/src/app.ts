@@ -34,7 +34,7 @@ app.use(cors({
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Admin-View'],
 }));
 
 // Body parsing
@@ -64,10 +64,12 @@ app.use(
   })
 );
 
-// Cache public GET responses for 60s
+// Prevent browser/proxy caching on dynamic API endpoints so updates and visibility toggles reflect instantly
 app.use((req: Request, res: Response, next: NextFunction) => {
-  if (req.method === 'GET') {
-    res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
+  if (req.path.startsWith('/api/')) {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
   }
   next();
 });

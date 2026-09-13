@@ -15,7 +15,7 @@ export default function CertificatesPage() {
   const [page, setPage] = useState(1);
   const [category, setCategory] = useState<CertificateCategory | ''>('');
   const { data, isLoading } = useCertificates({ page, limit: 12, category: category || undefined });
-  const certs = data?.data ?? [];
+  const certs = (data?.data ?? []).filter((c) => c.published !== false);
   const pagination = data?.pagination;
 
   const categories: { value: CertificateCategory | ''; label: string }[] = [

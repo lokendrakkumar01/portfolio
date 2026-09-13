@@ -19,13 +19,14 @@ export default function ProjectsAdminPage() {
   const [activeUploadId, setActiveUploadId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { data, isLoading } = useProjects({ page, limit: 10, q: q || undefined });
+  const { data, isLoading } = useProjects({ page, limit: 10, q: q || undefined, published: 'all' });
   const deleteProject = useDeleteProject();
   const uploadCover = useUploadProjectCover();
   const updateProject = useUpdateProject();
 
   const togglePublish = (project: Project) => {
-    const nextStatus = project.published === false ? true : false;
+    const isCurrentlyPublished = project.published !== false;
+    const nextStatus = !isCurrentlyPublished;
     updateProject.mutate(
       { id: project._id, data: { published: nextStatus } },
       {

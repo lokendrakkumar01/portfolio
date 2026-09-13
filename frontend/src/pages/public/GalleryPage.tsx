@@ -35,7 +35,7 @@ export default function GalleryPage() {
     published: 'true',
   });
 
-  const rawItems = data?.data ?? [];
+  const rawItems = (data?.data ?? []).filter((i) => i.published !== false);
   const items = mediaTypeFilter === 'all'
     ? rawItems
     : rawItems.filter((i) => (mediaTypeFilter === 'video' ? i.mediaType === 'video' || i.imageUrl.includes('.mp4') : i.mediaType !== 'video'));

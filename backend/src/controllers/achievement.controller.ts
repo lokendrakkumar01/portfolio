@@ -3,11 +3,12 @@ import { Achievement } from '../models/Achievement';
 import { sendSuccess, sendError, sendPaginatedSuccess } from '../utils/response';
 import { asyncHandler } from '../utils/asyncHandler';
 import { getPaginationParams } from '../utils/pagination';
+import { isUserAdminRequest } from '../utils/adminCheck';
 
 export const getAchievements = asyncHandler(async (req: Request, res: Response) => {
   const { featured } = req.query as Record<string, string>;
   const filter: any = {};
-  if (!req.user) filter.published = true;
+  if (!isUserAdminRequest(req)) filter.published = { $ne: false };
   if (featured === 'true') filter.featured = true;
   if (featured === 'false') filter.featured = false;
   const { page, limit, skip } = getPaginationParams(req.query as Record<string, string>);

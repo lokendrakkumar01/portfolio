@@ -2,11 +2,12 @@ import { Request, Response } from 'express';
 import { Skill } from '../models/Skill';
 import { sendSuccess, sendError } from '../utils/response';
 import { asyncHandler } from '../utils/asyncHandler';
+import { isUserAdminRequest } from '../utils/adminCheck';
 
 export const getSkills = asyncHandler(async (req: Request, res: Response) => {
   const { category, featured, q } = req.query as Record<string, string>;
   const filter: Record<string, unknown> = {};
-  if (!req.user) filter.published = true;
+  if (!isUserAdminRequest(req)) filter.published = { $ne: false };
   if (category) filter.category = category;
   if (featured === 'true') filter.featured = true;
   if (q) filter.name = { $regex: q, $options: 'i' };

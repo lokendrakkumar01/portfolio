@@ -9,6 +9,7 @@ export interface GetProjectsParams {
   status?: string;
   featured?: boolean;
   level?: string;
+  published?: 'true' | 'false' | 'all';
 }
 
 export const projectsApi = {

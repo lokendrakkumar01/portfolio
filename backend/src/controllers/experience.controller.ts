@@ -2,10 +2,11 @@ import { Request, Response } from 'express';
 import { Experience } from '../models/Experience';
 import { sendSuccess, sendError } from '../utils/response';
 import { asyncHandler } from '../utils/asyncHandler';
+import { isUserAdminRequest } from '../utils/adminCheck';
 
 export const getExperiences = asyncHandler(async (req: Request, res: Response) => {
   const filter: Record<string, unknown> = {};
-  if (!req.user) filter.published = true;
+  if (!isUserAdminRequest(req)) filter.published = { $ne: false };
   const items = await Experience.find(filter).sort({ displayOrder: 1, startDate: -1 }).lean();
   sendSuccess(res, items);
 });

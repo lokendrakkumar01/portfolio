@@ -17,8 +17,8 @@ export default function AboutPage() {
   const { data: eduData } = useEducation();
   const profile = profileData?.data;
   const socialLinks = (socialData?.data ?? []).filter((l) => l.active);
-  const experiences = (expData?.data ?? []).filter((e) => e.published);
-  const educations = (eduData?.data ?? []).filter((e) => e.published);
+  const experiences = (expData?.data ?? []).filter((e) => e.published !== false);
+  const educations = (eduData?.data ?? []).filter((e) => e.published !== false);
 
   return (
     <>

@@ -10,7 +10,7 @@ import { formatDate } from '../../utils/formatters';
 
 export default function AchievementsPage() {
   const { data, isLoading } = useAchievements();
-  const items = data?.data ?? [];
+  const items = (data?.data ?? []).filter((a) => a.published !== false);
   const grouped = items.reduce((acc: Record<string, typeof items>, a) => {
     if (!acc[a.category]) acc[a.category] = [];
     acc[a.category].push(a);

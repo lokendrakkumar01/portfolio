@@ -27,6 +27,13 @@ apiClient.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
+    // When requests originate from inside the /admin management routes, flag them
+    if (typeof window !== 'undefined' && window.location.pathname.startsWith('/admin')) {
+      config.headers['X-Admin-View'] = 'true';
+      config.params = { ...config.params, adminView: 'true' };
+    }
+
     return config;
   },
   (error) => Promise.reject(error)

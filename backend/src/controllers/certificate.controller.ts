@@ -3,11 +3,12 @@ import { Certificate } from '../models/Certificate';
 import { sendSuccess, sendError, sendPaginatedSuccess } from '../utils/response';
 import { asyncHandler } from '../utils/asyncHandler';
 import { getPaginationParams } from '../utils/pagination';
+import { isUserAdminRequest } from '../utils/adminCheck';
 
 export const getCertificates = asyncHandler(async (req: Request, res: Response) => {
   const { q, category, featured } = req.query as Record<string, string>;
   const filter: any = {};
-  if (!req.user) filter.published = true;
+  if (!isUserAdminRequest(req)) filter.published = { $ne: false };
   if (category) filter.category = category;
   if (featured === 'true') filter.featured = true;
   if (featured === 'false') filter.featured = false;
