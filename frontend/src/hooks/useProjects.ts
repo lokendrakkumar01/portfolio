@@ -44,12 +44,36 @@ export const useUpdateProject = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<Project> }) => projectsApi.update(id, data),
-    onSuccess: () => {
+    onMutate: async ({ id, data }) => {
+      await qc.cancelQueries({ queryKey: [PROJECTS_KEY] });
+      const previousData = qc.getQueriesData({ queryKey: [PROJECTS_KEY] });
+      qc.setQueriesData({ queryKey: [PROJECTS_KEY] }, (old: any) => {
+        if (!old) return old;
+        if (Array.isArray(old)) {
+          return old.map((item: Project) => (item._id === id ? { ...item, ...data } : item));
+        }
+        if (old.data && Array.isArray(old.data)) {
+          return {
+            ...old,
+            data: old.data.map((item: Project) => (item._id === id ? { ...item, ...data } : item)),
+          };
+        }
+        return old;
+      });
+      return { previousData };
+    },
+    onError: (err, _variables, context) => {
+      if (context?.previousData) {
+        context.previousData.forEach(([queryKey, data]) => {
+          qc.setQueryData(queryKey, data);
+        });
+      }
+      toast.error(getErrorMessage(err));
+    },
+    onSettled: () => {
       qc.invalidateQueries({ queryKey: [PROJECTS_KEY] });
       qc.invalidateQueries({ queryKey: ['stats'] });
-      toast.success('Project updated');
     },
-    onError: (err) => toast.error(getErrorMessage(err)),
   });
 };
 

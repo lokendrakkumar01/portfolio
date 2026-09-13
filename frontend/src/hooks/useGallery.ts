@@ -29,11 +29,35 @@ export const useUpdateGalleryItem = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<GalleryItem> }) => galleryApi.update(id, data),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: [GALLERY_KEY] });
-      toast.success('Image updated successfully');
+    onMutate: async ({ id, data }) => {
+      await qc.cancelQueries({ queryKey: [GALLERY_KEY] });
+      const previousData = qc.getQueriesData({ queryKey: [GALLERY_KEY] });
+      qc.setQueriesData({ queryKey: [GALLERY_KEY] }, (old: any) => {
+        if (!old) return old;
+        if (Array.isArray(old)) {
+          return old.map((item: GalleryItem) => (item._id === id ? { ...item, ...data } : item));
+        }
+        if (old.data && Array.isArray(old.data)) {
+          return {
+            ...old,
+            data: old.data.map((item: GalleryItem) => (item._id === id ? { ...item, ...data } : item)),
+          };
+        }
+        return old;
+      });
+      return { previousData };
     },
-    onError: (err) => toast.error(getErrorMessage(err)),
+    onError: (err, _variables, context) => {
+      if (context?.previousData) {
+        context.previousData.forEach(([queryKey, data]) => {
+          qc.setQueryData(queryKey, data);
+        });
+      }
+      toast.error(getErrorMessage(err));
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: [GALLERY_KEY] });
+    },
   });
 };
 
