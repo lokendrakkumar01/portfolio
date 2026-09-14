@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { resumeApi } from '../api/resume.api';
 import { getErrorMessage } from '../api/client';
+import { INITIAL_RESUME, getCached, setCached } from '../data/initialPortfolioData';
 
 export const RESUME_KEY = 'resume';
 
@@ -9,7 +10,20 @@ export const useResume = () =>
   useQuery({ queryKey: [RESUME_KEY], queryFn: resumeApi.getAll, staleTime: 5 * 60 * 1000 });
 
 export const useCurrentResume = () =>
-  useQuery({ queryKey: [RESUME_KEY, 'current'], queryFn: resumeApi.getCurrent, staleTime: 5 * 60 * 1000 });
+  useQuery({
+    queryKey: [RESUME_KEY, 'current'],
+    queryFn: async () => {
+      const res = await resumeApi.getCurrent();
+      if (res?.data) setCached('portfolio_resume_current', res.data);
+      return res;
+    },
+    initialData: () => ({
+      success: true,
+      message: 'Cached',
+      data: getCached('portfolio_resume_current', INITIAL_RESUME),
+    }),
+    staleTime: 5 * 60 * 1000,
+  });
 
 export const useUploadResume = () => {
   const qc = useQueryClient();

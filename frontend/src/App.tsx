@@ -19,11 +19,10 @@ function PageSkeleton() {
   );
 }
 
-// Public pages — lazy loaded for code splitting
+// Public pages — HomePage is statically imported for instant 0.1s render; subpages are lazy loaded
 import PublicLayout from './layouts/PublicLayout';
 import AdminLayout from './layouts/AdminLayout';
-
-const HomePage = lazy(() => import('./pages/public/HomePage'));
+import HomePage from './pages/public/HomePage';
 const AboutPage = lazy(() => import('./pages/public/AboutPage'));
 const SkillsPage = lazy(() => import('./pages/public/SkillsPage'));
 const ProjectsPage = lazy(() => import('./pages/public/ProjectsPage'));

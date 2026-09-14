@@ -2,14 +2,24 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { profileApi } from '../api/profile.api';
 import { getErrorMessage } from '../api/client';
+import { INITIAL_PROFILE, getCached, setCached } from '../data/initialPortfolioData';
 
 export const PROFILE_KEY = ['profile'] as const;
 
 export const useProfile = () =>
   useQuery({
     queryKey: PROFILE_KEY,
-    queryFn: profileApi.get,
-    staleTime: 30 * 60 * 1000,
+    queryFn: async () => {
+      const res = await profileApi.get();
+      if (res?.data) setCached('portfolio_profile', res.data);
+      return res;
+    },
+    initialData: () => ({
+      success: true,
+      message: 'Cached',
+      data: getCached('portfolio_profile', INITIAL_PROFILE),
+    }),
+    staleTime: 5 * 60 * 1000,
   });
 
 export const useUpdateProfile = () => {
@@ -17,6 +27,7 @@ export const useUpdateProfile = () => {
   return useMutation({
     mutationFn: profileApi.update,
     onSuccess: (res) => {
+      if (res?.data) setCached('portfolio_profile', res.data);
       qc.setQueryData(PROFILE_KEY, res);
       qc.invalidateQueries({ queryKey: PROFILE_KEY });
       toast.success('Profile updated successfully');
@@ -30,6 +41,7 @@ export const useUploadProfileImage = () => {
   return useMutation({
     mutationFn: profileApi.uploadImage,
     onSuccess: (res) => {
+      if (res?.data) setCached('portfolio_profile', res.data);
       qc.setQueryData(PROFILE_KEY, res);
       qc.invalidateQueries({ queryKey: PROFILE_KEY });
       toast.success('Profile image uploaded successfully');

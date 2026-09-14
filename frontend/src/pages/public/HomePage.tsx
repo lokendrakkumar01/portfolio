@@ -83,7 +83,7 @@ function HeroSection() {
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center w-full relative z-10">
         {/* Left Column Text */}
         <div className="order-2 lg:order-1 lg:col-span-7">
-          {isLoading ? (
+          {!profile && isLoading ? (
             <div className="space-y-4">
               <Skeleton className="h-5 w-28 rounded-full" />
               <Skeleton className="h-14 w-full rounded-2xl" />
@@ -195,16 +195,19 @@ function HeroSection() {
             <div className="relative w-64 h-64 sm:w-80 sm:h-80 lg:w-96 lg:h-96 rounded-full overflow-hidden border-8 border-card shadow-2xl ring-4 ring-primary/30 bg-surface flex items-center justify-center transform group-hover:scale-[1.02] transition-transform duration-500">
               {profile?.profileImage && !imgError ? (
                 <img
-                  src={profile.profileImage}
-                  alt={profile.name ?? 'Profile Photo'}
+                  src={optimizeCloudinaryUrl(profile.profileImage, 400)}
+                  alt={profile.name ?? 'Lokendra Kumar'}
                   onError={() => setImgError(true)}
                   className="w-full h-full object-cover"
+                  loading="eager"
+                  // @ts-ignore
+                  fetchpriority="high"
                 />
               ) : (
                 <div className="w-full h-full bg-gradient-to-br from-primary/10 via-surface to-accent/10 flex flex-col items-center justify-center text-center p-6">
                   <UserCheck className="w-20 h-20 sm:w-24 sm:h-24 text-primary/60 mb-4" />
-                  <span className="text-lg font-bold text-text truncate max-w-[200px]">{profile?.name ?? 'Developer'}</span>
-                  <span className="text-sm text-muted truncate max-w-[200px]">{profile?.title !== '[YOUR TITLE]' ? profile?.title : ''}</span>
+                  <span className="text-lg font-bold text-text truncate max-w-[200px]">{profile?.name ?? 'Lokendra Kumar'}</span>
+                  <span className="text-sm text-muted truncate max-w-[200px]">{profile?.title && profile.title !== '[YOUR TITLE]' ? profile.title : 'Full Stack Developer'}</span>
                 </div>
               )}
             </div>
@@ -229,10 +232,11 @@ function HeroSection() {
 
 // ─── About Section ────────────────────────────────────────────────────────────
 function AboutSection() {
-  const { data: profileData, isLoading } = useProfile();
+  const { data: profileData, isLoading: isProfileLoading } = useProfile();
   const { data: statsData } = useStats();
   const profile = profileData?.data;
   const stats = statsData?.data;
+  const isLoading = !profile && isProfileLoading;
 
   return (
     <section id="about" className="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
@@ -295,8 +299,9 @@ const getProficiencyBadgeStyle = (val: number) => {
 };
 
 function SkillsSection() {
-  const { data, isLoading } = useSkills({ featured: true });
+  const { data, isLoading: isSkillsLoading } = useSkills();
   const skills = data?.data ?? [];
+  const isLoading = !skills.length && isSkillsLoading;
   const grouped = skills.reduce((acc: Record<string, Skill[]>, s) => {
     if (!acc[s.category]) acc[s.category] = [];
     acc[s.category].push(s);
@@ -419,11 +424,8 @@ function SkillsSection() {
 
 // ─── Projects Section ─────────────────────────────────────────────────────────
 function ProjectsSection() {
-  const { data: featuredData, isLoading: isFeaturedLoading } = useProjects({ featured: true, limit: 6 });
-  const { data: allData, isLoading: isAllLoading } = useProjects({ limit: 6 });
-  const featuredProjects = (featuredData?.data ?? []).filter((p) => p.published !== false);
-  const allProjects = (allData?.data ?? []).filter((p) => p.published !== false);
-  const rawProjects = featuredProjects.length > 0 ? featuredProjects : allProjects;
+  const { data: projectsData, isLoading: isProjectsLoading } = useProjects({ limit: 6 });
+  const rawProjects = (projectsData?.data ?? []).filter((p) => p.published !== false);
   
   // Sort projects: Advanced (1) -> Medium (2) -> Basic (3)
   const projects = [...rawProjects].sort((a, b) => {
@@ -431,7 +433,7 @@ function ProjectsSection() {
     return getRank(a.complexity) - getRank(b.complexity);
   });
   
-  const isLoading = isFeaturedLoading && isAllLoading;
+  const isLoading = !projects.length && isProjectsLoading;
 
   return (
     <section className="py-24 px-4 sm:px-6 lg:px-8">

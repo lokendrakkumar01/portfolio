@@ -3,13 +3,30 @@ import toast from 'react-hot-toast';
 import { skillsApi, type GetSkillsParams } from '../api/skills.api';
 import { getErrorMessage } from '../api/client';
 import type { Skill } from '../types';
+import { INITIAL_SKILLS, getCached, setCached } from '../data/initialPortfolioData';
 
 export const SKILLS_KEY = 'skills';
 
 export const useSkills = (params: GetSkillsParams = {}) =>
   useQuery({
     queryKey: [SKILLS_KEY, params],
-    queryFn: () => skillsApi.getAll(params),
+    queryFn: async () => {
+      const res = await skillsApi.getAll(params);
+      if (res?.data && Object.keys(params).length === 0) {
+        setCached('portfolio_skills', res.data);
+      }
+      return res;
+    },
+    initialData: () => {
+      if (Object.keys(params).length === 0) {
+        return {
+          success: true,
+          message: 'Cached',
+          data: getCached('portfolio_skills', INITIAL_SKILLS),
+        };
+      }
+      return undefined;
+    },
     staleTime: 5 * 60 * 1000,
   });
 
