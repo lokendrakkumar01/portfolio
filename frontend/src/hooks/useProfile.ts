@@ -20,7 +20,7 @@ export const useProfile = () =>
       data: getCached('portfolio_profile', INITIAL_PROFILE),
     }),
     initialDataUpdatedAt: 0,
-    staleTime: 0,
+    staleTime: 30 * 1000,
   });
 
 export const useUpdateProfile = () => {

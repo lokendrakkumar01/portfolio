@@ -7,7 +7,7 @@ import type { Experience } from '../types';
 export const EXP_KEY = 'experience';
 
 export const useExperience = () =>
-  useQuery({ queryKey: [EXP_KEY], queryFn: experienceApi.getAll, staleTime: 0 });
+  useQuery({ queryKey: [EXP_KEY], queryFn: experienceApi.getAll, staleTime: 30 * 1000 });
 
 export const useCreateExperience = () => {
   const qc = useQueryClient();

@@ -21,7 +21,7 @@ export const useSocialLinks = () =>
       data: getCached('portfolio_social_links', INITIAL_SOCIAL_LINKS),
     }),
     initialDataUpdatedAt: 0,
-    staleTime: 0,
+    staleTime: 30 * 1000,
   });
 
 export const useCreateSocialLink = () => {

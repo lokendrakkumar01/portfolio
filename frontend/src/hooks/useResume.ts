@@ -7,7 +7,7 @@ import { INITIAL_RESUME, getCached, setCached, removeCached } from '../data/init
 export const RESUME_KEY = 'resume';
 
 export const useResume = () =>
-  useQuery({ queryKey: [RESUME_KEY], queryFn: resumeApi.getAll, staleTime: 0 });
+  useQuery({ queryKey: [RESUME_KEY], queryFn: resumeApi.getAll, staleTime: 30 * 1000 });
 
 export const useCurrentResume = () =>
   useQuery({
@@ -23,7 +23,7 @@ export const useCurrentResume = () =>
       data: getCached('portfolio_resume_current', INITIAL_RESUME),
     }),
     initialDataUpdatedAt: 0,
-    staleTime: 0,
+    staleTime: 30 * 1000,
   });
 
 export const useUploadResume = () => {

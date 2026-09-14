@@ -12,6 +12,9 @@ import apiRoutes from './routes/index';
 
 const app = express();
 
+// Enable trust proxy for Render / reverse proxies so express-rate-limit uses actual client IP
+app.set('trust proxy', 1);
+
 // Security
 app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' },

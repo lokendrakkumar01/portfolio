@@ -21,7 +21,7 @@ export const useSettings = () =>
       data: getCached('portfolio_settings', INITIAL_SETTINGS),
     }),
     initialDataUpdatedAt: 0,
-    staleTime: 0,
+    staleTime: 30 * 1000,
   });
 
 export const useUpdateSettings = () => {

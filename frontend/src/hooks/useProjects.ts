@@ -32,7 +32,7 @@ export const useProjects = (params: GetProjectsParams = {}) =>
       };
     },
     initialDataUpdatedAt: 0,
-    staleTime: 0,
+    staleTime: 30 * 1000,
   });
 
 export const useProject = (slug: string) =>
@@ -52,7 +52,7 @@ export const useProject = (slug: string) =>
       return undefined;
     },
     initialDataUpdatedAt: 0,
-    staleTime: 0,
+    staleTime: 30 * 1000,
     enabled: !!slug,
   });
 

@@ -10,7 +10,7 @@ export const useGallery = (params: GetGalleryParams = {}) =>
   useQuery({
     queryKey: [GALLERY_KEY, params],
     queryFn: () => galleryApi.getAll(params),
-    staleTime: 0,
+    staleTime: 30 * 1000,
   });
 
 export const useDeleteGalleryItem = () => {

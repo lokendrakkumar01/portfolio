@@ -28,7 +28,7 @@ export const useSkills = (params: GetSkillsParams = {}) =>
       return undefined;
     },
     initialDataUpdatedAt: 0,
-    staleTime: 0,
+    staleTime: 30 * 1000,
   });
 
 export const useSkill = (id: string) =>

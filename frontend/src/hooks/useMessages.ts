@@ -10,7 +10,7 @@ export const useMessages = (params: { page?: number; limit?: number; status?: Me
   useQuery({
     queryKey: [MSGS_KEY, params],
     queryFn: () => messagesApi.getAll(params),
-    staleTime: 0,
+    staleTime: 30 * 1000,
   });
 
 export const useUpdateMessageStatus = () => {

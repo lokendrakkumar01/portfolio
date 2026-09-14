@@ -7,7 +7,7 @@ import type { Education } from '../types';
 export const EDU_KEY = 'education';
 
 export const useEducation = () =>
-  useQuery({ queryKey: [EDU_KEY], queryFn: educationApi.getAll, staleTime: 0 });
+  useQuery({ queryKey: [EDU_KEY], queryFn: educationApi.getAll, staleTime: 30 * 1000 });
 
 export const useCreateEducation = () => {
   const qc = useQueryClient();

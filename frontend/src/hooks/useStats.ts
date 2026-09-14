@@ -18,6 +18,6 @@ export const useStats = () =>
       data: getCached('portfolio_stats', INITIAL_STATS),
     }),
     initialDataUpdatedAt: 0,
-    staleTime: 0,
+    staleTime: 30 * 1000,
   });
 
