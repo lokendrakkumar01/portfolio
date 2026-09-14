@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, ExternalLink, Github, FolderGit2, Calendar } from 'lucide-react';
 import { SEO } from '../../components/common/SEO';
@@ -19,6 +19,7 @@ const CATEGORY_LABELS: Partial<Record<ProjectCategory, string>> = {
 const ALL_CATEGORIES = Object.entries(CATEGORY_LABELS) as [ProjectCategory, string][];
 
 export default function ProjectsPage() {
+  const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [q, setQ] = useState('');
   const [category, setCategory] = useState<ProjectCategory | ''>('');
@@ -92,8 +93,9 @@ export default function ProjectsPage() {
                     initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9 }} transition={{ delay: i * 0.05 }}
                     className="group"
                   >
-                    <Link to={`/projects/${p.slug}`}
-                      className="block bg-card/80 backdrop-blur-sm border border-border rounded-3xl overflow-hidden hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/5 hover:-translate-y-2 transition-all duration-500 h-full flex flex-col relative"
+                    <div
+                      onClick={() => navigate(`/projects/${p.slug}`)}
+                      className="block bg-card/80 backdrop-blur-sm border border-border rounded-3xl overflow-hidden hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/5 hover:-translate-y-2 transition-all duration-500 h-full flex flex-col relative cursor-pointer"
                     >
                       {/* Image Container with Gradient Overlay */}
                       <div className="relative w-full h-56 overflow-hidden bg-surface">
@@ -145,15 +147,15 @@ export default function ProjectsPage() {
                           </div>
                           
                           {/* Quick Links Footer */}
-                          <div className="flex flex-wrap items-center gap-2 pt-4 border-t border-border/60">
+                          <div className="flex flex-wrap items-center gap-2 pt-4 border-t border-border/60" onClick={(e) => e.stopPropagation()}>
                             {p.githubUrl && (
-                              <a href={p.githubUrl} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}
+                              <a href={p.githubUrl} target="_blank" rel="noreferrer"
                                 className="flex items-center gap-1.5 text-xs font-semibold text-text hover:text-primary transition-colors bg-surface px-3 py-1.5 rounded-lg border border-border hover:border-primary/30">
                                 <Github className="w-4 h-4" /> Source
                               </a>
                             )}
                             {p.liveUrl && (
-                              <a href={p.liveUrl} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}
+                              <a href={p.liveUrl} target="_blank" rel="noreferrer"
                                 className="flex items-center gap-1.5 text-xs font-semibold text-white bg-primary hover:bg-primary/90 transition-colors px-3 py-1.5 rounded-lg shadow-md shadow-primary/20">
                                 <ExternalLink className="w-4 h-4" /> Live Demo
                               </a>
@@ -161,7 +163,7 @@ export default function ProjectsPage() {
                           </div>
                         </div>
                       </div>
-                    </Link>
+                    </div>
                   </motion.div>
                 ))}
               </AnimatePresence>

@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link } from 'react-router-dom';
-import { Download, Mail, ArrowRight, MapPin, FolderCode, Trophy, Sparkles, UserCheck, Award, Play, Film, ZoomIn, X, Image as ImageIcon, ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Download, Mail, ArrowRight, MapPin, FolderCode, Trophy, Sparkles, UserCheck, Award, Play, Film, ZoomIn, X, Image as ImageIcon, ChevronLeft, ChevronRight, Calendar, Github, ExternalLink } from 'lucide-react';
 import { useProfile } from '../../hooks/useProfile';
 import { useSocialLinks } from '../../hooks/useSocialLinks';
 import { useCurrentResume } from '../../hooks/useResume';
@@ -424,6 +424,7 @@ function SkillsSection() {
 
 // ─── Projects Section ─────────────────────────────────────────────────────────
 function ProjectsSection() {
+  const navigate = useNavigate();
   const { data: projectsData, isLoading: isProjectsLoading } = useProjects({ limit: 6 });
   const rawProjects = (projectsData?.data ?? []).filter((p) => p.published !== false);
   
@@ -455,9 +456,9 @@ function ProjectsSection() {
                 viewport={{ once: true, margin: "-100px" }}
                 transition={{ delay: i * 0.1, duration: 0.5 }}
               >
-                <Link
-                  to={`/projects/${p.slug}`}
-                  className="group block bg-card/60 backdrop-blur-xl rounded-3xl border border-border overflow-hidden hover:border-primary/50 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.3)] hover:-translate-y-2 transition-all duration-500 h-full flex flex-col relative"
+                <div
+                  onClick={() => navigate(`/projects/${p.slug}`)}
+                  className="group block bg-card/60 backdrop-blur-xl rounded-3xl border border-border overflow-hidden hover:border-primary/50 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.3)] hover:-translate-y-2 transition-all duration-500 h-full flex flex-col relative cursor-pointer"
                 >
                   <div className="absolute inset-0 bg-gradient-to-b from-transparent to-card/90 z-10 pointer-events-none" />
                   {p.coverImage ? (
@@ -506,14 +507,31 @@ function ProjectsSection() {
                         {p.shortDescription}
                       </p>
                     </div>
-                    <div className="flex flex-wrap gap-2 pt-4 border-t border-border/60">
-                      {p.technologies.slice(0, 3).map((t) => (
-                        <span key={t} className="px-2.5 py-1 rounded-md text-[11px] font-bold tracking-wide uppercase bg-surface border border-border text-text shadow-sm">{t}</span>
-                      ))}
-                      {p.technologies.length > 3 && <span className="px-2.5 py-1 rounded-md text-[11px] font-bold tracking-wide uppercase bg-surface text-muted border border-border">+{p.technologies.length - 3}</span>}
+                    <div className="flex flex-wrap items-center justify-between gap-2 pt-4 border-t border-border/60">
+                      <div className="flex flex-wrap gap-1.5">
+                        {p.technologies.slice(0, 2).map((t) => (
+                          <span key={t} className="px-2 py-0.5 rounded-md text-[10px] font-bold tracking-wide uppercase bg-surface border border-border text-text shadow-sm">{t}</span>
+                        ))}
+                        {p.technologies.length > 2 && <span className="px-2 py-0.5 rounded-md text-[10px] font-bold tracking-wide uppercase bg-surface text-muted border border-border">+{p.technologies.length - 2}</span>}
+                      </div>
+
+                      <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                        {p.githubUrl && (
+                          <a href={p.githubUrl} target="_blank" rel="noreferrer" title="View Source Code"
+                            className="p-1.5 rounded-lg bg-surface border border-border hover:border-primary text-text hover:text-primary transition-colors">
+                            <Github className="w-3.5 h-3.5" />
+                          </a>
+                        )}
+                        {p.liveUrl && (
+                          <a href={p.liveUrl} target="_blank" rel="noreferrer" title="Live Demo"
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-primary text-white text-xs font-semibold hover:bg-primary/90 transition-colors shadow-sm shadow-primary/20">
+                            <ExternalLink className="w-3.5 h-3.5" /> Live
+                          </a>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </Link>
+                </div>
               </motion.div>
             ))}
           </div>

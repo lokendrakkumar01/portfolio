@@ -13,7 +13,7 @@ export const useProjects = (params: GetProjectsParams = {}) =>
     queryFn: async () => {
       const res = await projectsApi.getAll(params);
       if (res?.data && (!params.q && !params.category && !params.level && (!params.page || params.page === 1))) {
-        const cacheKey = params.featured ? 'portfolio_projects_featured' : 'portfolio_projects_all';
+        const cacheKey = params.featured ? 'portfolio_v2_projects_featured' : 'portfolio_v2_projects_all';
         setCached(cacheKey, res.data);
       }
       return res;
@@ -22,7 +22,7 @@ export const useProjects = (params: GetProjectsParams = {}) =>
       if (params.q || params.category || params.level || (params.page && params.page > 1)) {
         return undefined;
       }
-      const cacheKey = params.featured ? 'portfolio_projects_featured' : 'portfolio_projects_all';
+      const cacheKey = params.featured ? 'portfolio_v2_projects_featured' : 'portfolio_v2_projects_all';
       const cached = getCached(cacheKey, INITIAL_PROJECTS);
       return {
         success: true,
@@ -31,6 +31,7 @@ export const useProjects = (params: GetProjectsParams = {}) =>
         pagination: INITIAL_PAGINATION,
       };
     },
+    initialDataUpdatedAt: 0,
     staleTime: 5 * 60 * 1000,
   });
 
@@ -39,17 +40,18 @@ export const useProject = (slug: string) =>
     queryKey: [PROJECTS_KEY, 'slug', slug],
     queryFn: async () => {
       const res = await projectsApi.getBySlug(slug);
-      if (res?.data) setCached(`portfolio_project_${slug}`, res.data);
+      if (res?.data) setCached(`portfolio_v2_project_${slug}`, res.data);
       return res;
     },
     initialData: () => {
       const matched = INITIAL_PROJECTS.find((p) => p.slug === slug);
-      const cached = getCached(`portfolio_project_${slug}`, matched);
+      const cached = getCached(`portfolio_v2_project_${slug}`, matched);
       if (cached) {
         return { success: true, message: 'Cached', data: cached };
       }
       return undefined;
     },
+    initialDataUpdatedAt: 0,
     enabled: !!slug,
   });
 
