@@ -7,13 +7,17 @@ import type { Education } from '../types';
 export const EDU_KEY = 'education';
 
 export const useEducation = () =>
-  useQuery({ queryKey: [EDU_KEY], queryFn: educationApi.getAll, staleTime: 5 * 60 * 1000 });
+  useQuery({ queryKey: [EDU_KEY], queryFn: educationApi.getAll, staleTime: 0 });
 
 export const useCreateEducation = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: Partial<Education>) => educationApi.create(data),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: [EDU_KEY] }); toast.success('Education added'); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: [EDU_KEY] });
+      qc.invalidateQueries({ queryKey: ['stats'] });
+      toast.success('Education added');
+    },
     onError: (err) => toast.error(getErrorMessage(err)),
   });
 };
@@ -22,7 +26,11 @@ export const useUpdateEducation = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<Education> }) => educationApi.update(id, data),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: [EDU_KEY] }); toast.success('Education updated'); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: [EDU_KEY] });
+      qc.invalidateQueries({ queryKey: ['stats'] });
+      toast.success('Education updated');
+    },
     onError: (err) => toast.error(getErrorMessage(err)),
   });
 };
@@ -31,7 +39,11 @@ export const useDeleteEducation = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: educationApi.delete,
-    onSuccess: () => { qc.invalidateQueries({ queryKey: [EDU_KEY] }); toast.success('Education deleted'); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: [EDU_KEY] });
+      qc.invalidateQueries({ queryKey: ['stats'] });
+      toast.success('Education deleted');
+    },
     onError: (err) => toast.error(getErrorMessage(err)),
   });
 };

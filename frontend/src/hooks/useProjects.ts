@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 import { projectsApi, type GetProjectsParams } from '../api/projects.api';
 import { getErrorMessage } from '../api/client';
 import type { Project } from '../types';
-import { INITIAL_PROJECTS, INITIAL_PAGINATION, getCached, setCached } from '../data/initialPortfolioData';
+import { INITIAL_PROJECTS, INITIAL_PAGINATION, getCached, setCached, removeCached, clearPortfolioCache } from '../data/initialPortfolioData';
 
 export const PROJECTS_KEY = 'projects';
 
@@ -32,7 +32,7 @@ export const useProjects = (params: GetProjectsParams = {}) =>
       };
     },
     initialDataUpdatedAt: 0,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 0,
   });
 
 export const useProject = (slug: string) =>
@@ -52,6 +52,7 @@ export const useProject = (slug: string) =>
       return undefined;
     },
     initialDataUpdatedAt: 0,
+    staleTime: 0,
     enabled: !!slug,
   });
 
@@ -62,11 +63,18 @@ export const useProjectById = (id: string) =>
     enabled: !!id,
   });
 
+const clearProjectsLocalCache = () => {
+  removeCached('portfolio_v2_projects_all');
+  removeCached('portfolio_v2_projects_featured');
+  clearPortfolioCache('portfolio_v2_project_');
+};
+
 export const useCreateProject = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: Partial<Project>) => projectsApi.create(data),
     onSuccess: () => {
+      clearProjectsLocalCache();
       qc.invalidateQueries({ queryKey: [PROJECTS_KEY] });
       qc.invalidateQueries({ queryKey: ['stats'] });
       toast.success('Project created');
@@ -106,6 +114,7 @@ export const useUpdateProject = () => {
       toast.error(getErrorMessage(err));
     },
     onSettled: () => {
+      clearProjectsLocalCache();
       qc.invalidateQueries({ queryKey: [PROJECTS_KEY] });
       qc.invalidateQueries({ queryKey: ['stats'] });
     },
@@ -117,6 +126,7 @@ export const useDeleteProject = () => {
   return useMutation({
     mutationFn: projectsApi.delete,
     onSuccess: () => {
+      clearProjectsLocalCache();
       qc.invalidateQueries({ queryKey: [PROJECTS_KEY] });
       qc.invalidateQueries({ queryKey: ['stats'] });
       toast.success('Project deleted');
@@ -130,6 +140,7 @@ export const useUploadProjectCover = () => {
   return useMutation({
     mutationFn: ({ id, file }: { id: string; file: File }) => projectsApi.uploadCover(id, file),
     onSuccess: () => {
+      clearProjectsLocalCache();
       qc.invalidateQueries({ queryKey: [PROJECTS_KEY] });
       qc.invalidateQueries({ queryKey: ['stats'] });
       toast.success('Cover image uploaded');
@@ -142,7 +153,11 @@ export const useAddProjectScreenshot = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ id, file, caption }: { id: string; file: File; caption?: string }) => projectsApi.addScreenshot(id, file, caption),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: [PROJECTS_KEY] }); toast.success('Screenshot added'); },
+    onSuccess: () => {
+      clearProjectsLocalCache();
+      qc.invalidateQueries({ queryKey: [PROJECTS_KEY] });
+      toast.success('Screenshot added');
+    },
     onError: (err) => toast.error(getErrorMessage(err)),
   });
 };
@@ -151,7 +166,11 @@ export const useDeleteProjectScreenshot = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ projectId, screenshotId }: { projectId: string; screenshotId: string }) => projectsApi.deleteScreenshot(projectId, screenshotId),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: [PROJECTS_KEY] }); toast.success('Screenshot deleted'); },
+    onSuccess: () => {
+      clearProjectsLocalCache();
+      qc.invalidateQueries({ queryKey: [PROJECTS_KEY] });
+      toast.success('Screenshot deleted');
+    },
     onError: (err) => toast.error(getErrorMessage(err)),
   });
 };

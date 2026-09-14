@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 import { skillsApi, type GetSkillsParams } from '../api/skills.api';
 import { getErrorMessage } from '../api/client';
 import type { Skill } from '../types';
-import { INITIAL_SKILLS, getCached, setCached } from '../data/initialPortfolioData';
+import { INITIAL_SKILLS, getCached, setCached, removeCached } from '../data/initialPortfolioData';
 
 export const SKILLS_KEY = 'skills';
 
@@ -27,7 +27,8 @@ export const useSkills = (params: GetSkillsParams = {}) =>
       }
       return undefined;
     },
-    staleTime: 5 * 60 * 1000,
+    initialDataUpdatedAt: 0,
+    staleTime: 0,
   });
 
 export const useSkill = (id: string) =>
@@ -42,6 +43,7 @@ export const useCreateSkill = () => {
   return useMutation({
     mutationFn: (data: Partial<Skill>) => skillsApi.create(data),
     onSuccess: () => {
+      removeCached('portfolio_skills');
       qc.invalidateQueries({ queryKey: [SKILLS_KEY] });
       qc.invalidateQueries({ queryKey: ['stats'] });
       toast.success('Skill created');
@@ -55,6 +57,7 @@ export const useUpdateSkill = () => {
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<Skill> }) => skillsApi.update(id, data),
     onSuccess: () => {
+      removeCached('portfolio_skills');
       qc.invalidateQueries({ queryKey: [SKILLS_KEY] });
       qc.invalidateQueries({ queryKey: ['stats'] });
       toast.success('Skill updated');
@@ -68,6 +71,7 @@ export const useDeleteSkill = () => {
   return useMutation({
     mutationFn: skillsApi.delete,
     onSuccess: () => {
+      removeCached('portfolio_skills');
       qc.invalidateQueries({ queryKey: [SKILLS_KEY] });
       qc.invalidateQueries({ queryKey: ['stats'] });
       toast.success('Skill deleted');
@@ -80,7 +84,11 @@ export const useReorderSkills = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: skillsApi.reorder,
-    onSuccess: () => qc.invalidateQueries({ queryKey: [SKILLS_KEY] }),
+    onSuccess: () => {
+      removeCached('portfolio_skills');
+      qc.invalidateQueries({ queryKey: [SKILLS_KEY] });
+      qc.invalidateQueries({ queryKey: ['stats'] });
+    },
     onError: (err) => toast.error(getErrorMessage(err)),
   });
 };

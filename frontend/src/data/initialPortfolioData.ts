@@ -19,6 +19,29 @@ export function setCached<T>(key: string, data: T): void {
   }
 }
 
+export function removeCached(key: string): void {
+  try {
+    localStorage.removeItem(key);
+  } catch {
+    // ignore
+  }
+}
+
+export function clearPortfolioCache(prefix: string = 'portfolio_'): void {
+  try {
+    const keysToRemove: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith(prefix)) {
+        keysToRemove.push(k);
+      }
+    }
+    keysToRemove.forEach((k) => localStorage.removeItem(k));
+  } catch {
+    // ignore
+  }
+}
+
 export const INITIAL_PROFILE: Profile = {
   _id: '6aa1c2e5be35fb15574de19a',
   name: 'Lokendra kumar',

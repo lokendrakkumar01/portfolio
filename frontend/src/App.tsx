@@ -56,15 +56,15 @@ const SettingsAdminPage = lazy(() => import('./pages/admin/SettingsAdminPage'));
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      // Don't refetch data just because user clicked elsewhere or switched tabs
-      refetchOnWindowFocus: false,
-      // Don't refetch on reconnect unless data is actually stale
+      // Re-fetch data whenever user switches back to portfolio tab from admin or other window
+      refetchOnWindowFocus: true,
+      // Re-fetch on reconnect when internet reconnects
       refetchOnReconnect: 'always',
-      // Keep unused cached data for 1 hour before garbage collecting
+      // Keep unused cached data for 1 hour in memory for instant navigation without skeleton flash
       gcTime: 60 * 60 * 1000,
-      // Default stale time — 30 seconds allows instant page-to-page navigation while staying reactive
-      staleTime: 30 * 1000,
-      // Retry once on failure, not the default 3 times
+      // Default stale time is 0 so background revalidation always fetches freshest data
+      staleTime: 0,
+      // Retry once on failure
       retry: 1,
       retryDelay: 1000,
     },

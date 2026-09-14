@@ -14,9 +14,9 @@ export default function PublicLayout() {
   const qc = useQueryClient();
 
   useEffect(() => {
-    qc.prefetchQuery({ queryKey: ['profile'], queryFn: () => profileApi.get(), staleTime: 5 * 60 * 1000 });
-    qc.prefetchQuery({ queryKey: ['projects', { featured: true, limit: 6 }], queryFn: () => projectsApi.getAll({ featured: true, limit: 6 }), staleTime: 30 * 1000 });
-    qc.prefetchQuery({ queryKey: ['projects', { limit: 6 }], queryFn: () => projectsApi.getAll({ limit: 6 }), staleTime: 30 * 1000 });
+    qc.prefetchQuery({ queryKey: ['profile'], queryFn: () => profileApi.get(), staleTime: 0 });
+    qc.prefetchQuery({ queryKey: ['projects', { featured: true, limit: 6 }], queryFn: () => projectsApi.getAll({ featured: true, limit: 6 }), staleTime: 0 });
+    qc.prefetchQuery({ queryKey: ['projects', { limit: 6 }], queryFn: () => projectsApi.getAll({ limit: 6 }), staleTime: 0 });
   }, [qc]);
 
   return (

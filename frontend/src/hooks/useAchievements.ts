@@ -10,7 +10,7 @@ export const useAchievements = (params: GetAchievementsParams = {}) =>
   useQuery({
     queryKey: [ACH_KEY, params],
     queryFn: () => achievementsApi.getAll(params),
-    staleTime: 5 * 60 * 1000,
+    staleTime: 0,
   });
 
 export const useCreateAchievement = () => {

@@ -17,6 +17,7 @@ export const useStats = () =>
       message: 'Cached',
       data: getCached('portfolio_stats', INITIAL_STATS),
     }),
-    staleTime: 5 * 60 * 1000,
+    initialDataUpdatedAt: 0,
+    staleTime: 0,
   });
 

@@ -10,7 +10,7 @@ export const useCertificates = (params: GetCertificatesParams = {}) =>
   useQuery({
     queryKey: [CERTS_KEY, params],
     queryFn: () => certificatesApi.getAll(params),
-    staleTime: 5 * 60 * 1000,
+    staleTime: 0,
   });
 
 export const useCertificate = (id: string) =>

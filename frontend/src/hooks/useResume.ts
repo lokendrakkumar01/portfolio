@@ -2,12 +2,12 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { resumeApi } from '../api/resume.api';
 import { getErrorMessage } from '../api/client';
-import { INITIAL_RESUME, getCached, setCached } from '../data/initialPortfolioData';
+import { INITIAL_RESUME, getCached, setCached, removeCached } from '../data/initialPortfolioData';
 
 export const RESUME_KEY = 'resume';
 
 export const useResume = () =>
-  useQuery({ queryKey: [RESUME_KEY], queryFn: resumeApi.getAll, staleTime: 5 * 60 * 1000 });
+  useQuery({ queryKey: [RESUME_KEY], queryFn: resumeApi.getAll, staleTime: 0 });
 
 export const useCurrentResume = () =>
   useQuery({
@@ -22,7 +22,8 @@ export const useCurrentResume = () =>
       message: 'Cached',
       data: getCached('portfolio_resume_current', INITIAL_RESUME),
     }),
-    staleTime: 5 * 60 * 1000,
+    initialDataUpdatedAt: 0,
+    staleTime: 0,
   });
 
 export const useUploadResume = () => {
@@ -30,6 +31,7 @@ export const useUploadResume = () => {
   return useMutation({
     mutationFn: resumeApi.upload,
     onSuccess: () => {
+      removeCached('portfolio_resume_current');
       qc.invalidateQueries({ queryKey: [RESUME_KEY] });
       toast.success('Resume uploaded');
     },
@@ -42,6 +44,7 @@ export const useSetCurrentResume = () => {
   return useMutation({
     mutationFn: resumeApi.setCurrent,
     onSuccess: () => {
+      removeCached('portfolio_resume_current');
       qc.invalidateQueries({ queryKey: [RESUME_KEY] });
       toast.success('Set as current resume');
     },
@@ -54,6 +57,7 @@ export const useDeleteResume = () => {
   return useMutation({
     mutationFn: resumeApi.delete,
     onSuccess: () => {
+      removeCached('portfolio_resume_current');
       qc.invalidateQueries({ queryKey: [RESUME_KEY] });
       toast.success('Resume deleted');
     },

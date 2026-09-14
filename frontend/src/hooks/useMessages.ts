@@ -10,14 +10,17 @@ export const useMessages = (params: { page?: number; limit?: number; status?: Me
   useQuery({
     queryKey: [MSGS_KEY, params],
     queryFn: () => messagesApi.getAll(params),
-    staleTime: 60 * 1000,
+    staleTime: 0,
   });
 
 export const useUpdateMessageStatus = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ id, status }: { id: string; status: MessageStatus }) => messagesApi.updateStatus(id, status),
-    onSuccess: () => qc.invalidateQueries({ queryKey: [MSGS_KEY] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: [MSGS_KEY] });
+      qc.invalidateQueries({ queryKey: ['stats'] });
+    },
     onError: (err) => toast.error(getErrorMessage(err)),
   });
 };
@@ -26,7 +29,11 @@ export const useDeleteMessage = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: messagesApi.delete,
-    onSuccess: () => { qc.invalidateQueries({ queryKey: [MSGS_KEY] }); toast.success('Message deleted'); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: [MSGS_KEY] });
+      qc.invalidateQueries({ queryKey: ['stats'] });
+      toast.success('Message deleted');
+    },
     onError: (err) => toast.error(getErrorMessage(err)),
   });
 };

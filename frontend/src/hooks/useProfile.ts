@@ -19,7 +19,8 @@ export const useProfile = () =>
       message: 'Cached',
       data: getCached('portfolio_profile', INITIAL_PROFILE),
     }),
-    staleTime: 5 * 60 * 1000,
+    initialDataUpdatedAt: 0,
+    staleTime: 0,
   });
 
 export const useUpdateProfile = () => {
@@ -30,6 +31,7 @@ export const useUpdateProfile = () => {
       if (res?.data) setCached('portfolio_profile', res.data);
       qc.setQueryData(PROFILE_KEY, res);
       qc.invalidateQueries({ queryKey: PROFILE_KEY });
+      qc.invalidateQueries({ queryKey: ['stats'] });
       toast.success('Profile updated successfully');
     },
     onError: (err) => toast.error(getErrorMessage(err)),
@@ -44,6 +46,7 @@ export const useUploadProfileImage = () => {
       if (res?.data) setCached('portfolio_profile', res.data);
       qc.setQueryData(PROFILE_KEY, res);
       qc.invalidateQueries({ queryKey: PROFILE_KEY });
+      qc.invalidateQueries({ queryKey: ['stats'] });
       toast.success('Profile image uploaded successfully');
     },
     onError: (err) => toast.error(getErrorMessage(err)),

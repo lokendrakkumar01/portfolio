@@ -10,7 +10,7 @@ export const useGallery = (params: GetGalleryParams = {}) =>
   useQuery({
     queryKey: [GALLERY_KEY, params],
     queryFn: () => galleryApi.getAll(params),
-    staleTime: 2 * 60 * 1000, // 2 minutes stale time for reactive updates
+    staleTime: 0,
   });
 
 export const useDeleteGalleryItem = () => {
@@ -19,6 +19,7 @@ export const useDeleteGalleryItem = () => {
     mutationFn: galleryApi.delete,
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: [GALLERY_KEY] });
+      qc.invalidateQueries({ queryKey: ['stats'] });
       toast.success('Image deleted successfully');
     },
     onError: (err) => toast.error(getErrorMessage(err)),
@@ -57,6 +58,7 @@ export const useUpdateGalleryItem = () => {
     },
     onSettled: () => {
       qc.invalidateQueries({ queryKey: [GALLERY_KEY] });
+      qc.invalidateQueries({ queryKey: ['stats'] });
     },
   });
 };
@@ -67,6 +69,7 @@ export const useCreateGalleryItem = () => {
     mutationFn: ({ data, file }: { data: Partial<GalleryItem>; file?: File }) => galleryApi.create(data, file),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: [GALLERY_KEY] });
+      qc.invalidateQueries({ queryKey: ['stats'] });
       toast.success('Gallery item created successfully');
     },
     onError: (err) => toast.error(getErrorMessage(err)),
@@ -80,6 +83,7 @@ export const useBulkUploadGallery = () => {
       galleryApi.bulkUpload(files, category),
     onSuccess: (res) => {
       qc.invalidateQueries({ queryKey: [GALLERY_KEY] });
+      qc.invalidateQueries({ queryKey: ['stats'] });
       toast.success(`${res.data?.length ?? 'Images'} uploaded successfully`);
     },
     onError: (err) => toast.error(getErrorMessage(err)),
