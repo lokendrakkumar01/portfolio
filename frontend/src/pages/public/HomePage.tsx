@@ -10,7 +10,7 @@ import { useProjects } from '../../hooks/useProjects';
 import { useCertificates } from '../../hooks/useCertificates';
 import { useAchievements } from '../../hooks/useAchievements';
 import { useGallery } from '../../hooks/useGallery';
-import { VideoPlayer, getYouTubeThumbnail } from '../../components/common/VideoPlayer';
+import { VideoPlayer, getVideoThumbnail, isVideoUrl } from '../../components/common/VideoPlayer';
 import { SEO } from '../../components/common/SEO';
 import { SectionHeading } from '../../components/common/SectionHeading';
 import { Button } from '../../components/ui/Button';
@@ -647,6 +647,7 @@ function GallerySection() {
   const { data, isLoading } = useGallery({ limit: 16, published: 'true' });
   const items = data?.data ?? [];
   const [activeItem, setActiveItem] = useState<GalleryItem | null>(null);
+  const [brokenMedia, setBrokenMedia] = useState<Record<string, boolean>>({});
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const handleScroll = (direction: 'left' | 'right') => {
@@ -699,7 +700,9 @@ function GallerySection() {
               className="flex gap-4 overflow-x-auto scrollbar-none py-2 px-1 snap-x snap-mandatory scroll-smooth"
             >
               {items.map((img, i) => {
-                const isVideo = img.mediaType === 'video' || img.imageUrl.includes('.mp4');
+                const isVideo = img.mediaType === 'video' || isVideoUrl(img.imageUrl);
+                const videoThumbnail = isVideo ? getVideoThumbnail(img.imageUrl) : null;
+                const isBroken = brokenMedia[img._id];
 
                 return (
                   <motion.button
@@ -715,10 +718,8 @@ function GallerySection() {
                   >
                     {isVideo ? (
                       <div className="w-full h-full bg-black relative flex items-center justify-center">
-                        {getYouTubeThumbnail(img.imageUrl) ? (
-                          <img src={getYouTubeThumbnail(img.imageUrl)!} alt={img.title} className="w-full h-full object-cover" />
-                        ) : img.imageUrl.includes('.mp4') || img.imageUrl.includes('/video/') ? (
-                          <video src={img.imageUrl} className="w-full h-full object-cover" muted />
+                        {videoThumbnail && !isBroken ? (
+                          <img src={videoThumbnail} alt={img.title} loading={i < 4 ? 'eager' : 'lazy'} decoding="async" onError={() => setBrokenMedia((prev) => ({ ...prev, [img._id]: true }))} className="w-full h-full object-cover" />
                         ) : (
                           <div className="w-full h-full flex flex-col items-center justify-center bg-card p-3 text-center">
                             <Film className="w-8 h-8 text-primary mb-1 animate-bounce" />
@@ -730,14 +731,20 @@ function GallerySection() {
                           </div>
                         </div>
                       </div>
-                    ) : (
+                    ) : !isBroken ? (
                       <img
-                        src={img.imageUrl}
+                        src={optimizeCloudinaryUrl(img.imageUrl, 480)}
                         alt={img.title}
-                        loading="lazy"
+                        loading={i < 4 ? 'eager' : 'lazy'}
                         decoding="async"
+                        onError={() => setBrokenMedia((prev) => ({ ...prev, [img._id]: true }))}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
                       />
+                    ) : (
+                      <div className="w-full h-full flex flex-col items-center justify-center bg-card text-muted p-4 text-center">
+                        <ImageIcon className="w-10 h-10 opacity-40 mb-2" />
+                        <span className="text-xs font-bold">Media unavailable</span>
+                      </div>
                     )}
 
                     {/* Gradient Overlay */}

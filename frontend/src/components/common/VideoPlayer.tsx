@@ -31,6 +31,28 @@ export const getVimeoEmbedUrl = (url: string): string | null => {
   return match ? `https://player.vimeo.com/video/${match[1]}` : null;
 };
 
+/** Returns a lightweight poster for common hosted video URLs. */
+export const getVideoThumbnail = (url: string): string | null => {
+  const youtubeThumbnail = getYouTubeThumbnail(url);
+  if (youtubeThumbnail) return youtubeThumbnail;
+
+  const cloudinaryMatch = url.match(/^(https?:\/\/res\.cloudinary\.com\/[^/]+)\/video\/upload\/(.+)$/i);
+  if (!cloudinaryMatch) return null;
+
+  const assetPath = cloudinaryMatch[2]
+    .split('?')[0]
+    .replace(/\.(mp4|webm|mov|m4v|3gp|avi|mkv)$/i, '');
+  return `${cloudinaryMatch[1]}/video/upload/so_0/${assetPath}.jpg`;
+};
+
+export const isVideoUrl = (url: string): boolean =>
+  Boolean(
+    getYouTubeEmbedUrl(url) ||
+      getVimeoEmbedUrl(url) ||
+      /\.(mp4|webm|mov|m4v|3gp|avi|mkv)(?:$|[?#])/i.test(url) ||
+      /\/video\/upload\//i.test(url)
+  );
+
 export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   url,
   title = 'Video Player',

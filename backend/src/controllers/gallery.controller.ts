@@ -7,7 +7,7 @@ import { getStorageProvider } from '../services/storage/storage.factory';
 import { isUserAdminRequest } from '../utils/adminCheck';
 
 export const getGalleries = asyncHandler(async (req: Request, res: Response) => {
-  const { category, featured, published } = req.query as Record<string, string>;
+  const { category, featured, published, mediaType } = req.query as Record<string, string>;
   const filter: any = {};
 
   const isAdmin = isUserAdminRequest(req);
@@ -29,6 +29,7 @@ export const getGalleries = asyncHandler(async (req: Request, res: Response) => 
     filter.category = category.trim();
   }
   if (featured === 'true') filter.featured = true;
+  if (mediaType === 'image' || mediaType === 'video') filter.mediaType = mediaType;
 
   const { page, limit, skip } = getPaginationParams(req.query as Record<string, string>);
   const [items, total] = await Promise.all([
@@ -39,7 +40,9 @@ export const getGalleries = asyncHandler(async (req: Request, res: Response) => 
 });
 
 export const getGallery = asyncHandler(async (req: Request, res: Response) => {
-  const item = await Gallery.findById(req.params.id);
+  const filter: any = { _id: req.params.id };
+  if (!isUserAdminRequest(req)) filter.published = { $ne: false };
+  const item = await Gallery.findOne(filter);
   if (!item) return sendError(res, 'Gallery item not found', 404);
   sendSuccess(res, item);
 });

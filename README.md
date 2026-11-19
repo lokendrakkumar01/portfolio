@@ -42,10 +42,10 @@ Both backend and frontend servers are currently **RUNNING LOCALLY**:
 - **Backend API**: [http://localhost:5000/api/v1](http://localhost:5000/api/v1)
 - **API Health Check**: [http://localhost:5000/health](http://localhost:5000/health)
 
-### Admin Credentials
+### Admin Setup
 - **URL**: [http://localhost:5173/admin/login](http://localhost:5173/admin/login)
-- **Email**: `admin@portfolio.dev`
-- **Password**: `Admin@123`
+- Set `ADMIN_EMAIL` and a unique `ADMIN_PASSWORD` in `backend/.env` before running the database seed command.
+- The seed command clears demo content in its collections; set `ALLOW_DESTRUCTIVE_SEED=true` only when you intend to reset those collections.
 
 ---
 

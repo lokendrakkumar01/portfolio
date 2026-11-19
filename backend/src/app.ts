@@ -24,16 +24,12 @@ app.use(helmet({
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);
-    if (
-      origin === config.CLIENT_URL ||
-      origin.includes('localhost') ||
-      origin.endsWith('.onrender.com') ||
-      origin.endsWith('.vercel.app') ||
-      origin.endsWith('.netlify.app')
-    ) {
+    const allowedOrigins = config.CLIENT_URL.split(',').map((value) => value.trim()).filter(Boolean);
+    if (config.NODE_ENV !== 'production') allowedOrigins.push('http://localhost:5173', 'http://127.0.0.1:5173');
+    if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
-    return callback(null, true);
+    return callback(new Error('Origin is not allowed by CORS'));
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],

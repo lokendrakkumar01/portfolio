@@ -45,11 +45,10 @@ export default function LoginPage() {
             <p className="text-muted text-sm mt-1">Sign in to your portfolio dashboard</p>
           </div>
           <form onSubmit={handleSubmit(onSubmit)} className="bg-card border border-border rounded-2xl p-6 space-y-4 shadow-xl">
-            <Input label="Email" type="email" placeholder="admin@portfolio.dev" error={errors.email?.message} {...register('email')} />
+            <Input label="Email" type="email" placeholder="name@example.com" error={errors.email?.message} {...register('email')} />
             <Input label="Password" type="password" placeholder="••••••••" error={errors.password?.message} {...register('password')} />
             <Button type="submit" loading={isSubmitting} className="w-full" size="lg">Sign In</Button>
           </form>
-          <p className="text-center text-xs text-muted mt-4">Default: admin@portfolio.dev / Admin@123</p>
         </div>
       </div>
     </>

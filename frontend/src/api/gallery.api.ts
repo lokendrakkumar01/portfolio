@@ -6,6 +6,7 @@ export interface GetGalleryParams {
   limit?: number;
   category?: string;
   featured?: boolean;
+  mediaType?: 'image' | 'video';
   published?: 'true' | 'false' | 'all';
 }
 

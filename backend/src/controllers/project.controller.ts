@@ -57,7 +57,9 @@ export const getProjects = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const getProject = asyncHandler(async (req: Request, res: Response) => {
-  const item = await Project.findById(req.params.id).lean();
+  const filter: any = { _id: req.params.id };
+  if (!isUserAdminRequest(req)) filter.published = { $ne: false };
+  const item = await Project.findOne(filter).lean();
   if (!item) return sendError(res, 'Project not found', 404);
   sendSuccess(res, item);
 });

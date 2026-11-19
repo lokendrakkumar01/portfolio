@@ -20,7 +20,7 @@ const siteSettingsSchema = new Schema<ISiteSettings>({
   siteDescription: { type: String, default: '' },
   favicon: { type: String },
   logo: { type: String },
-  primaryEmail: { type: String, required: true, default: 'admin@portfolio.dev' },
+  primaryEmail: { type: String, required: true, default: '' },
   contactEnabled: { type: Boolean, default: true },
   maintenanceMode: { type: Boolean, default: false },
   socialPreviewImage: { type: String },

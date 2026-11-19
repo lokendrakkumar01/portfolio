@@ -7,7 +7,8 @@ import { EmptyState } from '../../components/ui/EmptyState';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { Pagination } from '../../components/ui/Pagination';
 import { useGallery } from '../../hooks/useGallery';
-import { VideoPlayer, getYouTubeThumbnail } from '../../components/common/VideoPlayer';
+import { VideoPlayer, getVideoThumbnail, isVideoUrl } from '../../components/common/VideoPlayer';
+import { optimizeCloudinaryUrl } from '../../utils/formatters';
 import type { GalleryCategory, GalleryItem } from '../../types';
 
 const CATEGORIES: { value: GalleryCategory; label: string }[] = [
@@ -32,13 +33,11 @@ export default function GalleryPage() {
     page,
     limit: 16,
     category: category || undefined,
+    mediaType: mediaTypeFilter === 'all' ? undefined : mediaTypeFilter,
     published: 'true',
   });
 
-  const rawItems = (data?.data ?? []).filter((i) => i.published !== false);
-  const items = mediaTypeFilter === 'all'
-    ? rawItems
-    : rawItems.filter((i) => (mediaTypeFilter === 'video' ? i.mediaType === 'video' || i.imageUrl.includes('.mp4') : i.mediaType !== 'video'));
+  const items = (data?.data ?? []).filter((i) => i.published !== false);
 
   const pagination = data?.pagination;
 
@@ -78,7 +77,7 @@ export default function GalleryPage() {
         <div className="flex justify-center mb-6">
           <div className="inline-flex p-1 bg-card/80 border border-border/80 rounded-2xl shadow-inner">
             <button
-              onClick={() => setMediaTypeFilter('all')}
+              onClick={() => { setMediaTypeFilter('all'); setPage(1); }}
               className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
                 mediaTypeFilter === 'all'
                   ? 'bg-primary text-white shadow-md'
@@ -88,7 +87,7 @@ export default function GalleryPage() {
               All Media
             </button>
             <button
-              onClick={() => setMediaTypeFilter('image')}
+              onClick={() => { setMediaTypeFilter('image'); setPage(1); }}
               className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 ${
                 mediaTypeFilter === 'image'
                   ? 'bg-primary text-white shadow-md'
@@ -99,7 +98,7 @@ export default function GalleryPage() {
               Photos Only
             </button>
             <button
-              onClick={() => setMediaTypeFilter('video')}
+              onClick={() => { setMediaTypeFilter('video'); setPage(1); }}
               className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 ${
                 mediaTypeFilter === 'video'
                   ? 'bg-primary text-white shadow-md'
@@ -167,7 +166,7 @@ export default function GalleryPage() {
             {/* Live Gallery Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4 mb-10">
               {items.map((img, i) => {
-                const isVideo = img.mediaType === 'video' || img.imageUrl.includes('.mp4');
+                const isVideo = img.mediaType === 'video' || isVideoUrl(img.imageUrl);
                 const isBroken = brokenImages[img._id];
 
                 const spanClass = img.gridSpan && img.gridSpan > 1
@@ -199,10 +198,20 @@ export default function GalleryPage() {
                   >
                     {isVideo ? (
                       <div className="w-full h-full bg-black relative flex items-center justify-center">
-                        {getYouTubeThumbnail(img.imageUrl) ? (
-                          <img src={getYouTubeThumbnail(img.imageUrl)!} alt={img.title} className="w-full h-full object-cover" />
-                        ) : img.imageUrl.includes('.mp4') || img.imageUrl.includes('/video/') ? (
-                          <video src={img.imageUrl} className="w-full h-full object-cover" muted />
+                        {getVideoThumbnail(img.imageUrl) ? (
+                          <img
+                            src={getVideoThumbnail(img.imageUrl)!}
+                            alt={img.title}
+                            loading={i < 4 ? 'eager' : 'lazy'}
+                            decoding="async"
+                            onError={() => handleImageError(img._id)}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : isBroken ? (
+                          <div className="w-full h-full flex flex-col items-center justify-center bg-card p-4 text-center">
+                            <Film className="w-10 h-10 text-primary mb-2" />
+                            <span className="text-xs font-bold text-text line-clamp-1">{img.title}</span>
+                          </div>
                         ) : (
                           <div className="w-full h-full flex flex-col items-center justify-center bg-card p-4 text-center">
                             <Film className="w-10 h-10 text-primary mb-2 animate-bounce" />
@@ -217,9 +226,9 @@ export default function GalleryPage() {
                       </div>
                     ) : !isBroken ? (
                       <img
-                        src={img.imageUrl}
+                        src={optimizeCloudinaryUrl(img.imageUrl, 640)}
                         alt={img.title}
-                        loading="lazy"
+                        loading={i < 4 ? 'eager' : 'lazy'}
                         decoding="async"
                         onError={() => handleImageError(img._id)}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"

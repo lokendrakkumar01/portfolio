@@ -2,7 +2,7 @@ import { z } from 'zod';
 import dotenv from 'dotenv';
 dotenv.config();
 
-const trimString = z.string().transform((val) => val.trim());
+const trimString = z.string().transform((val) => val.trim()).refine((val) => val.length > 0, 'Required');
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
@@ -25,12 +25,7 @@ const parseEnv = (): Env => {
   const result = envSchema.safeParse(process.env);
   if (!result.success) {
     console.error('❌ Invalid environment variables:', JSON.stringify(result.error.format(), null, 2));
-    return envSchema.parse({
-      ...process.env,
-      JWT_SECRET: (process.env.JWT_SECRET || 'default_jwt_secret_fallback_key_2024').trim(),
-      CLIENT_URL: (process.env.CLIENT_URL || 'http://localhost:5173').trim(),
-      SERVER_URL: (process.env.SERVER_URL || 'http://localhost:5000').trim(),
-    });
+    throw new Error('Invalid environment configuration. Set all required variables before starting the server.');
   }
   return result.data;
 };
