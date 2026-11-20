@@ -48,7 +48,7 @@ export function SkillCard({ skill, index = 0, compact = false }: SkillCardProps)
       viewport={{ once: true, amount: 0.15 }}
       whileHover={reduceMotion ? undefined : { y: -5 }}
       transition={{ duration: reduceMotion ? 0 : 0.35, delay: reduceMotion ? 0 : Math.min(index % 8, 7) * 0.045 }}
-      className={`skill-card group relative flex min-w-0 flex-col justify-between overflow-hidden rounded-2xl bg-card/90 shadow-sm backdrop-blur-xl transition-shadow hover:shadow-xl hover:shadow-primary/10 ${compact ? 'p-4' : 'p-4 sm:p-5'}`}
+      className={`skill-card group relative flex min-w-0 flex-col justify-between overflow-hidden rounded-2xl bg-card/90 shadow-sm backdrop-blur-xl transition-shadow hover:shadow-xl hover:shadow-primary/10 ${compact ? 'p-3 sm:p-4' : 'p-3 sm:p-5'}`}
     >
       <div className="pointer-events-none absolute -right-10 -top-12 h-32 w-32 rounded-full bg-primary/10 blur-3xl transition-colors group-hover:bg-accent/20" />
 
@@ -57,10 +57,10 @@ export function SkillCard({ skill, index = 0, compact = false }: SkillCardProps)
           {icon}
         </div>
         <div className="min-w-0 flex-1">
-          <h3 className="truncate text-sm font-extrabold text-text transition-colors group-hover:text-primary sm:text-base" title={skill.name}>
+          <h3 className="line-clamp-2 min-h-5 break-words text-sm font-extrabold leading-tight text-text transition-colors group-hover:text-primary [overflow-wrap:anywhere] sm:text-base" title={skill.name}>
             {skill.name}
           </h3>
-          <span className={`mt-1 inline-flex max-w-full rounded-full border px-2 py-0.5 text-[9px] font-black uppercase tracking-wider sm:text-[10px] ${LEVEL_STYLES[skill.proficiency] ?? LEVEL_STYLES[1]}`}>
+          <span className={`mt-1 inline-flex w-fit min-w-0 max-w-full whitespace-normal break-words rounded-full border px-1.5 py-1 text-center text-[8px] font-black uppercase leading-tight tracking-normal sm:px-2 sm:py-0.5 sm:text-[10px] sm:tracking-wider ${LEVEL_STYLES[skill.proficiency] ?? LEVEL_STYLES[1]}`}>
             {getProficiencyLabel(skill.proficiency)}
           </span>
         </div>
