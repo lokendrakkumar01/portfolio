@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
 import { createPortal } from 'react-dom';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import {
-  Menu, X, Sun, Moon, Home, User, Zap, FolderCode,
+  Menu, X, Sun, Moon, Home, User, Zap, FolderCode, Images,
   Award, Trophy, FileText, Mail, ArrowRight
 } from 'lucide-react';
 import { useSettings } from '../../hooks/useSettings';
@@ -13,11 +13,14 @@ import { useSocialLinks } from '../../hooks/useSocialLinks';
 import { useProfile } from '../../hooks/useProfile';
 import { getSocialIcon } from '../../utils/formatters';
 
+const MotionLink = motion(Link);
+
 const navLinks = [
   { to: '/', label: 'Home', icon: Home, end: true },
   { to: '/about', label: 'About', icon: User },
   { to: '/skills', label: 'Skills', icon: Zap },
   { to: '/projects', label: 'Projects', icon: FolderCode },
+  { to: '/gallery', label: 'Gallery', icon: Images },
   { to: '/certificates', label: 'Certificates', icon: Award },
   { to: '/achievements', label: 'Achievements', icon: Trophy },
   { to: '/resume', label: 'Resume', icon: FileText },
@@ -35,6 +38,7 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
   const scrollY = useScrollPosition();
   const scrolled = scrollY > 20;
   const location = useLocation();
+  const reduceMotion = useReducedMotion();
 
   const { data: settingsData } = useSettings();
   const { data: socialData } = useSocialLinks();
@@ -56,7 +60,7 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
 
   // Close mobile menu on desktop resize
   useEffect(() => {
-    const handler = () => { if (window.innerWidth >= 1024) setMobileOpen(false); };
+    const handler = () => { if (window.innerWidth >= 1280) setMobileOpen(false); };
     window.addEventListener('resize', handler);
     return () => window.removeEventListener('resize', handler);
   }, []);
@@ -94,12 +98,12 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden',
-        transition: 'opacity 0.15s ease, visibility 0.15s ease',
+        transition: reduceMotion ? 'none' : 'opacity 0.15s ease, visibility 0.15s ease',
         opacity: mobileOpen ? 1 : 0,
         visibility: mobileOpen ? 'visible' : 'hidden',
         pointerEvents: mobileOpen ? 'auto' : 'none',
       }}
-      className="bg-surface lg:hidden"
+      className="bg-surface xl:hidden"
     >
       {/* ── Header ── */}
       <div
@@ -154,19 +158,24 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
               ? location.pathname === to
               : location.pathname === to || location.pathname.startsWith(to + '/');
           return (
-            <Link
+            <MotionLink
               key={to}
               to={to}
               onClick={closeMenu}
-              className={`flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-base font-semibold transition-all ${
+              whileHover={reduceMotion ? undefined : { x: 4 }}
+              whileTap={reduceMotion ? undefined : { scale: 0.985 }}
+              transition={{ type: 'spring', stiffness: 380, damping: 28 }}
+              className={`group relative flex items-center gap-3.5 overflow-hidden rounded-2xl border px-4 py-3.5 text-base font-semibold transition-all ${
                 isActive
-                  ? 'bg-primary text-white shadow-md shadow-primary/25'
-                  : 'text-muted hover:text-text hover:bg-card'
+                  ? 'border-primary/30 text-white shadow-lg shadow-primary/20'
+                  : 'border-transparent text-muted hover:border-border/70 hover:bg-card/70 hover:text-text'
               }`}
             >
-              <Icon className="w-5 h-5 flex-shrink-0" />
-              <span>{label}</span>
-            </Link>
+              {isActive && <motion.span layoutId="mobile-active-nav" className="absolute inset-0 rounded-[inherit] bg-gradient-to-r from-primary to-accent" transition={{ type: 'spring', stiffness: 360, damping: 32 }} />}
+              <Icon className="relative z-10 h-5 w-5 flex-shrink-0" />
+              <span className="relative z-10">{label}</span>
+              {isActive && <span className="relative z-10 ml-auto h-1.5 w-1.5 rounded-full bg-white shadow-[0_0_12px_rgba(255,255,255,.9)]" />}
+            </MotionLink>
           );
         })}
       </nav>
@@ -238,17 +247,18 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
           </Link>
 
           {/* Desktop Nav */}
-          <div className="hidden lg:flex items-center gap-8">
+          <div className="hidden xl:flex items-center gap-3 xl:gap-5">
             {navLinks.map((l) => (
-              <NavLink key={l.to} to={l.to} end={l.end} className={linkCls}>
+              <NavLink key={l.to} to={l.to} end={l.end} className={({ isActive }) => `${linkCls({ isActive })} px-1 text-[11px] xl:text-xs`}>
                 {({ isActive }) => (
                   <>
                     <span>{l.label}</span>
                     {isActive && (
                       <motion.div
                         layoutId="activeNavIndicator"
+                        layout={reduceMotion ? false : undefined}
                         className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full"
-                        transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                        transition={{ type: 'spring', stiffness: 380, damping: 30, duration: reduceMotion ? 0 : undefined }}
                       />
                     )}
                   </>
@@ -261,18 +271,18 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
           <div className="flex items-center gap-2">
             <button
               onClick={toggleTheme}
-              className="p-2.5 rounded-xl hover:bg-card border border-transparent hover:border-border transition-all text-muted hover:text-text"
+              className="group rounded-xl border border-transparent p-2.5 text-muted transition-all hover:border-border hover:bg-card hover:text-text"
               aria-label="Toggle theme"
             >
               {theme === 'dark'
-                ? <Sun className="w-5 h-5 text-yellow-400" />
-                : <Moon className="w-5 h-5 text-slate-700" />}
+              ? <Sun className="h-5 w-5 text-yellow-400 transition-transform duration-500 group-hover:rotate-45" />
+              : <Moon className="h-5 w-5 text-slate-700 transition-transform duration-500 group-hover:-rotate-12" />}
             </button>
 
             {/* Mobile Hamburger */}
             <button
               onClick={() => setMobileOpen(true)}
-              className="lg:hidden p-2.5 rounded-xl bg-card border border-border hover:border-primary/50 text-text transition-all active:scale-95 shadow-sm"
+              className="xl:hidden rounded-xl border border-border bg-card p-2.5 text-text shadow-sm transition-all hover:border-primary/50 hover:text-primary active:scale-95"
               aria-label="Open menu"
             >
               <Menu className="w-5 h-5" />

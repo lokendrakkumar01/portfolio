@@ -38,7 +38,7 @@ export default function ResumePage() {
         ) : (
           <div className="space-y-6">
             {/* Resume Info Header Card */}
-            <div className="bg-card/80 backdrop-blur-md border border-border/80 rounded-3xl p-5 sm:p-6 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="portfolio-panel rounded-3xl p-5 sm:p-6 backdrop-blur-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 sm:w-14 sm:h-14 bg-primary/10 border border-primary/20 rounded-2xl flex items-center justify-center text-primary flex-shrink-0">
                   <FileText className="w-6 h-6 sm:w-7 sm:h-7 text-primary" />
@@ -69,10 +69,10 @@ export default function ResumePage() {
 
             {/* Embedded PDF Viewer Container */}
             <div
-              className={`bg-card border border-border shadow-2xl transition-all duration-300 flex flex-col ${
+              className={`bg-card shadow-2xl transition-all duration-300 flex flex-col ${
                 isFullscreen
                   ? 'fixed inset-0 z-[100] rounded-none border-none bg-surface'
-                  : 'relative rounded-3xl overflow-hidden min-h-[75vh]'
+                  : 'portfolio-panel relative rounded-3xl overflow-hidden min-h-[75vh]'
               }`}
             >
               {/* Viewer Control Bar */}

@@ -574,6 +574,8 @@ function CertificatesSection() {
 function GallerySection() {
   const { data, isLoading } = useGallery({ limit: 16, published: 'true' });
   const items = data?.data ?? [];
+  const photoCount = items.filter((item) => item.mediaType !== 'video' && !isVideoUrl(item.imageUrl)).length;
+  const videoCount = items.length - photoCount;
   const [activeItem, setActiveItem] = useState<GalleryItem | null>(null);
   const [brokenMedia, setBrokenMedia] = useState<Record<string, boolean>>({});
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -595,6 +597,14 @@ function GallerySection() {
           subtitle="Event photos, hackathons, and video highlights from my journey"
           viewAllLink="/gallery"
         />
+
+        {!isLoading && items.length > 0 && (
+          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="mb-5 flex flex-wrap items-center gap-2 text-[10px] font-extrabold uppercase tracking-wider text-muted sm:text-xs" aria-live="polite">
+            <span className="rounded-full border border-border/70 bg-card/70 px-3 py-1.5">{items.length} moments</span>
+            <span className="rounded-full border border-primary/20 bg-primary/5 px-3 py-1.5 text-primary">{photoCount} photos</span>
+            <span className="rounded-full border border-accent/20 bg-accent/5 px-3 py-1.5 text-accent">{videoCount} videos</span>
+          </motion.div>
+        )}
 
         {isLoading ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">

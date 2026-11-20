@@ -62,7 +62,7 @@ export default function AboutPage() {
         </div>
 
         {/* Bio */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-16">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="portfolio-panel mb-16 rounded-3xl p-6 sm:p-8">
           <h2 className="text-xl font-semibold text-text mb-4">My Story</h2>
           {isLoading ? <div className="space-y-2"><Skeleton className="h-4 w-full" /><Skeleton className="h-4 w-5/6" /><Skeleton className="h-4 w-4/5" /></div> : (
             <p className="text-muted leading-relaxed whitespace-pre-line">{profile?.longBio ?? profile?.shortBio ?? 'Biography coming soon.'}</p>
@@ -75,7 +75,7 @@ export default function AboutPage() {
             <h2 className="text-xl font-semibold text-text mb-6">Work Experience</h2>
             <div className="space-y-4">
               {experiences.map((exp) => (
-                <div key={exp._id} className="bg-card border border-border rounded-xl p-5">
+                <div key={exp._id} className="portfolio-panel rounded-2xl p-5 sm:p-6">
                   <div className="flex flex-wrap justify-between gap-2 mb-2">
                     <div>
                       <h3 className="font-semibold text-text">{exp.position}</h3>
@@ -100,7 +100,7 @@ export default function AboutPage() {
             <h2 className="text-xl font-semibold text-text mb-6">Education</h2>
             <div className="space-y-4">
               {educations.map((edu) => (
-                <div key={edu._id} className="bg-card border border-border rounded-xl p-5">
+                <div key={edu._id} className="portfolio-panel rounded-2xl p-5 sm:p-6">
                   <div className="flex flex-wrap justify-between gap-2">
                     <div>
                       <h3 className="font-semibold text-text">{edu.degree} in {edu.field}</h3>

@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ExternalLink, Award, Calendar, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { ExternalLink, Award, Calendar, CheckCircle2, ShieldCheck, Search } from 'lucide-react';
 import { SEO } from '../../components/common/SEO';
+import { PortfolioFilterButton } from '../../components/common/PortfolioFilterButton';
 import { SectionHeading } from '../../components/common/SectionHeading';
 import { Badge } from '../../components/ui/Badge';
 import { EmptyState } from '../../components/ui/EmptyState';
@@ -14,7 +15,8 @@ import type { CertificateCategory } from '../../types';
 export default function CertificatesPage() {
   const [page, setPage] = useState(1);
   const [category, setCategory] = useState<CertificateCategory | ''>('');
-  const { data, isLoading } = useCertificates({ page, limit: 12, category: category || undefined });
+  const [q, setQ] = useState('');
+  const { data, isLoading } = useCertificates({ page, limit: 12, q: q || undefined, category: category || undefined });
   const certs = (data?.data ?? []).filter((c) => c.published !== false);
   const pagination = data?.pagination;
 
@@ -60,20 +62,21 @@ export default function CertificatesPage() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
         {/* Category Filters */}
-        <div className="flex gap-2 overflow-x-auto pb-2 justify-start sm:justify-center mb-12 scrollbar-none">
-          {categories.map((c) => (
-            <button
-              key={c.value}
-              onClick={() => { setCategory(c.value); setPage(1); }}
-              className={`flex-shrink-0 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-200 ${
-                category === c.value
-                  ? 'bg-primary text-white shadow-lg shadow-primary/25 scale-105'
-                  : 'bg-card/80 border border-border/80 text-muted hover:text-text hover:border-primary/40'
-              }`}
-            >
-              {c.label}
-            </button>
-          ))}
+        <div className="mb-8 space-y-4 rounded-3xl border border-border/70 bg-card/55 p-4 shadow-lg shadow-black/5 backdrop-blur-xl sm:mb-10 sm:p-5">
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" aria-hidden="true" />
+            <input value={q} onChange={(event) => { setQ(event.target.value); setPage(1); }} placeholder="Search certificates or issuers..." aria-label="Search certificates"
+              className="w-full rounded-2xl border border-border/80 bg-surface/80 py-3 pl-11 pr-4 text-sm text-text outline-none transition placeholder:text-muted/80 focus:border-primary/60 focus:ring-4 focus:ring-primary/10" />
+          </div>
+          <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap" aria-label="Filter certificates by category">
+            {categories.map(({ value, label }) => (
+              <PortfolioFilterButton key={value || 'all'} active={category === value} onClick={() => { setCategory(value); setPage(1); }} group="certificate-category" className="w-full sm:w-auto">{label}</PortfolioFilterButton>
+            ))}
+          </div>
+          <div className="flex items-center justify-between gap-3 border-t border-border/60 pt-3 text-xs text-muted" aria-live="polite">
+            <span>{pagination?.total ?? certs.length} {((pagination?.total ?? certs.length) === 1) ? 'certificate' : 'certificates'} found</span>
+            {(category || q) && <button type="button" onClick={() => { setCategory(''); setQ(''); setPage(1); }} className="rounded-full px-3 py-1.5 font-bold text-primary transition-colors hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">Clear filters</button>}
+          </div>
         </div>
 
         {isLoading ? (

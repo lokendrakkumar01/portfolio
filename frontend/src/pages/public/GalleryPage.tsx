@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Image as ImageIcon, ZoomIn, Film, Play, ExternalLink } from 'lucide-react';
 import { SEO } from '../../components/common/SEO';
+import { PortfolioFilterButton } from '../../components/common/PortfolioFilterButton';
 import { SectionHeading } from '../../components/common/SectionHeading';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { Skeleton } from '../../components/ui/Skeleton';
@@ -50,8 +51,10 @@ export default function GalleryPage() {
       <SEO title="Gallery & Videos" description="Photos, videos, event memories, and hackathon highlights from Lokendra Kumar's journey" />
 
       {/* Header Banner */}
-      <div className="relative py-20 px-4 sm:px-6 lg:px-8 bg-surface/30 border-b border-border/40 overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-full bg-primary/5 blur-[120px] rounded-full pointer-events-none" />
+      <div className="skills-hero relative isolate overflow-hidden border-b border-border/50 px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
+        <div className="skills-grid-pattern absolute inset-0 -z-10" aria-hidden="true" />
+        <div className="skills-orb skills-orb-one absolute -left-28 top-0 -z-10 h-72 w-72 rounded-full bg-primary/20 blur-3xl sm:h-96 sm:w-96" aria-hidden="true" />
+        <div className="skills-orb skills-orb-two absolute -right-24 bottom-0 -z-10 h-72 w-72 rounded-full bg-accent/15 blur-3xl sm:h-96 sm:w-96" aria-hidden="true" />
         <div className="relative max-w-5xl mx-auto text-center space-y-3">
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
@@ -72,77 +75,31 @@ export default function GalleryPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Media Type Filter (Photos / Videos / All) */}
-        <div className="flex justify-center mb-6">
-          <div className="inline-flex p-1 bg-card/80 border border-border/80 rounded-2xl shadow-inner">
-            <button
-              onClick={() => { setMediaTypeFilter('all'); setPage(1); }}
-              className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
-                mediaTypeFilter === 'all'
-                  ? 'bg-primary text-white shadow-md'
-                  : 'text-muted hover:text-text'
-              }`}
-            >
-              All Media
-            </button>
-            <button
-              onClick={() => { setMediaTypeFilter('image'); setPage(1); }}
-              className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 ${
-                mediaTypeFilter === 'image'
-                  ? 'bg-primary text-white shadow-md'
-                  : 'text-muted hover:text-text'
-              }`}
-            >
-              <ImageIcon className="w-3.5 h-3.5" />
-              Photos Only
-            </button>
-            <button
-              onClick={() => { setMediaTypeFilter('video'); setPage(1); }}
-              className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 ${
-                mediaTypeFilter === 'video'
-                  ? 'bg-primary text-white shadow-md'
-                  : 'text-muted hover:text-text'
-              }`}
-            >
-              <Film className="w-3.5 h-3.5" />
-              Videos Only
-            </button>
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
+        <div className="mb-8 space-y-5 rounded-3xl border border-border/70 bg-card/55 p-4 shadow-xl shadow-black/5 backdrop-blur-xl sm:mb-10 sm:p-5">
+          <div>
+            <p className="mb-2.5 text-[10px] font-black uppercase tracking-[0.16em] text-muted sm:text-xs">Choose your view</p>
+            <div className="grid grid-cols-3 gap-2" aria-label="Filter gallery media type">
+              <PortfolioFilterButton active={mediaTypeFilter === 'all'} onClick={() => { setMediaTypeFilter('all'); setPage(1); }} group="gallery-media" className="w-full px-2 sm:px-4">All media</PortfolioFilterButton>
+              <PortfolioFilterButton active={mediaTypeFilter === 'image'} onClick={() => { setMediaTypeFilter('image'); setPage(1); }} group="gallery-media" className="w-full px-2 sm:px-4"><ImageIcon className="h-4 w-4" /><span className="truncate">Photos</span></PortfolioFilterButton>
+              <PortfolioFilterButton active={mediaTypeFilter === 'video'} onClick={() => { setMediaTypeFilter('video'); setPage(1); }} group="gallery-media" className="w-full px-2 sm:px-4"><Film className="h-4 w-4" /><span className="truncate">Videos</span></PortfolioFilterButton>
+            </div>
           </div>
-        </div>
 
-        {/* Category Filter Tabs */}
-        <div className="flex gap-2 justify-start sm:justify-center overflow-x-auto pb-4 mb-10 scrollbar-none">
-          <button
-            onClick={() => {
-              setCategory('');
-              setPage(1);
-            }}
-            className={`flex-shrink-0 px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
-              !category
-                ? 'bg-primary text-white shadow-lg shadow-primary/25 scale-105'
-                : 'bg-card/80 border border-border/80 text-muted hover:text-text hover:border-primary/40'
-            }`}
-          >
-            All Categories
-          </button>
+          <div className="border-t border-border/60 pt-4">
+            <p className="mb-2.5 text-[10px] font-black uppercase tracking-[0.16em] text-muted sm:text-xs">Browse moments</p>
+            <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap" aria-label="Filter gallery by category">
+              <PortfolioFilterButton active={!category} onClick={() => { setCategory(''); setPage(1); }} group="gallery-category" className="w-full sm:w-auto">All categories</PortfolioFilterButton>
+              {CATEGORIES.map(({ value, label }) => (
+                <PortfolioFilterButton key={value} active={category === value} onClick={() => { setCategory(value); setPage(1); }} group="gallery-category" className="w-full sm:w-auto">{label}</PortfolioFilterButton>
+              ))}
+            </div>
+          </div>
 
-          {CATEGORIES.map((c) => (
-            <button
-              key={c.value}
-              onClick={() => {
-                setCategory(c.value);
-                setPage(1);
-              }}
-              className={`flex-shrink-0 px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
-                category === c.value
-                  ? 'bg-primary text-white shadow-lg shadow-primary/25 scale-105'
-                  : 'bg-card/80 border border-border/80 text-muted hover:text-text hover:border-primary/40'
-              }`}
-            >
-              {c.label}
-            </button>
-          ))}
+          <div className="flex items-center justify-between gap-3 border-t border-border/60 pt-3 text-xs text-muted" aria-live="polite">
+            <span>{pagination?.total ?? items.length} {((pagination?.total ?? items.length) === 1) ? 'moment' : 'moments'}{mediaTypeFilter === 'image' ? ' · photos' : mediaTypeFilter === 'video' ? ' · videos' : ''}</span>
+            {(category || mediaTypeFilter !== 'all') && <button type="button" onClick={() => { setCategory(''); setMediaTypeFilter('all'); setPage(1); }} className="rounded-full px-3 py-1.5 font-bold text-primary transition-colors hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">Reset filters</button>}
+          </div>
         </div>
 
         {/* Loading State */}

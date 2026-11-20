@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { Code2, Search, Sparkles } from 'lucide-react';
 import { SEO } from '../../components/common/SEO';
+import { PortfolioFilterButton } from '../../components/common/PortfolioFilterButton';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { CategoryIcon, SkillCard, SKILL_CATEGORY_LABELS } from '../../components/skills/SkillCard';
@@ -116,6 +117,11 @@ export default function SkillsPage() {
               />
             ))}
           </div>
+
+          <div className="mt-4 flex items-center justify-between gap-3 border-t border-border/60 pt-3 text-xs text-muted" aria-live="polite">
+            <span>{filteredSkills.length} of {skills.length} {skills.length === 1 ? 'skill' : 'skills'} shown</span>
+            {(activeCategory !== 'all' || search) && <button type="button" onClick={() => { setActiveCategory('all'); setSearch(''); }} className="rounded-full px-3 py-1.5 font-bold text-primary transition-colors hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">Reset</button>}
+          </div>
         </div>
 
         {isLoading ? (
@@ -189,20 +195,15 @@ export default function SkillsPage() {
 }
 
 function FilterButton({ active, onClick, label, count }: { active: boolean; onClick: () => void; label: string; count: number }) {
-  const reduceMotion = useReducedMotion();
   return (
-    <motion.button
-      type="button"
+    <PortfolioFilterButton
+      active={active}
       onClick={onClick}
-      aria-pressed={active}
-      whileHover={reduceMotion ? undefined : { y: -1 }}
-      whileTap={reduceMotion ? undefined : { scale: 0.97 }}
-      transition={{ type: 'spring', stiffness: 420, damping: 28, duration: reduceMotion ? 0 : undefined }}
-      className={`relative flex min-w-0 items-center justify-between gap-2 overflow-hidden rounded-xl border px-3 py-2.5 text-left text-[10px] font-extrabold transition-colors sm:w-auto sm:justify-center sm:rounded-full sm:px-4 sm:text-xs ${active ? 'border-primary text-white shadow-md shadow-primary/20' : 'border-border/70 bg-surface/70 text-muted hover:border-primary/40 hover:text-text'}`}
+      count={count}
+      group="skills-category"
+      className="w-full sm:w-auto"
     >
-      {active && <motion.span layoutId="active-skill-filter" className="absolute inset-0 rounded-[inherit] bg-gradient-to-r from-primary to-accent" transition={{ type: 'spring', stiffness: 420, damping: 34, duration: reduceMotion ? 0 : undefined }} />}
-      <span className="relative z-10 min-w-0 truncate">{label}</span>
-      <span className={`relative z-10 shrink-0 rounded-full px-1.5 py-0.5 text-[9px] tabular-nums ${active ? 'bg-white/20 text-white' : 'bg-card text-muted'}`}>{count}</span>
-    </motion.button>
+      <span className="min-w-0 truncate">{label}</span>
+    </PortfolioFilterButton>
   );
 }

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, ExternalLink, Github, FolderGit2, Calendar } from 'lucide-react';
 import { SEO } from '../../components/common/SEO';
+import { PortfolioFilterButton } from '../../components/common/PortfolioFilterButton';
 import { SectionHeading } from '../../components/common/SectionHeading';
 import { Badge } from '../../components/ui/Badge';
 import { EmptyState } from '../../components/ui/EmptyState';
@@ -41,39 +42,40 @@ export default function ProjectsPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <SectionHeading title="My Projects" subtitle="A collection of things I've built" center />
 
-        {/* Modern Filters */}
-        <div className="flex flex-col gap-4 mb-10">
-          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
-            <button
-              onClick={() => { setCategory(''); setPage(1); }}
-              className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-semibold transition-all ${category === '' ? 'bg-primary text-white shadow-md' : 'bg-surface border border-border hover:bg-surface/80 text-muted hover:text-text'}`}
-            >All</button>
-            {ALL_CATEGORIES.slice(0, 4).map(([v, l]) => (
-              <button key={v} onClick={() => { setCategory(v); setPage(1); }}
-                className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-semibold transition-all ${category === v ? 'bg-primary text-white shadow-md' : 'bg-surface border border-border hover:bg-surface/80 text-muted hover:text-text'}`}
-              >{l}</button>
-            ))}
-            {ALL_CATEGORIES.slice(4).map(([v, l]) => (
-              <button key={v} onClick={() => { setCategory(v); setPage(1); }}
-                className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-semibold transition-all ${category === v ? 'bg-primary text-white shadow-md' : 'bg-surface border border-border hover:bg-surface/80 text-muted hover:text-text'}`}
-              >{l}</button>
-            ))}
+        {/* Animated category, complexity and search controls */}
+        <div className="mb-8 space-y-5 rounded-3xl border border-border/70 bg-card/55 p-4 shadow-xl shadow-black/5 backdrop-blur-xl sm:mb-10 sm:p-5">
+          <div>
+            <p className="mb-2.5 text-[10px] font-black uppercase tracking-[0.16em] text-muted sm:text-xs">Explore by category</p>
+            <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap" aria-label="Filter projects by category">
+              <PortfolioFilterButton active={!category} onClick={() => { setCategory(''); setPage(1); }} group="project-category" className="w-full sm:w-auto">All projects</PortfolioFilterButton>
+              {ALL_CATEGORIES.map(([value, label]) => (
+                <PortfolioFilterButton key={value} active={category === value} onClick={() => { setCategory(value); setPage(1); }} group="project-category" className="w-full sm:w-auto">{label}</PortfolioFilterButton>
+              ))}
+            </div>
           </div>
 
-          {/* Level filter */}
-          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none mt-2">
-            {([['', 'All Levels'], ['advanced', '🚀 Advanced'], ['medium', '⚡ Medium'], ['basic', '📝 Basic']] as [string, string][]).map(([v, l]) => (
-              <button key={v} onClick={() => { setLevel(v); setPage(1); }}
-                className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
-                  level === v ? 'bg-accent text-white shadow-md' : 'bg-surface border border-border hover:bg-surface/80 text-muted hover:text-text'
-                }`}>{l}</button>
-            ))}
+          <div className="grid gap-4 border-t border-border/60 pt-4 md:grid-cols-[1fr_auto] md:items-end">
+            <div className="min-w-0">
+              <p className="mb-2.5 text-[10px] font-black uppercase tracking-[0.16em] text-muted sm:text-xs">Complexity</p>
+              <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap" aria-label="Filter projects by complexity">
+                {([['', 'All levels'], ['advanced', '🚀 Advanced'], ['medium', '⚡ Medium'], ['basic', '📝 Basic']] as [string, string][]).map(([value, label]) => (
+                  <PortfolioFilterButton key={value || 'all'} active={level === value} onClick={() => { setLevel(value); setPage(1); }} group="project-level" className="w-full sm:w-auto">{label}</PortfolioFilterButton>
+                ))}
+              </div>
+            </div>
+
+            <div className="relative w-full md:w-72">
+              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" aria-hidden="true" />
+              <input value={q} onChange={(event) => { setQ(event.target.value); setPage(1); }} placeholder="Search projects..." aria-label="Search projects"
+                className="w-full rounded-2xl border border-border/80 bg-surface/80 py-3 pl-11 pr-4 text-sm text-text shadow-inner outline-none transition focus:border-primary/60 focus:ring-4 focus:ring-primary/10" />
+            </div>
           </div>
-          
-          <div className="relative w-full md:w-72 self-end">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
-            <input value={q} onChange={(e) => { setQ(e.target.value); setPage(1); }} placeholder="Search projects..."
-              className="w-full pl-11 pr-4 py-2.5 text-sm bg-surface border border-border hover:border-primary/50 rounded-full text-text placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary transition-all shadow-inner" />
+
+          <div className="flex items-center justify-between gap-3 border-t border-border/60 pt-3 text-xs text-muted" aria-live="polite">
+            <span>{pagination?.total ?? projects.length} {((pagination?.total ?? projects.length) === 1) ? 'project' : 'projects'} found</span>
+            {(category || level || q) && (
+              <button type="button" onClick={() => { setCategory(''); setLevel(''); setQ(''); setPage(1); }} className="rounded-full px-3 py-1.5 font-bold text-primary transition-colors hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">Clear filters</button>
+            )}
           </div>
         </div>
 

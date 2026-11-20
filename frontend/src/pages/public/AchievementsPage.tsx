@@ -54,7 +54,7 @@ export default function AchievementsPage() {
                       </div>
 
                       {/* Card Content */}
-                      <div className="flex-1 bg-card/80 backdrop-blur-md border border-border rounded-2xl p-5 sm:p-6 hover:border-primary/50 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden md:ml-4">
+                      <div className="portfolio-panel flex-1 rounded-2xl p-5 sm:p-6 backdrop-blur-md relative overflow-hidden md:ml-4">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none" />
                         
                         <div className="flex flex-col sm:flex-row gap-4 sm:gap-5 items-start">

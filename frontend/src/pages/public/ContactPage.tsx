@@ -19,7 +19,7 @@ const schema = z.object({
 });
 type Form = z.infer<typeof schema>;
 
-const cls = 'w-full px-4 py-2.5 text-sm bg-card border border-border rounded-lg text-text placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent';
+const cls = 'w-full rounded-2xl border border-border/80 bg-surface/75 px-4 py-3 text-sm text-text shadow-inner placeholder:text-muted transition focus:border-primary/60 focus:outline-none focus:ring-4 focus:ring-primary/10';
 
 export default function ContactPage() {
   const { data: profileData } = useProfile();
@@ -86,7 +86,7 @@ export default function ContactPage() {
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit(onSubmit)} className="lg:col-span-3 space-y-4 bg-card border border-border rounded-2xl p-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="portfolio-panel lg:col-span-3 space-y-4 rounded-3xl p-5 sm:p-7">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div><input {...register('name')} placeholder="Your Name *" className={cls} />{errors.name && <p className="text-xs text-error mt-1">{errors.name.message}</p>}</div>
               <div><input {...register('email')} type="email" placeholder="Your Email *" className={cls} />{errors.email && <p className="text-xs text-error mt-1">{errors.email.message}</p>}</div>

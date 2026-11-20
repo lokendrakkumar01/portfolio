@@ -111,6 +111,24 @@
       rgb(var(--color-bg));
   }
 
+  .page-transition-stage {
+    position: relative;
+    isolation: isolate;
+    min-width: 0;
+  }
+
+  .page-transition-stage::before {
+    position: absolute;
+    z-index: -1;
+    inset: 0 0 auto;
+    height: min(42rem, 75vh);
+    background:
+      radial-gradient(ellipse at 92% 4%, rgb(var(--color-primary) / 0.07), transparent 36%),
+      radial-gradient(ellipse at 5% 18%, rgb(var(--color-accent) / 0.055), transparent 32%);
+    content: '';
+    pointer-events: none;
+  }
+
   .skills-grid-pattern {
     background-image:
       linear-gradient(rgb(var(--color-border) / 0.32) 1px, transparent 1px),
@@ -133,6 +151,21 @@
     isolation: isolate;
     border: 1px solid rgb(var(--color-border) / 0.72);
     transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+  }
+
+  .portfolio-panel {
+    position: relative;
+    isolation: isolate;
+    border: 1px solid rgb(var(--color-border) / 0.72);
+    background: linear-gradient(145deg, rgb(var(--color-card) / 0.9), rgb(var(--color-surface) / 0.72));
+    box-shadow: 0 12px 30px -24px rgb(15 23 42 / 0.45);
+    transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
+  }
+
+  .portfolio-panel:hover {
+    transform: translateY(-3px);
+    border-color: rgb(var(--color-primary) / 0.42);
+    box-shadow: 0 20px 42px -28px rgb(var(--color-primary) / 0.4);
   }
 
   .skill-card::before {
@@ -164,6 +197,7 @@
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
     .skills-orb { animation: none; }
-    .skill-card { transition: none; }
+    .skill-card, .portfolio-panel { transition: none; }
+    .portfolio-panel:hover { transform: none; }
   }
 }
