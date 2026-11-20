@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { Download, Mail, ArrowRight, MapPin, FolderCode, Trophy, Sparkles, UserCheck, Award, Play, Film, ZoomIn, X, Image as ImageIcon, ChevronLeft, ChevronRight, Calendar, Github, ExternalLink } from 'lucide-react';
 import { useProfile } from '../../hooks/useProfile';
@@ -11,13 +11,14 @@ import { useCertificates } from '../../hooks/useCertificates';
 import { useAchievements } from '../../hooks/useAchievements';
 import { useGallery } from '../../hooks/useGallery';
 import { VideoPlayer, getVideoThumbnail, isVideoUrl } from '../../components/common/VideoPlayer';
+import { CategoryIcon, SkillCard, SKILL_CATEGORY_LABELS } from '../../components/skills/SkillCard';
 import { SEO } from '../../components/common/SEO';
 import { SectionHeading } from '../../components/common/SectionHeading';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { Skeleton, SkeletonCard } from '../../components/ui/Skeleton';
 import { EmptyState } from '../../components/ui/EmptyState';
-import { getSocialIcon, formatDate, getProficiencyLabel, optimizeCloudinaryUrl } from '../../utils/formatters';
+import { getSocialIcon, formatDate, optimizeCloudinaryUrl } from '../../utils/formatters';
 import { downloadResumeFile } from '../../utils/download';
 import { useRef, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -25,7 +26,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { contactApi } from '../../api/contact.api';
 import toast from 'react-hot-toast';
-import type { Skill, GalleryItem } from '../../types';
+import type { Skill, SkillCategory, GalleryItem } from '../../types';
 
 // ─── Animated Counter ────────────────────────────────────────────────────────
 function AnimatedCounter({ end, label, suffix = '' }: { end: number; label: string; suffix?: string }) {
@@ -283,46 +284,23 @@ function AboutSection() {
 }
 
 // ─── Skills Section ───────────────────────────────────────────────────────────
-const getProficiencyBadgeStyle = (val: number) => {
-  switch (val) {
-    case 5:
-      return 'bg-gradient-to-r from-amber-500/15 via-orange-500/15 to-red-500/15 text-amber-400 border-amber-500/40 shadow-sm shadow-amber-500/20';
-    case 4:
-      return 'bg-gradient-to-r from-purple-500/15 via-fuchsia-500/15 to-pink-500/15 text-purple-300 border-purple-500/40 shadow-sm shadow-purple-500/20';
-    case 3:
-      return 'bg-gradient-to-r from-blue-500/15 via-cyan-500/15 to-sky-500/15 text-cyan-300 border-cyan-500/40 shadow-sm shadow-cyan-500/20';
-    case 2:
-      return 'bg-gradient-to-r from-emerald-500/15 via-teal-500/15 to-green-500/15 text-emerald-300 border-emerald-500/40 shadow-sm shadow-emerald-500/20';
-    default:
-      return 'bg-gradient-to-r from-slate-500/15 to-gray-500/15 text-slate-300 border-slate-500/30';
-  }
-};
-
 function SkillsSection() {
   const { data, isLoading: isSkillsLoading } = useSkills();
-  const skills = data?.data ?? [];
+  const reduceMotion = useReducedMotion();
+  const skills = (data?.data ?? []).filter((skill) => skill.published !== false);
   const isLoading = !skills.length && isSkillsLoading;
-  const grouped = skills.reduce((acc: Record<string, Skill[]>, s) => {
-    if (!acc[s.category]) acc[s.category] = [];
-    acc[s.category].push(s);
+  const grouped = skills.reduce((acc: Partial<Record<SkillCategory, Skill[]>>, skill) => {
+    if (!acc[skill.category]) acc[skill.category] = [];
+    acc[skill.category]!.push(skill);
     return acc;
-  }, {});
-
-  const categoryTitles: Record<string, string> = {
-    programming: 'Programming Languages',
-    frontend: 'Frontend Development',
-    backend: 'Backend & APIs',
-    database: 'Databases & Storage',
-    devops: 'DevOps & Cloud',
-    tools: 'Tools & Utilities',
-    other: 'Other Skills',
-  };
+  }, {} as Partial<Record<SkillCategory, Skill[]>>);
+  const categories = (Object.keys(SKILL_CATEGORY_LABELS) as SkillCategory[]).filter((category) => grouped[category]?.length);
 
   return (
-    <section className="py-24 px-4 sm:px-6 lg:px-8 bg-surface/30 border-y border-border/40 relative overflow-hidden">
-      {/* Background glow accents */}
-      <div className="absolute top-1/4 left-10 w-96 h-96 bg-primary/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-1/4 right-10 w-96 h-96 bg-accent/10 rounded-full blur-[120px] pointer-events-none" />
+    <section className="relative isolate overflow-hidden border-y border-border/40 bg-surface/30 px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
+      <div className="skills-grid-pattern pointer-events-none absolute inset-0 -z-10 opacity-60" aria-hidden="true" />
+      <div className="skills-orb skills-orb-one pointer-events-none absolute -left-32 top-1/4 -z-10 h-72 w-72 rounded-full bg-primary/15 blur-3xl" aria-hidden="true" />
+      <div className="skills-orb skills-orb-two pointer-events-none absolute -right-24 bottom-0 -z-10 h-72 w-72 rounded-full bg-accent/15 blur-3xl" aria-hidden="true" />
 
       <div className="max-w-7xl mx-auto relative z-10">
         <SectionHeading title="Skills & Tech Stack" subtitle="Technologies and tools I use to engineer scalable web applications" viewAllLink="/skills" />
@@ -335,86 +313,36 @@ function SkillsSection() {
         ) : skills.length === 0 ? (
           <EmptyState title="Skills coming soon" description="Skills will appear here once added." />
         ) : (
-          <div className="space-y-12">
-            {Object.entries(grouped).map(([cat, catSkills], catIdx) => (
+          <div className="space-y-9 sm:space-y-12">
+            {categories.map((category, catIdx) => {
+              const categorySkills = grouped[category] ?? [];
+              return (
               <motion.div
-                key={cat}
-                initial={{ opacity: 0, y: 20 }}
+                key={category}
+                initial={reduceMotion ? false : { opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: catIdx * 0.08 }}
+                transition={{ duration: reduceMotion ? 0 : 0.5, delay: reduceMotion ? 0 : catIdx * 0.08 }}
               >
                 {/* Category Header */}
-                <div className="flex items-center gap-3 mb-5">
-                  <div className="w-3 h-3 rounded-full bg-gradient-to-r from-primary to-accent shadow-[0_0_12px_rgba(var(--primary-rgb),0.8)] animate-pulse" />
-                  <h3 className="text-sm sm:text-base font-extrabold text-text tracking-wide uppercase">
-                    {categoryTitles[cat] || cat}
-                  </h3>
-                  <div className="h-px flex-1 bg-gradient-to-r from-border via-border/50 to-transparent ml-2" />
-                  <span className="text-xs font-bold text-muted bg-card px-3 py-1 rounded-full border border-border/60">
-                    {catSkills.length} {catSkills.length === 1 ? 'skill' : 'skills'}
-                  </span>
+                <div className="mb-4 flex min-w-0 items-center gap-3 sm:mb-5">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-gradient-to-br from-primary/15 to-accent/15 text-primary sm:h-11 sm:w-11 sm:rounded-2xl">
+                    <CategoryIcon category={category} />
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="text-sm font-black leading-tight text-text sm:text-base">{SKILL_CATEGORY_LABELS[category]}</h3>
+                    <p className="mt-0.5 text-[10px] font-medium text-muted">{categorySkills.length} {categorySkills.length === 1 ? 'technology' : 'technologies'}</p>
+                  </div>
+                  <div className="h-px min-w-3 flex-1 bg-gradient-to-r from-primary/40 via-accent/20 to-transparent" />
+                  <span className="shrink-0 rounded-full border border-border/70 bg-card px-2.5 py-1 text-[10px] font-black tabular-nums text-muted">{categorySkills.length}</span>
                 </div>
 
-                {/* Animated Skill Cards Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {catSkills.map((s, i) => {
-                    const levelLabel = getProficiencyLabel(s.proficiency);
-                    const badgeStyle = getProficiencyBadgeStyle(s.proficiency);
-                    const percent = s.proficiency * 20;
-
-                    return (
-                      <motion.div
-                        key={s._id}
-                        initial={{ opacity: 0, scale: 0.92, y: 15 }}
-                        whileInView={{ opacity: 1, scale: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.4, delay: i * 0.04 }}
-                        whileHover={{ scale: 1.03, y: -4 }}
-                        whileTap={{ scale: 0.98 }}
-                        className="group relative bg-card/80 backdrop-blur-xl border border-border/80 hover:border-primary/60 rounded-2xl p-4.5 transition-all duration-300 shadow-sm hover:shadow-xl hover:shadow-primary/10 overflow-hidden flex flex-col justify-between cursor-default"
-                      >
-                        {/* Shimmering beam effect */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out pointer-events-none" />
-
-                        {/* Top: Icon + Name + Badge */}
-                        <div className="flex items-center justify-between gap-2.5 mb-3">
-                          <div className="flex items-center gap-3 min-w-0">
-                            <div className="w-10 h-10 rounded-xl bg-surface border border-border/60 flex items-center justify-center text-xl flex-shrink-0 group-hover:scale-110 group-hover:border-primary/50 group-hover:shadow-md transition-all duration-300 shadow-inner">
-                              {s.icon || '⚡'}
-                            </div>
-                            <span className="font-bold text-text text-sm truncate group-hover:text-primary transition-colors">
-                              {s.name}
-                            </span>
-                          </div>
-
-                          <span className={`text-[10px] font-black uppercase px-2.5 py-1 rounded-full border tracking-wider flex-shrink-0 ${badgeStyle}`}>
-                            {levelLabel}
-                          </span>
-                        </div>
-
-                        {/* Bottom: Progress Bar */}
-                        <div className="space-y-1 pt-1">
-                          <div className="flex justify-between text-[10px] font-extrabold text-muted">
-                            <span className="text-muted/70">Proficiency</span>
-                            <span className="text-primary font-black">{percent}%</span>
-                          </div>
-                          <div className="w-full bg-surface border border-border/40 rounded-full h-1.5 overflow-hidden">
-                            <motion.div
-                              initial={{ width: 0 }}
-                              whileInView={{ width: `${percent}%` }}
-                              viewport={{ once: true }}
-                              transition={{ duration: 0.8, delay: 0.1 + i * 0.02, ease: 'easeOut' }}
-                              className="h-full rounded-full bg-gradient-to-r from-primary via-primary to-accent"
-                            />
-                          </div>
-                        </div>
-                      </motion.div>
-                    );
-                  })}
+                <div className="grid grid-cols-1 gap-3 min-[360px]:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4">
+                  {categorySkills.map((skill, index) => <SkillCard key={skill._id} skill={skill} index={index} compact />)}
                 </div>
               </motion.div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
