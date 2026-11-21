@@ -27,7 +27,7 @@ export default function AboutPage() {
         <SectionHeading title="About Me" subtitle="My story, background and values" center />
 
         {/* Profile hero */}
-        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-8 mb-16">
+        <div className="flex flex-col items-center gap-8 mb-16 text-center sm:flex-row sm:items-start sm:text-left">
           <div className="flex-shrink-0">
             {isLoading ? <Skeleton className="w-36 h-36 rounded-full" /> : (
               <div className="w-36 h-36 rounded-full overflow-hidden border-4 border-border shadow-xl">
@@ -37,18 +37,18 @@ export default function AboutPage() {
               </div>
             )}
           </div>
-          <div className="flex-1 text-center sm:text-left">
+          <div className="w-full min-w-0 text-center sm:flex-1 sm:text-left">
             {isLoading ? <Skeleton className="h-9 w-48 mb-3" /> : <h1 className="text-3xl font-bold text-text mb-2">{profile?.name}</h1>}
             {isLoading ? <Skeleton className="h-6 w-56 mb-3" /> : <p className="text-xl text-primary font-medium mb-2">{profile?.title}</p>}
             {isLoading ? <Skeleton className="h-5 w-40 mb-4" /> : (
-              <div className="flex flex-wrap gap-4 mb-4 justify-center sm:justify-start">
+              <div className="mx-auto mb-4 flex w-full max-w-full flex-wrap justify-center gap-4 sm:mx-0 sm:justify-start">
                 {profile?.location && <span className="flex items-center gap-1 text-sm text-muted"><MapPin className="w-4 h-4" />{profile.location}</span>}
                 {profile?.email && <a href={`mailto:${profile.email}`} className="flex items-center gap-1 text-sm text-muted hover:text-primary"><Mail className="w-4 h-4" />{profile.email}</a>}
                 {profile?.phone && <span className="flex items-center gap-1 text-sm text-muted"><Phone className="w-4 h-4" />{profile.phone}</span>}
               </div>
             )}
             {socialLinks.length > 0 && (
-              <div className="flex gap-2 flex-wrap justify-center sm:justify-start">
+              <div className="mx-auto flex w-full max-w-full flex-wrap justify-center gap-2 sm:mx-0 sm:justify-start">
                 {socialLinks.map((link) => {
                   const Icon = getSocialIcon(link.platform);
                   return <a key={link._id} href={link.url} target="_blank" rel="noreferrer" aria-label={link.platform}
