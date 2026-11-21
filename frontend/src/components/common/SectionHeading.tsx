@@ -27,8 +27,11 @@ function HeadingMotion({ title, subtitle, viewAllLink, viewAllLabel, center, cla
       transition={{ duration: reduceMotion ? 0 : 0.5 }}
       className={cn('mb-8 sm:mb-10', center && 'text-center', className)}
     >
-      <div className={cn('flex min-w-0 flex-col items-start gap-4 sm:flex-row sm:items-end sm:justify-between', center && 'sm:justify-center')}>
-        <div className="min-w-0">
+      <div className={cn(
+        'flex min-w-0 gap-4',
+        center ? 'flex-col items-center justify-center' : 'flex-col items-start sm:flex-row sm:items-end sm:justify-between',
+      )}>
+        <div className={cn('min-w-0', center && 'w-full')}>
           <h2 className="text-balance text-2xl font-black tracking-tight text-text sm:text-3xl">{title}</h2>
           {subtitle && <p className={cn('mt-2 max-w-xl text-sm leading-6 text-muted sm:text-base', center && 'mx-auto')}>{subtitle}</p>}
         </div>
