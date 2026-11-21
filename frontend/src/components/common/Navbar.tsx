@@ -258,9 +258,9 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
           </Link>
 
           {/* Desktop Nav */}
-          <div className="hidden lg:flex items-center gap-1 xl:gap-2">
+          <div className="hidden lg:flex items-center gap-2 xl:gap-3">
             {navLinks.map((l) => (
-              <NavLink key={l.to} to={l.to} end={l.end} className={({ isActive }) => `${linkCls({ isActive })} inline-flex items-center gap-1 rounded-full px-1 py-2 text-[10px] xl:gap-1.5 xl:px-1.5 xl:text-xs hover:bg-primary/5`}>
+              <NavLink key={l.to} to={l.to} end={l.end} className={({ isActive }) => `${linkCls({ isActive })} inline-flex items-center gap-1.5 rounded-full px-2 py-2 text-xs xl:gap-2 xl:px-2.5 hover:bg-primary/5`}>
                 {({ isActive }) => (
                   <>
                     <l.icon aria-hidden="true" className={`hidden h-3.5 w-3.5 transition-transform xl:block ${isActive ? 'scale-110 text-primary' : 'opacity-70'}`} />
