@@ -69,7 +69,7 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
 
   // Close mobile menu on desktop resize
   useEffect(() => {
-    const handler = () => { if (window.innerWidth >= 1280) setMobileOpen(false); };
+    const handler = () => { if (window.innerWidth >= 1024) setMobileOpen(false); };
     window.addEventListener('resize', handler);
     return () => window.removeEventListener('resize', handler);
   }, []);
@@ -114,7 +114,7 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
         visibility: mobileOpen ? 'visible' : 'hidden',
         pointerEvents: mobileOpen ? 'auto' : 'none',
       }}
-      className="bg-surface xl:hidden"
+      className="bg-surface lg:hidden"
     >
       {/* ── Header ── */}
       <div
@@ -258,12 +258,12 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
           </Link>
 
           {/* Desktop Nav */}
-          <div className="hidden xl:flex items-center gap-2 xl:gap-3">
+          <div className="hidden lg:flex items-center gap-1 xl:gap-2">
             {navLinks.map((l) => (
-              <NavLink key={l.to} to={l.to} end={l.end} className={({ isActive }) => `${linkCls({ isActive })} inline-flex items-center gap-1.5 rounded-full px-2 py-2 text-[11px] xl:text-xs hover:bg-primary/5`}>
+              <NavLink key={l.to} to={l.to} end={l.end} className={({ isActive }) => `${linkCls({ isActive })} inline-flex items-center gap-1 rounded-full px-1 py-2 text-[10px] xl:gap-1.5 xl:px-1.5 xl:text-xs hover:bg-primary/5`}>
                 {({ isActive }) => (
                   <>
-                    <l.icon aria-hidden="true" className={`h-3.5 w-3.5 transition-transform ${isActive ? 'scale-110 text-primary' : 'opacity-70'}`} />
+                    <l.icon aria-hidden="true" className={`hidden h-3.5 w-3.5 transition-transform xl:block ${isActive ? 'scale-110 text-primary' : 'opacity-70'}`} />
                     <span>{l.label}</span>
                     {isActive && (
                       <motion.div
@@ -296,7 +296,7 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
               onClick={() => setMobileOpen((open) => !open)}
               aria-expanded={mobileOpen}
               aria-controls="mobile-navigation-drawer"
-              className="xl:hidden rounded-xl border border-border bg-card p-2.5 text-text shadow-sm transition-all hover:border-primary/50 hover:text-primary active:scale-95"
+              className="lg:hidden rounded-xl border border-border bg-card p-2.5 text-text shadow-sm transition-all hover:border-primary/50 hover:text-primary active:scale-95"
               aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
             >
               {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
