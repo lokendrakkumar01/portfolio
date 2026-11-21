@@ -57,14 +57,16 @@ export function SkillCard({ skill, index = 0, compact = false }: SkillCardProps)
           {icon}
         </div>
         <div className="min-w-0 flex-1">
-          <h3 className="line-clamp-2 min-h-5 break-words text-sm font-extrabold leading-tight text-text transition-colors group-hover:text-primary [overflow-wrap:anywhere] sm:text-base" title={skill.name}>
+          <h3 className="min-h-5 truncate text-sm font-extrabold leading-tight text-text transition-colors group-hover:text-primary sm:text-base" title={skill.name}>
             {skill.name}
           </h3>
-          <span className={`mt-1 inline-flex w-fit min-w-0 max-w-full whitespace-normal break-words rounded-full border px-1.5 py-1 text-center text-[8px] font-black uppercase leading-tight tracking-normal sm:px-2 sm:py-0.5 sm:text-[10px] sm:tracking-wider ${LEVEL_STYLES[skill.proficiency] ?? LEVEL_STYLES[1]}`}>
-            {getProficiencyLabel(skill.proficiency)}
-          </span>
+          <div className="mt-1 flex min-w-0 flex-wrap items-center gap-1.5">
+            <span className={`inline-flex w-fit max-w-full shrink-0 whitespace-nowrap rounded-full border px-1.5 py-1 text-center text-[8px] font-black uppercase leading-tight tracking-normal sm:px-2 sm:py-0.5 sm:text-[10px] sm:tracking-wider ${LEVEL_STYLES[skill.proficiency] ?? LEVEL_STYLES[1]}`}>
+              {getProficiencyLabel(skill.proficiency)}
+            </span>
+            {skill.featured && !compact && <Badge variant="primary" size="sm" className="shrink-0 text-[8px] sm:text-[9px]">Featured</Badge>}
+          </div>
         </div>
-        {skill.featured && !compact && <Badge variant="primary" size="sm" className="shrink-0 text-[9px]">Featured</Badge>}
       </div>
 
       <div className="relative mt-5">
