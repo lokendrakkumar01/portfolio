@@ -129,6 +129,26 @@
     pointer-events: none;
   }
 
+  .page-transition-stage::after {
+    position: absolute;
+    z-index: -1;
+    top: 5rem;
+    right: max(-10rem, calc((100vw - 90rem) / 2));
+    width: min(34rem, 72vw);
+    aspect-ratio: 1;
+    border-radius: 9999px;
+    background: radial-gradient(circle, rgb(var(--color-accent) / 0.1), rgb(var(--color-primary) / 0.035) 42%, transparent 70%);
+    filter: blur(12px);
+    content: '';
+    pointer-events: none;
+    animation: page-ambient-drift 20s ease-in-out infinite alternate;
+  }
+
+  @keyframes page-ambient-drift {
+    from { transform: translate3d(0, -1rem, 0) scale(0.94); opacity: 0.65; }
+    to { transform: translate3d(-1rem, 1.5rem, 0) scale(1.04); opacity: 1; }
+  }
+
   .skills-grid-pattern {
     background-image:
       linear-gradient(rgb(var(--color-border) / 0.32) 1px, transparent 1px),
@@ -197,6 +217,7 @@
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
     .skills-orb { animation: none; }
+    .page-transition-stage::after { animation: none; }
     .skill-card, .portfolio-panel { transition: none; }
     .portfolio-panel:hover { transform: none; }
   }

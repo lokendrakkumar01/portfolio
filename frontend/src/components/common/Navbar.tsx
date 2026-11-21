@@ -58,6 +58,15 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
     return () => { document.body.style.overflow = ''; };
   }, [mobileOpen]);
 
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setMobileOpen(false);
+    };
+    window.addEventListener('keydown', closeOnEscape);
+    return () => window.removeEventListener('keydown', closeOnEscape);
+  }, [mobileOpen]);
+
   // Close mobile menu on desktop resize
   useEffect(() => {
     const handler = () => { if (window.innerWidth >= 1280) setMobileOpen(false); };
@@ -85,8 +94,10 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
      * CSS transition handles the fade. No framer-motion exit animation = no pointer-events blocking.
      */
     <div
+      id="mobile-navigation-drawer"
       aria-modal="true"
       role="dialog"
+      aria-hidden={!mobileOpen}
       aria-label="Mobile navigation"
       data-theme={theme}
       style={{
@@ -247,11 +258,12 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
           </Link>
 
           {/* Desktop Nav */}
-          <div className="hidden xl:flex items-center gap-3 xl:gap-5">
+          <div className="hidden xl:flex items-center gap-2 xl:gap-3">
             {navLinks.map((l) => (
-              <NavLink key={l.to} to={l.to} end={l.end} className={({ isActive }) => `${linkCls({ isActive })} px-1 text-[11px] xl:text-xs`}>
+              <NavLink key={l.to} to={l.to} end={l.end} className={({ isActive }) => `${linkCls({ isActive })} inline-flex items-center gap-1.5 rounded-full px-2 py-2 text-[11px] xl:text-xs hover:bg-primary/5`}>
                 {({ isActive }) => (
                   <>
+                    <l.icon aria-hidden="true" className={`h-3.5 w-3.5 transition-transform ${isActive ? 'scale-110 text-primary' : 'opacity-70'}`} />
                     <span>{l.label}</span>
                     {isActive && (
                       <motion.div
@@ -281,11 +293,13 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
 
             {/* Mobile Hamburger */}
             <button
-              onClick={() => setMobileOpen(true)}
+              onClick={() => setMobileOpen((open) => !open)}
+              aria-expanded={mobileOpen}
+              aria-controls="mobile-navigation-drawer"
               className="xl:hidden rounded-xl border border-border bg-card p-2.5 text-text shadow-sm transition-all hover:border-primary/50 hover:text-primary active:scale-95"
-              aria-label="Open menu"
+              aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
             >
-              <Menu className="w-5 h-5" />
+              {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>

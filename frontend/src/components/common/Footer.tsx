@@ -5,8 +5,11 @@ import { useSocialLinks } from '../../hooks/useSocialLinks';
 import { getSocialIcon } from '../../utils/formatters';
 
 const footerLinks = [
+  { to: '/', label: 'Home' },
   { to: '/about', label: 'About' },
+  { to: '/skills', label: 'Skills' },
   { to: '/projects', label: 'Projects' },
+  { to: '/gallery', label: 'Gallery' },
   { to: '/certificates', label: 'Certificates' },
   { to: '/achievements', label: 'Achievements' },
   { to: '/resume', label: 'Resume' },
@@ -27,7 +30,7 @@ export default function Footer() {
   return (
     <footer className="bg-surface border-t border-border mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 mb-10">
+        <div className="grid grid-cols-1 gap-8 mb-10 sm:grid-cols-2 lg:grid-cols-[1fr_1.5fr_1fr]">
           {/* Brand */}
           <div>
             <h3 className="font-bold text-xl text-text mb-2">{name}</h3>
@@ -42,7 +45,7 @@ export default function Footer() {
           {/* Nav links */}
           <div>
             <h4 className="text-sm font-semibold text-text uppercase tracking-wider mb-4">Navigation</h4>
-            <ul className="space-y-2">
+            <ul className="grid grid-cols-2 gap-x-5 gap-y-2 sm:grid-cols-3 lg:grid-cols-2">
               {footerLinks.map((l) => (
                 <li key={l.to}>
                   <Link to={l.to} className="text-sm text-muted hover:text-primary transition-colors">
