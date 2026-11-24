@@ -10,6 +10,8 @@ export interface ClientDeviceHints {
 }
 
 const clean = (value?: string) => (value || '').trim().slice(0, 120);
+const isUsefulModel = (value: string) =>
+  value.length >= 2 && !/^(unknown(?: device)?|generic|mobile|tablet|desktop|android|iphone|ipad|k)$/i.test(value);
 
 const knownBrandFromModel = (model: string) => {
   if (/^(SM-|GT-|SCH-|SAMSUNG)/i.test(model)) return 'Samsung';
@@ -22,8 +24,10 @@ const knownBrandFromModel = (model: string) => {
 
 export function identifyDevice(userAgent: string, hints: ClientDeviceHints = {}) {
   const result = new UAParser(userAgent).getResult();
-  const hintModel = clean(hints.model);
-  const parsedModel = clean(result.device.model);
+  const hintModelCandidate = clean(hints.model);
+  const parsedModelCandidate = clean(result.device.model);
+  const hintModel = isUsefulModel(hintModelCandidate) ? hintModelCandidate : '';
+  const parsedModel = isUsefulModel(parsedModelCandidate) ? parsedModelCandidate : '';
   const model = hintModel || parsedModel || 'Unknown device';
   const brand = clean(result.device.vendor) || knownBrandFromModel(hintModel || parsedModel) || 'Unknown';
   const parsedType = result.device.type?.toLowerCase();
@@ -42,7 +46,7 @@ export function identifyDevice(userAgent: string, hints: ClientDeviceHints = {})
   return {
     brand,
     model,
-    // Only keep an identifier when the browser explicitly supplied one.
+    // Store an identifier only when the browser supplied a useful, specific model.
     modelIdentifier: hintModel || undefined,
     category,
     os,
