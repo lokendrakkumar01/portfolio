@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import { VisitorSession } from '../models/VisitorSession';
 import { asyncHandler } from '../utils/asyncHandler';
-import { sendSuccess } from '../utils/response';
+import { sendError, sendSuccess } from '../utils/response';
 import { getPaginationParams } from '../utils/pagination';
 import { identifyDevice, sanitizeReferrer } from '../utils/deviceIdentification';
 
@@ -61,4 +62,18 @@ export const getVisitorSessions = asyncHandler(async (req: Request, res: Respons
     filters: { brands: brands.sort(), operatingSystems: operatingSystems.sort(), browsers: browsers.sort() },
     pagination: { page, limit, total, totalPages: Math.ceil(total / limit) || 1 },
   });
+});
+
+export const deleteVisitorSessions = asyncHandler(async (_req: Request, res: Response) => {
+  const result = await VisitorSession.deleteMany({});
+  sendSuccess(res, { deleted: result.deletedCount }, `Deleted ${result.deletedCount} visitor sessions`);
+});
+
+export const deleteVisitorSession = asyncHandler(async (req: Request, res: Response) => {
+  if (!mongoose.isValidObjectId(req.params.id)) {
+    return sendError(res, 'Invalid visitor session ID', 400);
+  }
+  const session = await VisitorSession.findByIdAndDelete(req.params.id);
+  if (!session) return sendError(res, 'Visitor session not found', 404);
+  sendSuccess(res, { deleted: true }, 'Visitor session deleted');
 });
