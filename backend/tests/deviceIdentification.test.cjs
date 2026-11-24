@@ -14,6 +14,16 @@ test('identifies Android phone details from UA and supplied client hints', () =>
   assert.match(device.browser, /Chrome/i);
 });
 
+test('does not present generic one-character Android model hints as a device model', () => {
+  const device = identifyDevice(
+    'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/157.0.0.0 Mobile Safari/537.36',
+    { platform: 'Android', model: 'K', mobile: true },
+  );
+  assert.equal(device.category, 'Mobile');
+  assert.equal(device.model, 'Unknown device');
+  assert.equal(device.modelIdentifier, undefined);
+});
+
 test('identifies iPhone and iPad categories without guessing exact model identifiers', () => {
   const iphone = identifyDevice('Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1');
   const ipad = identifyDevice('Mozilla/5.0 (iPad; CPU OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1');
