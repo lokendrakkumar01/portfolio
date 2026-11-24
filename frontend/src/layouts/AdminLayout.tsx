@@ -5,6 +5,7 @@ import {
   LayoutDashboard, User, FolderCode, Award, Trophy, Zap,
   GraduationCap, Briefcase, Image, FileText, Share2,
   MessageSquare, Settings, LogOut, Menu, X, Sun, Moon,
+  Monitor,
 } from 'lucide-react';
 import { useAuthStore } from '../store/auth.store';
 import { useTheme } from '../hooks/useTheme';
@@ -25,6 +26,7 @@ const navItems = [
   { to: '/admin/resume', label: 'Resume / CV', icon: FileText },
   { to: '/admin/social-links', label: 'Social Links', icon: Share2 },
   { to: '/admin/messages', label: 'Messages', icon: MessageSquare, badge: true },
+  { to: '/admin/visitors', label: 'Visitor Analytics', icon: Monitor },
   { to: '/admin/settings', label: 'Settings', icon: Settings },
 ];
 

@@ -16,6 +16,7 @@ import settingsRoutes from './settings.routes';
 import uploadRoutes from './upload.routes';
 import statsRoutes from './stats.routes';
 import assistantRoutes from './assistant.routes';
+import analyticsRoutes from './analytics.routes';
 
 const router = Router();
 
@@ -36,5 +37,6 @@ router.use('/settings', settingsRoutes);
 router.use('/upload', uploadRoutes);
 router.use('/stats', statsRoutes);
 router.use('/assistant', assistantRoutes);
+router.use('/analytics', analyticsRoutes);
 
 export default router;

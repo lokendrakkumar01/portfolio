@@ -16,6 +16,14 @@ export const contactLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+export const visitorAnalyticsLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 60,
+  message: { success: false, message: 'Visitor analytics collection limit reached.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 export const uploadLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   max: 500,

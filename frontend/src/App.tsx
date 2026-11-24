@@ -52,6 +52,7 @@ const ResumeAdminPage = lazy(() => import('./pages/admin/ResumeAdminPage'));
 const SocialLinksAdminPage = lazy(() => import('./pages/admin/SocialLinksAdminPage'));
 const MessagesAdminPage = lazy(() => import('./pages/admin/MessagesAdminPage'));
 const SettingsAdminPage = lazy(() => import('./pages/admin/SettingsAdminPage'));
+const VisitorAnalyticsPage = lazy(() => import('./pages/admin/VisitorAnalyticsPage'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -115,6 +116,7 @@ export default function App() {
                 <Route path="social-links" element={<SocialLinksAdminPage />} />
                 <Route path="messages" element={<MessagesAdminPage />} />
                 <Route path="settings" element={<SettingsAdminPage />} />
+                <Route path="visitors" element={<VisitorAnalyticsPage />} />
               </Route>
 
               <Route path="*" element={<NotFoundPage />} />
