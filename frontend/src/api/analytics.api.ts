@@ -51,6 +51,10 @@ export interface VisitorSessionsResult {
 export const analyticsApi = {
   list: (params: VisitorFilters) =>
     apiClient.get<{ success: boolean; message: string; data: VisitorSessionsResult }>('/analytics', { params }).then((response) => response.data),
+  deleteSession: (id: string) =>
+    apiClient.delete<{ success: boolean; message: string }>(`/analytics/${encodeURIComponent(id)}`).then((response) => response.data),
+  deleteAllSessions: () =>
+    apiClient.delete<{ success: boolean; message: string }>('/analytics').then((response) => response.data),
 };
 
 export interface VisitorCollection {
