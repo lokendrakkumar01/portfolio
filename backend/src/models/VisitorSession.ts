@@ -51,7 +51,7 @@ const visitorSessionSchema = new Schema<IVisitorSession>({
   browser: { type: String, required: true, maxlength: 80 },
   browserVersion: { type: String, default: '', maxlength: 80 },
   platform: { type: String, required: true, maxlength: 80 },
-  approximateLocation: { type: String, default: 'Unavailable', maxlength: 2 },
+  approximateLocation: { type: String, default: 'Unavailable', maxlength: 16 },
   screenWidth: { type: Number, min: 0, max: 20000 },
   screenHeight: { type: Number, min: 0, max: 20000 },
   viewportWidth: { type: Number, min: 0, max: 20000 },

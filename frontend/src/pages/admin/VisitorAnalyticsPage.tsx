@@ -1,16 +1,26 @@
-import { useState, type ChangeEvent } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { Globe2, Monitor, RefreshCw, Smartphone, Tablet, Users } from 'lucide-react';
+import { useEffect, useState, type ChangeEvent } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Globe2, Monitor, RefreshCw, Smartphone, Tablet, Trash2, Users } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { analyticsApi, type VisitorCategory, type VisitorSession } from '../../api/analytics.api';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { Pagination } from '../../components/ui/Pagination';
 import { Skeleton } from '../../components/ui/Skeleton';
 
 const formatDateTime = (value: string) => new Date(value).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
 const categoryIcon = (category: VisitorCategory) => category === 'Mobile' ? Smartphone : category === 'Tablet' ? Tablet : Monitor;
-const deviceTitle = (session: VisitorSession) => session.model === 'Unknown device'
-  ? 'Unknown device'
-  : [session.brand !== 'Unknown' ? session.brand : '', session.model].filter(Boolean).join(' ');
+const availableModel = (value?: string) => {
+  const model = value?.trim() ?? '';
+  return model.length > 1 && !/^(unknown(?: device)?|generic|k|mobile|tablet|desktop|android|iphone|ipad)$/i.test(model)
+    ? model
+    : '';
+};
+const deviceTitle = (session: VisitorSession) => {
+  const model = availableModel(session.model);
+  if (!model) return 'Unknown device';
+  return [session.brand !== 'Unknown' && session.brand.length > 1 ? session.brand : '', model].filter(Boolean).join(' ');
+};
 const countryLabel = (code: string) => code === 'Unavailable' ? 'Unavailable' : `${code} (approx.)`;
 
 export default function VisitorAnalyticsPage() {
@@ -19,6 +29,8 @@ export default function VisitorAnalyticsPage() {
   const [category, setCategory] = useState<VisitorCategory | ''>('');
   const [os, setOs] = useState('');
   const [browser, setBrowser] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState<VisitorSession | 'all' | null>(null);
+  const queryClient = useQueryClient();
   const query = useQuery({
     queryKey: ['visitor-analytics', page, brand, category, os, browser],
     queryFn: () => analyticsApi.list({ page, limit: 20, brand, category, os, browser }),
@@ -27,11 +39,30 @@ export default function VisitorAnalyticsPage() {
   const sessions = result?.items ?? [];
   const pagination = result?.pagination;
   const filters = result?.filters;
+  const deleteMutation = useMutation({
+    mutationFn: (target: VisitorSession | 'all') => target === 'all'
+      ? analyticsApi.deleteAllSessions()
+      : analyticsApi.deleteSession(target._id),
+    onSuccess: async (response) => {
+      toast.success(response.message || 'Visitor session deleted');
+      setDeleteTarget(null);
+      await queryClient.invalidateQueries({ queryKey: ['visitor-analytics'] });
+    },
+    onError: () => toast.error('Could not delete visitor session. Please try again.'),
+  });
+
+  useEffect(() => {
+    if (!query.isLoading && sessions.length === 0 && page > 1) setPage((current) => Math.max(1, current - 1));
+  }, [page, query.isLoading, sessions.length]);
 
   const onFilterChange = (setter: (value: string) => void) => (event: ChangeEvent<HTMLSelectElement>) => {
     setter(event.target.value);
     setPage(1);
   };
+  const confirmDelete = () => {
+    if (deleteTarget) deleteMutation.mutate(deleteTarget);
+  };
+  const deletingAll = deleteTarget === 'all';
 
   return (
     <div className="space-y-6">
@@ -40,9 +71,20 @@ export default function VisitorAnalyticsPage() {
           <h1 className="text-2xl font-bold text-text">Visitor Analytics</h1>
           <p className="mt-1 text-sm text-muted">Anonymous device and page-view sessions. IP addresses are never stored.</p>
         </div>
-        <button type="button" onClick={() => void query.refetch()} className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-sm font-semibold text-text hover:border-primary/40" aria-label="Refresh visitor sessions">
-          <RefreshCw className={`h-4 w-4 ${query.isFetching ? 'animate-spin' : ''}`} /> Refresh
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          {(pagination?.total ?? 0) > 0 && (
+            <button
+              type="button"
+              onClick={() => setDeleteTarget('all')}
+              className="inline-flex items-center gap-2 rounded-xl border border-error/30 bg-error/5 px-3 py-2 text-sm font-semibold text-error transition hover:bg-error/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error"
+            >
+              <Trash2 className="h-4 w-4" /> Delete all
+            </button>
+          )}
+          <button type="button" onClick={() => void query.refetch()} className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-sm font-semibold text-text hover:border-primary/40" aria-label="Refresh visitor sessions">
+            <RefreshCw className={`h-4 w-4 ${query.isFetching ? 'animate-spin' : ''}`} /> Refresh
+          </button>
+        </div>
       </div>
 
       <div className="grid gap-3 rounded-2xl border border-border bg-card p-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -80,9 +122,9 @@ export default function VisitorAnalyticsPage() {
 
           <div className="hidden overflow-hidden rounded-2xl border border-border bg-card md:block">
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[1120px] text-left text-sm">
+              <table className="w-full min-w-[1200px] text-left text-sm">
                 <thead className="border-b border-border bg-surface/70 text-[11px] uppercase tracking-wide text-muted">
-                <tr>{['Device', 'Type', 'OS', 'Browser', 'Screen', 'Visit date', 'Page views', 'Approx. location', 'Details'].map((label) => <th key={label} className="px-4 py-3 font-bold">{label}</th>)}</tr>
+                  <tr>{['Device', 'Type', 'OS', 'Browser', 'Screen', 'Visit date', 'Page views', 'Approx. location', 'Details', 'Actions'].map((label) => <th key={label} className="px-4 py-3 font-bold">{label}</th>)}</tr>
                 </thead>
                 <tbody className="divide-y divide-border">
                   {sessions.map((session) => <tr key={session._id} className="align-top hover:bg-surface/40">
@@ -91,10 +133,11 @@ export default function VisitorAnalyticsPage() {
                     <td className="px-4 py-3">{session.os}{session.osVersion ? ` ${session.osVersion}` : ''}</td>
                     <td className="px-4 py-3">{session.browser}{session.browserVersion ? ` ${session.browserVersion}` : ''}</td>
                     <td className="px-4 py-3 tabular-nums">{session.screenWidth && session.screenHeight ? `${session.screenWidth} × ${session.screenHeight}` : 'Unavailable'}</td>
-                    <td className="px-4 py-3 whitespace-nowrap">{formatDateTime(session.firstVisitedAt)}</td>
+                    <td className="whitespace-nowrap px-4 py-3">{formatDateTime(session.firstVisitedAt)}</td>
                     <td className="px-4 py-3 tabular-nums">{session.pageViewCount}</td>
                     <td className="px-4 py-3">{countryLabel(session.approximateLocation)}</td>
                     <td className="px-4 py-3"><SessionDetails session={session} /></td>
+                    <td className="px-4 py-3"><DeleteSessionButton onClick={() => setDeleteTarget(session)} /></td>
                   </tr>)}
                 </tbody>
               </table>
@@ -102,17 +145,38 @@ export default function VisitorAnalyticsPage() {
           </div>
 
           <div className="space-y-3 md:hidden">
-            {sessions.map((session) => <VisitorSessionCard key={session._id} session={session} />)}
+            {sessions.map((session) => <VisitorSessionCard key={session._id} session={session} onDelete={() => setDeleteTarget(session)} />)}
           </div>
 
           <Pagination page={page} totalPages={pagination?.totalPages ?? 1} onPageChange={setPage} />
         </>
       )}
+
+      <ConfirmDialog
+        open={deleteTarget !== null}
+        onClose={() => { if (!deleteMutation.isPending) setDeleteTarget(null); }}
+        onConfirm={confirmDelete}
+        title={deletingAll ? 'Delete all visitor sessions?' : 'Delete this visitor session?'}
+        description={deletingAll
+          ? `This permanently deletes all ${pagination?.total ?? 0} stored sessions and their page-view history. New visits can be recorded again after deletion.`
+          : 'This permanently deletes this session and its page-view history.'}
+        confirmLabel={deletingAll ? 'Delete all sessions' : 'Delete session'}
+        loading={deleteMutation.isPending}
+      />
     </div>
   );
 }
 
-function VisitorSessionCard({ session }: { session: VisitorSession }) {
+function DeleteSessionButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button type="button" onClick={onClick} aria-label="Delete visitor session" title="Delete visitor session"
+      className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-error/25 text-error transition hover:bg-error/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error">
+      <Trash2 className="h-4 w-4" />
+    </button>
+  );
+}
+
+function VisitorSessionCard({ session, onDelete }: { session: VisitorSession; onDelete: () => void }) {
   const DeviceIcon = categoryIcon(session.category);
   return (
     <article className="overflow-hidden rounded-2xl border border-border bg-card p-4 shadow-sm">
@@ -131,17 +195,19 @@ function VisitorSessionCard({ session }: { session: VisitorSession }) {
         <div className="col-span-2"><dt className="text-muted">First visit</dt><dd className="mt-0.5 font-semibold text-text">{formatDateTime(session.firstVisitedAt)}</dd></div>
       </dl>
       <div className="mt-3 border-t border-border pt-3"><SessionDetails session={session} /></div>
+      <div className="mt-3 flex justify-end border-t border-border pt-3"><DeleteSessionButton onClick={onDelete} /></div>
     </article>
   );
 }
 
 function SessionDetails({ session }: { session: VisitorSession }) {
+  const modelIdentifier = availableModel(session.modelIdentifier);
   return (
     <details className="text-xs">
       <summary className="cursor-pointer font-semibold text-primary">Session details and visited pages</summary>
       <div className="mt-3 max-w-md space-y-2 text-muted">
         <p>Anonymous visitor ID: <span className="break-all font-mono text-text">{session.visitorId}</span></p>
-        <p>Model identifier: <span className="text-text">{session.modelIdentifier || 'Unavailable'}</span></p>
+        <p>Model identifier: <span className="text-text">{modelIdentifier || 'Unavailable'}</span></p>
         <p>Platform: <span className="text-text">{session.platform}</span> · Language: <span className="text-text">{session.language}</span></p>
         <p>Viewport: <span className="text-text">{session.viewportWidth && session.viewportHeight ? `${session.viewportWidth} × ${session.viewportHeight}` : 'Unavailable'}</span></p>
         <p>Last activity: <span className="text-text">{formatDateTime(session.lastVisitedAt)}</span></p>

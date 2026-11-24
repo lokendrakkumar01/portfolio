@@ -10,7 +10,7 @@ process.env.SERVER_URL ||= 'http://localhost:5000';
 
 const analyticsRoutes = require('../dist/routes/analytics.routes.js').default;
 
-test('visitor records are not readable without admin authentication', async (t) => {
+test('visitor reads and destructive deletes require admin authentication', async (t) => {
   const app = express();
   app.use('/analytics', analyticsRoutes);
   const server = app.listen(0);
@@ -18,6 +18,11 @@ test('visitor records are not readable without admin authentication', async (t) 
   t.after(() => new Promise((resolve) => server.close(resolve)));
 
   const { port } = server.address();
-  const response = await fetch(`http://127.0.0.1:${port}/analytics`);
-  assert.equal(response.status, 401);
+  const readResponse = await fetch(`http://127.0.0.1:${port}/analytics`);
+  const deleteAllResponse = await fetch(`http://127.0.0.1:${port}/analytics`, { method: 'DELETE' });
+  const deleteOneResponse = await fetch(`http://127.0.0.1:${port}/analytics/not-an-id`, { method: 'DELETE' });
+
+  assert.equal(readResponse.status, 401);
+  assert.equal(deleteAllResponse.status, 401);
+  assert.equal(deleteOneResponse.status, 401);
 });
