@@ -7,4 +7,5 @@ export const updateSettingsSchema = z.object({
   primaryEmail: z.string().email().optional(),
   contactEnabled: z.boolean().optional(),
   maintenanceMode: z.boolean().optional(),
+  visitorAnalyticsEnabled: z.boolean().optional(),
 });
