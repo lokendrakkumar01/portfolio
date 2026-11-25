@@ -135,15 +135,15 @@ export default function VisitorAnalyticsConsent() {
             aria-modal="true"
             aria-labelledby="analytics-dialog-title"
             aria-describedby="analytics-dialog-description"
-            className="w-full max-w-lg max-h-[min(85dvh,38rem)] overflow-y-auto rounded-3xl border border-border bg-surface p-5 shadow-2xl sm:p-7"
+            className="max-h-[min(80dvh,34rem)] w-full max-w-sm overflow-y-auto rounded-3xl border border-border bg-surface p-4 shadow-2xl sm:p-5"
           >
-            <div className="flex items-start gap-4">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+            <div className="flex items-start gap-3">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <Cookie className="h-5 w-5" />
               </span>
               <div className="min-w-0 flex-1">
-                <h2 id="analytics-dialog-title" className="text-lg font-bold text-text sm:text-xl">Anonymous analytics</h2>
-                <p id="analytics-dialog-description" className="mt-2 text-sm leading-6 text-muted">
+                <h2 id="analytics-dialog-title" className="text-base font-bold text-text sm:text-lg">Anonymous analytics</h2>
+                <p id="analytics-dialog-description" className="mt-1.5 text-sm leading-5 text-muted">
                   With your permission, this site records visited pages and basic device details to help improve the portfolio. No IP address or device fingerprint is stored; records expire after 180 days.
                 </p>
               </div>
@@ -152,9 +152,9 @@ export default function VisitorAnalyticsConsent() {
                   type="button"
                   onClick={() => setShowChoices(false)}
                   aria-label="Close privacy choices"
-                  className="rounded-xl p-2 text-muted transition hover:bg-card hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                  className="rounded-lg p-1.5 text-muted transition hover:bg-card hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                 >
-                  <X className="h-5 w-5" />
+                  <X className="h-4 w-4" />
                 </button>
               )}
             </div>
@@ -163,13 +163,13 @@ export default function VisitorAnalyticsConsent() {
               href={PORTFOLIO_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-5 flex min-w-0 items-center justify-between gap-3 rounded-2xl border border-border bg-card px-4 py-3 text-sm font-semibold text-primary transition hover:border-primary/40 hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              className="mt-4 flex min-h-11 min-w-0 items-center justify-between gap-3 rounded-xl border border-border bg-card px-3 py-2.5 text-sm font-semibold text-primary transition hover:border-primary/40 hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             >
               <span className="truncate">{PORTFOLIO_URL.replace('https://', '')}</span>
               <ExternalLink className="h-4 w-4 shrink-0" aria-hidden="true" />
             </a>
 
-            <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+            <div className="mt-4 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
               <button
                 type="button"
                 onClick={() => saveConsent('denied')}
