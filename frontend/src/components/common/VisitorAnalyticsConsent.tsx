@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Cookie, ExternalLink, X } from 'lucide-react';
 import { collectVisitorPageView, type VisitorCollection } from '../../api/analytics.api';
+import { useSettings } from '../../hooks/useSettings';
 
 const CONSENT_KEY = 'portfolio-analytics-consent';
 const VISITOR_KEY = 'portfolio-anonymous-visitor-id';
@@ -43,6 +44,8 @@ function getSafeReferrer() {
 
 export default function VisitorAnalyticsConsent() {
   const location = useLocation();
+  const { data: settingsData, isFetching: settingsFetching } = useSettings();
+  const analyticsEnabled = (settingsData?.data as unknown as { visitorAnalyticsEnabled?: boolean } | null)?.visitorAnalyticsEnabled !== false;
   const [consent, setConsent] = useState<string | null>(() => {
     try { return localStorage.getItem(CONSENT_KEY); } catch { return 'denied'; }
   });
@@ -50,7 +53,7 @@ export default function VisitorAnalyticsConsent() {
   const lastRecordedPath = useRef('');
 
   useEffect(() => {
-    if (consent !== 'granted' || !location.pathname || lastRecordedPath.current === location.pathname) return;
+    if (settingsFetching || !analyticsEnabled || consent !== 'granted' || !location.pathname || lastRecordedPath.current === location.pathname) return;
     lastRecordedPath.current = location.pathname;
 
     const record = async () => {
@@ -89,7 +92,7 @@ export default function VisitorAnalyticsConsent() {
     };
 
     void record();
-  }, [consent, location.pathname]);
+  }, [analyticsEnabled, consent, location.pathname, settingsFetching]);
 
   useEffect(() => {
     if (!showChoices) return;
@@ -109,6 +112,8 @@ export default function VisitorAnalyticsConsent() {
     setShowChoices(false);
     lastRecordedPath.current = '';
   };
+
+  if (settingsFetching || !analyticsEnabled) return null;
 
   return (
     <>
