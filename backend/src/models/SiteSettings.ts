@@ -9,6 +9,7 @@ export interface ISiteSettings extends Document {
   primaryEmail: string;
   contactEnabled: boolean;
   maintenanceMode: boolean;
+  visitorAnalyticsEnabled: boolean;
   socialPreviewImage?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -23,6 +24,7 @@ const siteSettingsSchema = new Schema<ISiteSettings>({
   primaryEmail: { type: String, required: true, default: '' },
   contactEnabled: { type: Boolean, default: true },
   maintenanceMode: { type: Boolean, default: false },
+  visitorAnalyticsEnabled: { type: Boolean, default: true },
   socialPreviewImage: { type: String },
 }, { timestamps: true });
 
