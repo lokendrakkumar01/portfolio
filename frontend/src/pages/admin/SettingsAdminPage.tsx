@@ -14,16 +14,19 @@ const schema = z.object({
   primaryEmail: z.string().email(),
   contactEnabled: z.boolean().optional(),
   maintenanceMode: z.boolean().optional(),
+  visitorAnalyticsEnabled: z.boolean(),
 });
 type Form = z.infer<typeof schema>;
+type SettingsWithAnalytics = SiteSettings & { visitorAnalyticsEnabled?: boolean };
 
 export default function SettingsAdminPage() {
   const { data, isLoading } = useSettings();
   const update = useUpdateSettings();
-  const settings = data?.data;
+  const settings = data?.data as SettingsWithAnalytics | null | undefined;
 
   const { register, handleSubmit, reset, formState: { isDirty } } = useForm<Form>({
-    defaultValues: { contactEnabled: true, maintenanceMode: false },
+    defaultValues: { contactEnabled: true, maintenanceMode: false, visitorAnalyticsEnabled: true },
+    resolver: zodResolver(schema),
   });
 
   useEffect(() => {
@@ -35,11 +38,12 @@ export default function SettingsAdminPage() {
         primaryEmail: settings.primaryEmail,
         contactEnabled: settings.contactEnabled,
         maintenanceMode: settings.maintenanceMode,
+        visitorAnalyticsEnabled: settings.visitorAnalyticsEnabled !== false,
       });
     }
   }, [settings, reset]);
 
-  const onSubmit = (data: Form) => update.mutate(data as Partial<SiteSettings>);
+  const onSubmit = (formData: Form) => update.mutate(formData as Partial<SiteSettings>);
 
   if (isLoading) return <div className="animate-pulse space-y-4">{Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-10 bg-border rounded-lg" />)}</div>;
 
@@ -63,19 +67,26 @@ export default function SettingsAdminPage() {
         <div className="bg-card border border-border rounded-xl p-5 space-y-4">
           <h2 className="font-semibold text-text text-sm uppercase tracking-wide">Features</h2>
           <div className="space-y-3">
-            <label className="flex items-center justify-between p-3 bg-surface border border-border rounded-lg cursor-pointer">
+            <label className="flex items-center justify-between gap-4 p-3 bg-surface border border-border rounded-lg cursor-pointer">
               <div>
                 <p className="text-sm font-medium text-text">Contact Form</p>
                 <p className="text-xs text-muted">Allow visitors to send messages</p>
               </div>
-              <input type="checkbox" {...register('contactEnabled')} className="w-5 h-5 accent-primary" />
+              <input type="checkbox" {...register('contactEnabled')} className="w-5 h-5 shrink-0 accent-primary" />
             </label>
-            <label className="flex items-center justify-between p-3 bg-surface border border-border rounded-lg cursor-pointer">
+            <label className="flex items-center justify-between gap-4 p-3 bg-surface border border-border rounded-lg cursor-pointer">
               <div>
                 <p className="text-sm font-medium text-text">Maintenance Mode</p>
                 <p className="text-xs text-muted">Show maintenance page to visitors</p>
               </div>
-              <input type="checkbox" {...register('maintenanceMode')} className="w-5 h-5 accent-primary" />
+              <input type="checkbox" {...register('maintenanceMode')} className="w-5 h-5 shrink-0 accent-primary" />
+            </label>
+            <label className="flex items-center justify-between gap-4 p-3 bg-surface border border-border rounded-lg cursor-pointer">
+              <div>
+                <p className="text-sm font-medium text-text">Anonymous Visitor Analytics</p>
+                <p className="text-xs text-muted">Show the privacy option and collect consented page views on public pages</p>
+              </div>
+              <input type="checkbox" {...register('visitorAnalyticsEnabled')} className="w-5 h-5 shrink-0 accent-primary" />
             </label>
           </div>
         </div>
