@@ -4,33 +4,40 @@
 
 @layer base {
   :root {
-    --color-bg: 248 250 252;
+    /* Portfolio palette from the reference: ocean blue, teal, green, mint and pale green. */
+    --palette-ocean: 37 95 125;
+    --palette-teal: 55 166 164;
+    --palette-green: 85 201 154;
+    --palette-mint: 124 235 157;
+    --palette-pale: 200 244 209;
+
+    --color-bg: 247 250 249;
     --color-surface: 255 255 255;
     --color-card: 255 255 255;
-    --color-primary: 37 99 235;
-    --color-primary-hover: 29 78 216;
-    --color-text: 15 23 42;
-    --color-text-muted: 100 116 139;
-    --color-border: 226 232 240;
-    --color-success: 34 197 94;
+    --color-primary: var(--palette-ocean);
+    --color-primary-hover: 27 75 99;
+    --color-text: 15 35 43;
+    --color-text-muted: 91 111 117;
+    --color-border: 220 232 230;
+    --color-success: 38 145 101;
     --color-warning: 245 158 11;
     --color-error: 239 68 68;
-    --color-accent: 139 92 246;
+    --color-accent: var(--palette-teal);
   }
 
   [data-theme="dark"] {
-    --color-bg: 10 10 15;
-    --color-surface: 17 24 39;
-    --color-card: 24 32 47;
-    --color-primary: 96 165 250;
-    --color-primary-hover: 147 197 253;
-    --color-text: 248 250 252;
-    --color-text-muted: 148 163 184;
-    --color-border: 45 55 72;
-    --color-success: 74 222 128;
+    --color-bg: 8 19 25;
+    --color-surface: 14 30 38;
+    --color-card: 21 41 49;
+    --color-primary: 85 201 174;
+    --color-primary-hover: var(--palette-mint);
+    --color-text: 242 249 247;
+    --color-text-muted: 157 180 183;
+    --color-border: 43 66 72;
+    --color-success: 103 218 161;
     --color-warning: 251 191 36;
     --color-error: 248 113 113;
-    --color-accent: 167 139 250;
+    --color-accent: var(--palette-green);
   }
 
   * {
@@ -74,15 +81,15 @@
   .bg-error { background-color: rgb(var(--color-error)); }
   .bg-success { background-color: rgb(var(--color-success)); }
   .bg-warning { background-color: rgb(var(--color-warning)); }
-  
+
   .glass {
     background: rgba(var(--color-surface), 0.75);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
   }
-  
+
   .text-gradient {
-    background: linear-gradient(135deg, rgb(var(--color-primary)) 0%, rgb(var(--color-accent)) 100%);
+    background: linear-gradient(120deg, rgb(var(--color-primary)) 0%, rgb(var(--color-accent)) 58%, rgb(var(--palette-green)) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
@@ -107,7 +114,7 @@
   .skills-hero {
     background:
       radial-gradient(ellipse at 16% 14%, rgb(var(--color-primary) / 0.12), transparent 42%),
-      radial-gradient(ellipse at 86% 88%, rgb(var(--color-accent) / 0.1), transparent 40%),
+      radial-gradient(ellipse at 86% 88%, rgb(var(--palette-mint) / 0.12), transparent 40%),
       rgb(var(--color-bg));
   }
 
@@ -123,8 +130,8 @@
     inset: 0 0 auto;
     height: min(42rem, 75vh);
     background:
-      radial-gradient(ellipse at 92% 4%, rgb(var(--color-primary) / 0.07), transparent 36%),
-      radial-gradient(ellipse at 5% 18%, rgb(var(--color-accent) / 0.055), transparent 32%);
+      radial-gradient(ellipse at 92% 4%, rgb(var(--palette-teal) / 0.08), transparent 36%),
+      radial-gradient(ellipse at 5% 18%, rgb(var(--palette-green) / 0.07), transparent 32%);
     content: '';
     pointer-events: none;
   }
@@ -137,7 +144,7 @@
     width: min(34rem, 88vw);
     aspect-ratio: 1;
     border-radius: 9999px;
-    background: radial-gradient(circle, rgb(var(--color-accent) / 0.1), rgb(var(--color-primary) / 0.035) 42%, transparent 70%);
+    background: radial-gradient(circle, rgb(var(--palette-green) / 0.12), rgb(var(--color-primary) / 0.035) 42%, transparent 70%);
     filter: blur(12px);
     content: '';
     pointer-events: none;
@@ -194,7 +201,7 @@
     inset: -1px;
     border-radius: inherit;
     padding: 1px;
-    background: linear-gradient(135deg, rgb(var(--color-primary) / 0.08), rgb(var(--color-accent) / 0.05), rgb(var(--color-primary) / 0.28));
+    background: linear-gradient(135deg, rgb(var(--palette-teal) / 0.1), rgb(var(--palette-mint) / 0.08), rgb(var(--color-primary) / 0.3));
     content: '';
     opacity: 0.65;
     transition: opacity 180ms ease;
